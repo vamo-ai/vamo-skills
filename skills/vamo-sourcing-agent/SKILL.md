@@ -320,7 +320,7 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 **The bridge is a claim connecting two things, not a compliment.** "I was impressed by your project" praises a repo and says nothing about the role. A bridge names what they built and ties it to the work:
 
-> "You wrote `dbeel`, a distributed LSM-tree store on top of Glommio. We are building the same shape of thing and hit the same io_uring back-pressure wall you worked through."
+> "You wrote `<repo>`, a distributed LSM-tree store on a thread-per-core runtime. We are building the same shape of thing and hit the same io_uring back-pressure wall you worked through."
 
 **The shape of a good bridge:**
 
@@ -332,7 +332,7 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 | Weak | Strong |
 | --- | --- |
-| "Your work on pytorch got my attention!" | "Your custom autograd engine in `micrograd-rs` is exactly the layer we are rewriting for our training stack." |
+| "Your work on `<framework>` got my attention!" | "Your custom autograd engine in `<repo>` is exactly the layer we are rewriting for our training stack." |
 | "I checked out your project and was impressed." | "Your `raft` implementation handles leader-lease reads, which is the exact correctness problem our new storage tier has open." |
 | "Love your GitHub!" | "You have shipped three CRDT libraries. We are moving our collaborative editor off OT and onto CRDTs and want someone who has felt these tradeoffs." |
 
@@ -421,7 +421,7 @@ vamo "/v1/developers/search?orgs=<a-voice-oss-org>&depth=core&limit=25"
 **Recall.** Compose the professional overlay with the work:
 
 ```bash
-vamo "/v1/developers/search?q=double-entry+ledgers,+idempotent+payment+APIs,+reconciliation&lang=go&pastCompanies=stripe,adyen,plaid&country=united+states&depth=enriched&limit=50"
+vamo "/v1/developers/search?q=double-entry+ledgers,+idempotent+payment+APIs,+reconciliation&lang=go&pastCompanies=<company>,<company>&country=united+states&depth=enriched&limit=50"
 vamo "/v1/developers/search?q=payments+infrastructure,+money+movement,+PCI&minCracked=65&maxCracked=88&depth=enriched&limit=50"
 vamo "/v1/developers/search?q=payment+processing&techs=go&depth=enriched&limit=50"
 ```

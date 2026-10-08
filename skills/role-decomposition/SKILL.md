@@ -172,7 +172,7 @@ Each lane is a card:
     - reactive signals runtime with glitch-free propagation, written from scratch
     - differential dataflow engine that updates query results from input deltas
     - build system that reruns only the steps whose inputs changed, with early cutoff
-  seed_repos: [salsa-rs/salsa]          # owner/name, for the `repos` lever
+  seed_repos: [<owner/name>]            # canonical projects, for the `repos` lever
   seed_orgs: []                         # for `orgs`
   seed_people: []                       # logins for /v1/developers/similar
   levers: { lang: "rust" }              # only what is specific to this lane
@@ -365,7 +365,7 @@ lists:
         note: '"Rust strongly preferred, would take C++ or Zig if the work is good"'
         signal: match.repos[].language is Rust
       - criterion: worked at a peer product company
-        note: '"Ex Figma, Notion, Linear ... would be amazing"'
+        note: '"People from <company A> or <company B> would be amazing"'
         signal: profile funnel with pastCompanies, current false
     lanes:                              # lane name: priority for this list
       incremental-computation: 1
@@ -394,7 +394,7 @@ screen:
     proxy: none. Question for the first call.
 
 open_questions:
-  - Is NYC a Gate, or is "willing to move" enough to keep a strong person elsewhere in the US?
+  - Is the office city a Gate, or is "willing to move" enough to keep a strong person elsewhere in the country?
 
 role_text: >
   <three to six sentences describing the work, for POST /v1/fit-rank at qualification time>

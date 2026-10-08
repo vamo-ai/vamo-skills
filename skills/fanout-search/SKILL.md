@@ -48,8 +48,8 @@ Weak agents search the user's words. Strong agents search the _field's_ words. F
 
 - **Acronym and expansion, both.** `VLA` and `vision-language-action`. They retrieve different documents. Everyone forgets this.
 - **Insider term for the outsider term.** User says "robot AI brain"; field says "embodied foundation model", "generalist policy".
-- **Named artifacts as bare nouns.** `RT-2`, `Isaac Lab`, `MuJoCo`. Names retrieve ecosystems.
-- **Org names.** `NVlabs`, `google-deepmind`, `facebookresearch`. Labs cluster.
+- **Named artifacts as bare nouns.** The model, simulator and benchmark names everyone in the field cites. Names retrieve ecosystems.
+- **Org names.** The handful of labs and organizations that publish most of the field's code. Labs cluster.
 - **Meta-terms.** `awesome <topic>`, `<topic> survey`, `<topic> paper list`. These are high-recall hubs — one hit yields fifty candidates.
 - **Other languages** where the field is active. Chinese robotics/embodied-AI repos are a large, mostly-disjoint slice you miss entirely by searching only English.
 
@@ -63,7 +63,7 @@ If you don't know the field's vocabulary, that is itself step 0: run 2–3 broad
 
 This is not a tuning problem, it's structural. When something is canonical, hundreds of other documents describe themselves in relation to it, and those descriptions outrank the thing itself. The famous item shows up everywhere as a _mention_ and nowhere as a _result_.
 
-Measured on the robotics run: `huggingface/lerobot`, `openvla/openvla`, `Physical-Intelligence/openpi`, `NVIDIA/Isaac-GR00T`, `legged_gym`, `robomimic`, and `dm_control` appeared in 863 keyword hits **only inside other repos' descriptions**. Zero of them were returned as results. All seven are load-bearing in the field.
+Measured on the robotics run: seven of the field's load-bearing repositories (two open policy models, a robot-learning library, a humanoid foundation model, a locomotion training suite, an imitation-learning framework and a control suite) appeared in 863 keyword hits **only inside other repos' descriptions**. Zero of them were returned as results.
 
 So: **before searching, write down every canonical item you already know.** Fetch those directly by ID/name/URL. 40–70 of them. Merge with the keyword results.
 
@@ -101,7 +101,7 @@ For robotics: DOMAIN = `robot|embodied|manipulat|humanoid|drone|navigation|drivi
 
 Build the BAN list _from what you actually saw_, not from imagination. Look at the raw results, spot the junk clusters, ban those. Two minutes of looking beats an hour of guessing.
 
-Gate the keyword arm only. **Known-items bypass the gate** — you already vouched for them, and canonical repos often have terse descriptions that fail keyword gates. `google-deepmind/mujoco` describes itself as "Multi-Joint dynamics with Contact. A general purpose physics simulator" — the word "robot" never appears.
+Gate the keyword arm only. **Known-items bypass the gate** — you already vouched for them, and canonical repos often have terse descriptions that fail keyword gates. The field's best-known physics simulator describes itself as a general purpose physics simulator. The word "robot" never appears.
 
 ---
 
@@ -192,7 +192,7 @@ If you split this across agents, have the expansion agent emit exactly this. Eve
 {
   "axes": { "method": ["..."], "subject": ["..."], "task": ["..."], "artifact": ["..."] },
   "queries": ["vision-language-action model robot", "diffusion policy manipulation", "..."],
-  "known_items": ["huggingface/lerobot", "openvla/openvla", "..."],
+  "known_items": ["<owner/name>", "<owner/name>", "..."],
   "gate": {
     "domain": ["robot", "embodied", "manipulat"],
     "qualifier": ["model", "policy", "dataset"],

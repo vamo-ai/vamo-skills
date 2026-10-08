@@ -72,4 +72,5 @@ as a tool description, or serve it as a doc. Each skill also ends with a self-co
 
 These files are written to be publishable: no keys, no account identifiers, no corpus or
 population sizes, no prices, no customer names, no internal infrastructure detail. Public API
-surface and method only. Examples use invented companies and people.
+surface and method only. Examples name no real company, school, person or repository: those
+values are angle-bracket placeholders. Technology names appear only as search vocabulary.

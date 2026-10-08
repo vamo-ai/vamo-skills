@@ -73,8 +73,8 @@ Rules that are easy to miss:
   `details.contact.location` at `depth=enriched`.
 - **`subjects` and `techs` are hard filters on tags. `skills` and `q` are soft aims.** Put a
   must-have in the hard filter and a nice-to-have in `skills`.
-- **`repos` is the lever most agents forget.** "People who build things like
-  `huggingface/lerobot`" finds a population no adjective in `q` describes.
+- **`repos` is the lever most agents forget.** Seeding with the two or three projects that define a space finds a population no adjective in
+  `q` describes.
 - **`employer` and `company` are different signals.** `employer` is inferred from GitHub
   activity and reaches everyone. `company` reads the linked profile.
 - **`requireEmail`, `requireLinkedin` and `requireLocation` only filter.** Each row already

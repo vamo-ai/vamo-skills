@@ -7,6 +7,9 @@ description: Use when making a first call to the Vamo Developer API, setting up 
 
 Search GitHub developers by what they have built. Sixteen steps, in order, cover the whole API.
 
+Values in angle brackets are yours to fill in: `<login>` is a GitHub username, `<owner/name>` a
+repository, `<org>` a GitHub organization, `<company>` and `<school>` plain names in lowercase.
+
 - Base URL `https://api.vamotalent.ai`
 - Docs `https://api.vamotalent.ai/docs`
 - Machine-readable spec `https://api.vamotalent.ai/openapi.json`. It is generated from the API, so
@@ -67,15 +70,15 @@ vamo "/v1/developers/search?q=platform+engineer&lang=go,rust&country=united+stat
 # city
 vamo "/v1/developers/search?q=platform+engineer&city=san+francisco,new+york&limit=3"
 # current company
-vamo "/v1/developers/search?q=infrastructure+engineer&company=stripe&limit=3"
+vamo "/v1/developers/search?q=infrastructure+engineer&company=<company>&limit=3"
 # a past employer
-vamo "/v1/developers/search?q=backend+engineer&pastCompanies=google,stripe&limit=3"
+vamo "/v1/developers/search?q=backend+engineer&pastCompanies=<company>,<company>&limit=3"
 # drop anyone currently at these companies
-vamo "/v1/developers/search?q=platform+engineer&excludeCurrentCompanies=google,amazon&limit=3"
+vamo "/v1/developers/search?q=platform+engineer&excludeCurrentCompanies=<company>,<company>&limit=3"
 # a cracked score band
 vamo "/v1/developers/search?q=distributed+systems&minCracked=60&maxCracked=85&limit=3"
 # seed repositories: people who build comparable things
-vamo "/v1/developers/search?q=training+infrastructure&repos=pytorch/pytorch,ray-project/ray&limit=3"
+vamo "/v1/developers/search?q=training+infrastructure&repos=<owner/name>,<owner/name>&limit=3"
 ```
 
 `lang`, `country` and `city` filter on evidence: a developer with no data on file for that field
@@ -88,7 +91,7 @@ return smaller pages.
 
 ```bash
 vamo "/v1/developers/search?q=distributed+systems&titles=staff+engineer&companySize=51-200&yoeMin=8&limit=3"
-vamo "/v1/developers/search?q=compiler+engineer&schools=university+of+waterloo&experienceTier=early&depth=enriched&limit=3"
+vamo "/v1/developers/search?q=compiler+engineer&schools=<school>&experienceTier=early&depth=enriched&limit=3"
 ```
 
 Others in this family: `industries`, `peerCompanies`, `yoeMax`, `openToWork`, `state`.
@@ -104,7 +107,7 @@ vamo "/v1/developers/search?q=data+engineer&requireEmail=true&limit=3"
 # only developers with a matched LinkedIn profile
 vamo "/v1/developers/search?q=data+engineer&requireLinkedin=true&limit=3"
 # every email address observed for a developer
-vamo "/v1/developers/emails?logins=sindresorhus"
+vamo "/v1/developers/emails?logins=<login>"
 ```
 
 ## 7. Use hard filters across the whole index
@@ -123,9 +126,9 @@ vamo "/v1/developers/search?q=machine+learning&tier=elite&limit=3"
 # pushed code on or after this date
 vamo "/v1/developers/search?q=frontend+engineer&pushedAfter=2026-01-01&limit=3"
 # associated with this GitHub org, no query needed
-vamo "/v1/developers/search?orgs=vercel&limit=3"
+vamo "/v1/developers/search?orgs=<org>&limit=3"
 # employer inferred from GitHub activity
-vamo "/v1/developers/search?q=payments+infrastructure&employer=Stripe&limit=3"
+vamo "/v1/developers/search?q=payments+infrastructure&employer=<company>&limit=3"
 # leave very high-profile accounts out
 vamo "/v1/developers/search?q=react+state+management&hideHighProfile=true&limit=3"
 ```
@@ -189,7 +192,7 @@ vamo "/v1/developers/search?q=query+engine&facets=tags.repos&limit=3"
 Enrich by login or id, up to 25 per call. There is no query, so there is no `match` block.
 
 ```bash
-vamo "/v1/developers/enrich?logins=gaearon,yyx990803&depth=enriched"
+vamo "/v1/developers/enrich?logins=<login>,<login>&depth=enriched"
 ```
 
 ## 13. Find similar developers
@@ -197,13 +200,13 @@ vamo "/v1/developers/enrich?logins=gaearon,yyx990803&depth=enriched"
 Give it one seed and get back people who build like them, each with a `whySimilar` line.
 
 ```bash
-vamo "/v1/developers/similar?login=simonw&limit=5&depth=core"
+vamo "/v1/developers/similar?login=<login>&limit=5&depth=core"
 ```
 
 ## 14. Get a quick summary
 
 ```bash
-vamo "/v1/developers/summaries?logins=torvalds,simonw,karpathy"
+vamo "/v1/developers/summaries?logins=<login>,<login>"
 ```
 
 ## 15. Research a developer or a repository in depth
@@ -213,13 +216,13 @@ you need it.
 
 ```bash
 # a developer
-vamoPost "/v1/deep-research/jobs" '{"subject":"developers","logins":["torvalds"]}'
+vamoPost "/v1/deep-research/jobs" '{"subject":"developers","logins":["<login>"]}'
 vamo "/v1/deep-research/jobs/$JOB_ID"
-vamo "/v1/deep-research/reports/developers/torvalds"
+vamo "/v1/deep-research/reports/developers/<login>"
 
 # a repository: who builds it and who its audience is
-vamoPost "/v1/deep-research/jobs" '{"subject":"repos","repos":["vercel/next.js"]}'
-vamo "/v1/deep-research/reports/repos/vercel/next.js"
+vamoPost "/v1/deep-research/jobs" '{"subject":"repos","repos":["<owner/name>"]}'
+vamo "/v1/deep-research/reports/repos/<owner>/<name>"
 ```
 
 Up to 25 subjects per job. Polling the job also advances it, so keep polling until it finishes.
@@ -230,7 +233,7 @@ Send up to 50 logins and the role text. Results come back best fit first with `f
 `gettable`, `bridgeable`, `confidence` and a short `bridge` reason.
 
 ```bash
-vamoPost "/v1/fit-rank" '{"logins":["gaearon","yyx990803"],"role":"Senior engineer on a React compiler team","company":"Example Co"}'
+vamoPost "/v1/fit-rank" '{"logins":["<login>","<login>"],"role":"<the role, in a few sentences or the full job description>","company":"<hiring company>"}'
 ```
 
 ---
