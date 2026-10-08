@@ -1,23 +1,21 @@
 ---
 name: vamo-search
-description: Use when searching for software engineers, sourcing candidates for a role, or enriching developer profiles through the Vamo API. Covers endpoint selection, the search lever model, how to read a result without misranking it, and cost control. Triggers "find engineers who", "source for this role", "who built X", "enrich these developers", "get emails for".
+description: Use when searching for software engineers, sourcing candidates for a role, or enriching developer profiles through the Vamo API, and the question is which endpoint or filter to use or how to read what came back. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, or strong engineers are missing from results. Triggers "find engineers who", "source for this role", "who built X", "enrich these developers", "get emails for".
 ---
 
 # Vamo Search
 
-How an agent should use and search Vamo without misreading a result or burning credits.
+How an agent uses the Vamo developer search API and reads its results correctly.
 
-Vamo is a developer talent search engine over GitHub proof-of-work. You describe who you
-want in natural language; it returns real people with the repos that prove the claim.
+Vamo is a developer talent search engine over GitHub proof-of-work. You describe who you want in
+plain language. It returns real people with the repos that prove the claim.
 
-Base URL `https://api.vamotalent.ai` (staging `https://api-staging.vamotalent.ai`).
-Machine-readable spec: `https://api.vamotalent.ai/openapi.json` — every operation carries an
-`x-vamo` block with its access level, credit price, rate limit, and quota. **When this skill and
-the spec disagree, the spec wins.**
+Base URL `https://api.vamotalent.ai`. Machine-readable spec:
+`https://api.vamotalent.ai/openapi.json`. Every operation carries an `x-vamo` block with its
+access level and rate limit. **When this skill and the spec disagree, the spec wins.**
 
-The published spec documents the four `GET /v1/developers/*` routes. The `POST /v1/searches/*`
-and `POST /v1/search/jobs` lanes below are real and shipped, but are not in `openapi.json` —
-confirm them against the API before building an external integration on them.
+`vamo-api-quickstart` has a copy-paste curl for every route. `role-decomposition` turns a role
+into a search spec. `vamo-sourcing-agent` runs that spec into a shortlist.
 
 ---
 
@@ -27,238 +25,165 @@ confirm them against the API before building an external integration on them.
 Authorization: Bearer vamo_sk_...
 ```
 
-A session token (member) or an API key prefixed `vamo_sk_` (agent). All search routes need
-the `search:read` entitlement. Rate limit is **30 requests/minute per account** — not per key.
-Parallel agents on one account share that budget, so a fanout of 30 queries needs throttling.
+Search routes share one rate limit of **30 requests per minute per account**. Parallel agents on
+one account share it, so a fan-out of thirty queries needs throttling.
 
 ---
 
 ## Pick the right door
 
-The single most common mistake is calling the wrong endpoint and concluding Vamo can't do
-something it does.
+| You want | Call |
+| --- | --- |
+| People matching a description of work | `GET /v1/developers/search` |
+| More depth on rows you already hold | `GET /v1/developers/enrich` (ids or logins, 25 per call) |
+| More people like one person | `GET /v1/developers/similar` |
+| Email addresses | `GET /v1/developers/emails` |
+| A short written summary per person | `GET /v1/developers/summaries` |
+| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
+| A full report on a person or a repository | `POST /v1/deep-research/jobs`, then read the report |
 
-| You want | Call | Notes |
-|---|---|---|
-| One page, simple filters | `GET /v1/developers/search` | The easy door. Billed per developer returned. |
-| To see the query before spending | `POST /v1/searches/plan` → `POST /v1/searches/run` | **Planning is free.** Read/edit the plan, then run it. |
-| Alternative angles on a query | `POST /v1/searches/angles` | Returns suggested alternate search configs. A cached read spends nothing. Server-side fanout. |
-| Full control, one call | `POST /v1/searches/execute` | Takes the whole search config. Use when the GET params can't express it. |
-| More than a few pages | `POST /v1/search/jobs` | Fills toward a target across rounds. Poll `GET /v1/search/jobs/{id}`, extend with `POST .../more`. Note the path is `search`, singular. |
-| Deepen rows you already hold | `GET /v1/developers/enrich` | Same shape as search. Don't re-run the search to get more depth. |
-| More people like this one | `GET /v1/developers/similar` | Walks co-contribution, co-star, follow, and repo-similarity edges from one seed. |
-| Email addresses | `GET /v1/developers/emails` | Separate purchase, 100 credits per developer. |
-| Depth on a shortlist you already have | `POST /v1/deep-research/jobs` | Research, **not** search. It finds nobody new. |
-
-**Plan before you run when you're spending someone else's money.** `plan` is free and returns
-a readable object. Iterating on a plan costs nothing; iterating on a bad `run` costs credits.
+Deep research and fit-rank work on people you already hold. They find nobody new. Use `enrich` to
+deepen a row. Re-running the search for more depth returns a different page.
 
 ---
 
-## The search lever model
+## The lever model
 
-`q` carries the intent. Every other parameter narrows it.
+`q` carries the intent. Every other parameter narrows it. Either `q` or one narrowing parameter is
+required.
 
-```
-GET /v1/developers/search
-  q            free text — who you're looking for, matched semantically
-  lang         languages the person has DEMONSTRATED (go,rust)
-  skills       abilities matched semantically against what they built
-  country      united states,canada
-  company      where they work NOW
-  repos        seed repos as owner/name — finds people who build comparable things
-  minFollowers integer
-  hasEmail     true|false — FILTERS ONLY, never returns an address
-  exclude      developer ids to leave out, comma separated
-  depth        core | enriched | deep
-  limit        1-100, default 25
-  cursor       opaque, from the previous response
-```
+Levers fall into two families, and the family decides how much of the population a filter can
+see.
 
-Rules that are not obvious:
+**GitHub-native levers reach everyone in the index:**
+`lang`, `skills`, `repos`, `subjects`, `techs`, `orgs`, `employer`, `minCracked`, `maxCracked`,
+`tier`, `minStars`, `maxStars`, `minFollowers`, `minRepos`, `maxRepos`, `pushedAfter`,
+`pushedBefore`, `hideHighProfile`, `country`, `city`, `excludeCurrentCompanies`.
 
-- **`lang` filters on evidence, not absence.** A developer with no language data held is
-  excluded, not included-by-default. Use `lang` only when something is genuinely mandatory;
-  otherwise put it in `skills` and let it rank instead of gate.
-- **`hasEmail=true` filters, it does not reveal.** Addresses are a separate 100-credit
-  purchase per developer. Rows dropped by `hasEmail` are never billed.
-- **`exclude` is how "show me 50 more" works.** Pass the ids you already hold when paging.
-  Exclusion happens *before* billing, so you're not charged for a repeat you'd discard.
-- **`cursor` is lane-scoped.** Never construct one, parse one, or reuse one across queries.
-- **`repos` is the strongest lever most agents forget.** "People who build things like
-  `huggingface/lerobot`" beats any adjective you can put in `q`.
+**Professional levers reach developers with a linked professional profile:**
+`company`, `pastCompanies`, `schools`, `titles`, `industries`, `peerCompanies`, `companySize`,
+`experienceTier`, `yoeMin`, `yoeMax`, `openToWork`, `state`.
 
-### Levers are declared, never silently dropped
+Rules that are easy to miss:
 
-Every lever you set comes back in exactly one of two arrays:
-
-- `appliedLevers` — bound on this page
-- `unsupported` — this lane could not apply it as a hard filter
-
-**Check `unsupported` on every call.** If your mandatory filter is listed there, you are
-looking at unfiltered results and must not present them as filtered.
+- **A professional lever shrinks the page to linked profiles.** Strong builders with no linked
+  profile drop out. Run these as their own pass and join on developer id.
+- **`lang`, `country` and `city` filter on evidence.** A developer with no data on file for that
+  field stays in. Add `requireLocation=true` when location is a hard requirement, then confirm
+  `details.contact.location` at `depth=enriched`.
+- **`subjects` and `techs` are hard filters on tags. `skills` and `q` are soft aims.** Put a
+  must-have in the hard filter and a nice-to-have in `skills`.
+- **`repos` is the lever most agents forget.** Seeding with the two or three projects that define a space finds a population no adjective in
+  `q` describes.
+- **`employer` and `company` are different signals.** `employer` is inferred from GitHub
+  activity and reaches everyone. `company` reads the linked profile.
+- **`requireEmail`, `requireLinkedin` and `requireLocation` only filter.** Each row already
+  carries `hasEmail`, `hasLinkedin` and `hasLocation`. Addresses come from `/v1/developers/emails`.
+- **`exclude` is how "fifty more" works.** Pass the ids you already hold on every call.
+- **A `cursor` belongs to the query that produced it.** Pass it back unchanged.
+- **`sortBy` binds when the query routes to the GitHub user index.** Check the order of the first
+  page before relying on a sort.
 
 ---
 
-## Reading a result without misranking it
+## Reading a result
 
-This section is the reason this skill exists. The response fields are easy to misuse and the
-failure is silent.
+| Field | What it tells you |
+| --- | --- |
+| Row order | The ranking. Best match first. There is no per-row score to sort or threshold on. |
+| `match.repos[]` | Why this person matched: `fullName`, `stars`, `language`, `role`. Your citation. |
+| `match.repos[].role` | `owner` means the repo sits under their namespace. The lead author of an organization's repo reads as `contributor`. |
+| `match.repos[].stars` | Count at retrieval time. `0` can also mean the source returned no count. |
+| `match.status` | `unattributed` means this page carries no repo attribution. It makes no claim about match strength. |
+| `id` | GitHub's numeric user id as a string. Stable across renames. Dedupe on it. |
+| `countStatus` | `exact`, or `short` with `requested`, `returned` and `shortfallReason`. |
+| `cursor` | Continuation token. `null` means no continuation for this query. |
+| `cached` | The page came from a cached result set and may omit newer envelope fields. |
+| `details.*` | Namespaces appear only when resolved. An absent namespace is unknown. |
 
-| Field | What it is | The trap |
-|---|---|---|
-| `score` | Page-local ordering key | **NOT match quality.** Never show it, never threshold on it. |
-| `relevance` | The provider's query-match score | This is the one to gate on. |
-| `relevanceOrder` | Direction for reading `relevance` | **Inverts by lane.** See below. |
-| `evidence.matchedRepos` | Why this person matched | Your citation. Use it in outreach. |
-| `evidence.matchStatus` | `unattributed` = lane can't attribute | Does **not** mean a weak match. |
-| `countStatus.shortfallReason` | Why a page is short | Distinguishes exhausted corpus from platform gates. |
-| `rankScope` | Population the ordering was computed over | `page` means rows were ranked only against each other. |
-| `entity` | Index actually queried after auto-routing | `User` vs `Repo`. Don't branch on `provider`. |
+### Short pages say why
 
-### `relevanceOrder` will silently invert your ranking
+| `shortfallReason` | Meaning | Next move |
+| --- | --- | --- |
+| `corpus` | Nobody else in the index matches | Stop paging this query. Widen it. |
+| `filter_attrition` | Matches existed and your filters removed them from this page | Page on with the cursor |
+| `coverage` | People matched and could not be returned | Page on |
+| `capability` | A lane was unavailable to this credential | Retry with the cursor |
+| `call_budget` | The request hit its own ceiling with more upstream | Retry with the cursor |
+| `lane_window` | One lane ran out of window | Page on, or rephrase |
 
-- `higher_is_better` — the User lane (weighted BM25, no vector)
-- `lower_is_better` — the two vector lanes (LinkedIn profile lane, repo→contributor fanout),
-  which report **cosine distance**
-- `null` — the page carries no relevance to order at all. A repo-seed gate has no query to be
-  relevant to, and a filter-only search is ordered by recency, so every row carries the same
-  relevance. **Null must not be read as "everything matched equally."**
+Report a target as met only when the rows you hold meet it.
 
-Sorting by `relevance` without reading `relevanceOrder` will hand you the *worst* matches as
-your top results on half the lanes, and nothing in the response will look wrong. Always read
-the direction. Never hardcode it.
+### Unknown is its own answer
 
-### Short pages are declared, never hidden
-
-A live `cursor` means ask again. A short page with `countStatus.shortfallReason` set is telling
-you why. Never pad a short page and never report a target as met when `countStatus` says it wasn't.
-
----
-
-## Cost discipline
-
-Every call is real money. Surface costs proactively.
-
-**Depth ladder**, charged per developer *returned* (not per call, not per request):
-
-| Depth | Credits | USD | What you get |
-|---|---|---|---|
-| `core` | 13 | $0.013 | profile, repos, measured signals, cracked score |
-| `enriched` | 19 | $0.019 | + deeper enrichment |
-| `deep` | 26 | $0.026 | + external reach |
-| email reveal | 100 | $0.100 | **per developer**, every address observed for them |
-
-Non-obvious economics:
-
-- **`limit` is a price ceiling, not a price.** A page of zero results costs zero. There is no
-  per-call floor.
-- **Re-enrichment is nearly free.** A developer your account already enriched this month
-  re-bills at **1 credit**, not the full tier. Re-paging a corpus you've already enriched is cheap.
-- **A developer with no email costs 1 credit** and returns `emails: []`. An id the platform
-  holds nothing for is omitted and costs nothing. Duplicates bill once.
-- **Read the actual debit off the `x-cost` response header.** Do not estimate from the table.
-- **On `POST /v1/searches/execute`, be explicit about `facets`.** Omitting it applies *your
-  account's default* facets and charges for them, so the same request body costs different
-  amounts on different accounts. Send `[]` to suppress enrichment, or send the exact list.
-  If you're billing your own customers, never rely on the account default.
-
-**Cheapest correct pattern:** search wide at `core`, decide who matters, then `enrich` or buy
-emails only for the survivors. Never search at `deep` to "see what's there."
+A missing `details` namespace, a null location, an empty education list: each means the data is
+silent. Carry it as unknown through your ranking. Drop on unknown only when the requirement is a
+hard gate and the person asking has said so.
 
 ---
 
-## Fan out — one query is not a search
+## Depth
 
-A role description is a *topic*, not a query. Running the JD verbatim as one `q` and taking
-page one is the single biggest quality loss. The `fanout-search` skill in this repo covers the
-general method; applied to Vamo:
+| Depth | Adds |
+| --- | --- |
+| `core` | Profile, top repositories, the `match` block, cracked score |
+| `enriched` | LinkedIn identity, experience, education, socials, resolved location |
+| `deep` | The contribution garden, as `gardenSummary` by default or the full heatmap with `garden=full` |
 
-1. **Decompose the role into axes** — language, domain, artifact (library vs product vs
-   infra), seniority signal, geography. Write 10–25 queries across the meaningful cells.
-2. **Ask the API for angles.** `POST /v1/searches/angles` returns alternate search configs for
-   your query. It is server-side query expansion, and a cached read spends nothing — cheaper
-   than inventing all your facets yourself.
-3. **Vary the lever, not just the words.** A `repos`-seeded query and a `skills` query for the
-   same concept hit different lanes and return substantially different people. That is
-   coverage, not redundancy.
-4. **Known-item arm:** name the 5–15 repos that define this space and seed `repos` with them
-   directly. Keyword search under-retrieves canonical projects because everyone else's
-   description of them outranks the thing itself.
-5. **Walk the graph.** For every strong hit, call `GET /v1/developers/similar`. Co-contribution
-   and co-star edges surface people no text query would reach.
-6. **Page with `exclude`,** passing everything you already hold, so a wide sweep never
-   re-bills or repeats.
-7. **Dedupe on `developer.developerId`** — GitHub's numeric user id, stringified. It is
-   deterministic and rename-proof. Never dedupe on login; people rename.
-8. **Gate on `relevance`** (in the direction `relevanceOrder` gives you), then rank on your own
-   composite. Never gate on `score`.
-
-Budget the sweep before you run it: 20 queries x 25 results x 13 credits ≈ 6,500 credits
-($6.50) at `core`. Say that number out loud before spending it.
+Search wide at `core`, decide who matters, then `enrich` the survivors at the depth you need.
+`facets` adds `ai.person_summary`, `ai.repo_summaries`, `ai.match_rationale` and `tags.repos` on
+top of any depth. AI facets resolve in the background: the first read is `pending`, a second read
+returns the value.
 
 ---
 
-## Recipes
+## Fan out: one query is a starting point
 
-**Cheap wide sweep, one facet of a role**
+A role description is a topic. The `fanout-search` skill covers the general method. Applied here:
 
-```bash
-curl -s -H "Authorization: Bearer $VAMO_API_KEY" \
-  "https://api.vamotalent.ai/v1/developers/search?q=engineers+who+build+inference+servers+for+LLMs&lang=python,rust&depth=core&limit=50" \
-  | jq '{n: (.results|length), order: .relevanceOrder, unsupported, shortfall: .countStatus}'
-```
-
-Always inspect `unsupported` and `relevanceOrder` on the first call of any new query shape.
-
-**Seed from repos instead of adjectives**
-
-```
-/v1/developers/search?q=distributed+training+infrastructure&repos=pytorch/pytorch,ray-project/ray&depth=core&limit=25
-```
-
-**Deepen only the survivors**
-
-```
-/v1/developers/enrich?ids=583231,1024025&depth=deep      # max 25 ids
-```
-
-**Buy contact for a shortlist**
-
-```
-/v1/developers/emails?logins=torvalds,gvanrossum         # 100 credits each
-```
-
-`ids` and `logins` are freely mixable on `enrich` and `emails`, 25 max.
+1. **Decompose the role into lanes**, each named by an artifact a strong person would have built.
+   `role-decomposition` does this from intake notes.
+2. **Write several `q` phrasings per lane**, one idea each, and run each as its own search.
+3. **Vary the lever as well as the words.** A `repos`-seeded query, an `orgs` query and a `q`
+   query for the same concept return substantially different people.
+4. **Seed the known items.** Name the five to fifteen repositories that define the space and put
+   them in `repos`. Keyword-style search under-retrieves canonical projects because everyone
+   else's description of them outranks the thing itself.
+5. **Walk the graph.** Call `/v1/developers/similar` on every strong hit.
+6. **Page with `exclude`** carrying everything you hold.
+7. **Dedupe on `id`.** People rename their logins.
+8. **Cut on evidence you read**: the matched repos, the role, the band, the gates. Row order is
+   relative to one query and does not compare across queries.
 
 ---
 
 ## Failure modes
 
 | Symptom | Cause | Fix |
-|---|---|---|
-| Top results are obviously the worst | Sorted by `relevance` ignoring `relevanceOrder` | Read the direction; it inverts by lane |
-| "Vamo can't filter on X" | Wrong door — GET params are the simple surface | Use `POST /v1/searches/execute` |
-| Filter appears ignored | Lever landed in `unsupported` | Check the array; don't present results as filtered |
-| Bill higher than expected | `facets` omitted on `execute`, so account defaults applied | Send an explicit list or `[]` |
-| Same people every page | Not passing `exclude` | Pass every id you hold |
-| Great engineers missing | Single query, no fanout, no `repos` seeds | Fan out; seed canonical repos; walk `similar` |
-| Results thin, reported as complete | Ignored `countStatus.shortfallReason` | Report the shortfall and its reason |
-| Ranking looks arbitrary | Read `score` as quality | `score` is a page-local ordering key only |
+| --- | --- | --- |
+| A location or language filter seems ignored | Evidence-based filter left unknowns in | Add `requireLocation=true`, confirm on the row |
+| Pages shrink to a handful | A professional lever restricted the pool to linked profiles | Run it as a separate pass, join on `id` |
+| Same people on every page | `exclude` not sent | Pass every id you hold |
+| Great engineers missing | One query, no seeds, no graph walk | Fan out, seed `repos`, walk `similar` |
+| Thin page reported as complete | `countStatus` not read | Read `shortfallReason`, page on unless it is `corpus` |
+| Tutorials and lists at the top | `q` names a topic | Describe an artifact and its mechanism |
+| A sort did nothing | The query routed to a lane the sort does not bind on | Drop `q`, or sort the rows you hold yourself |
+| `ai.*` value missing | Facet still `pending` | Read the same request again |
+| Two people merged or split | Deduped on login | Dedupe on `id` |
 
 ---
 
 ## Reporting rules
 
-When handing results to a human:
+When handing results to a person:
 
-- **Cite the evidence.** Every claim about a person traces to `evidence.matchedRepos`. Say
-  "built B, relevant because C" — describe the work, don't sell the person.
-- **Never state corpus or population size.** No "out of N developers", no percentile framing
-  derived from a count. Placement claims are bounded by the source, not the population.
-- **State the cost.** What you spent, at what depth, and what remains unpurchased.
-- **Declare what you dropped** — filters that landed in `unsupported`, pages not fetched,
-  shortfalls. Silent truncation reads as full coverage.
+- **Cite the evidence.** Every claim about a developer traces to `match.repos` or a field you
+  read. Say what they built and how it works.
+- **Say what you filtered and what you confirmed.** A filter you sent and a field you verified
+  are different claims. Name which one backs each requirement.
+- **Carry unknowns visibly.** Mark an unverified location or seniority as unverified.
+- **Declare what you left out**: pages you did not fetch, lanes that ran thin, people you cut and
+  why.
 
 ---
 
@@ -266,28 +191,31 @@ When handing results to a human:
 
 ```
 You are sourcing engineers with the Vamo API (https://api.vamotalent.ai, bearer vamo_sk_ key,
-30 req/min per ACCOUNT). Spec: https://api.vamotalent.ai/openapi.json — it wins over memory.
+30 search requests per minute per ACCOUNT). Spec: https://api.vamotalent.ai/openapi.json. The
+spec wins over memory.
 
-1. PICK THE DOOR. Simple page -> GET /v1/developers/search. Need to inspect the query first ->
-   POST /v1/searches/plan (FREE) then /run. Can't express it in GET params ->
-   POST /v1/searches/execute. Need many pages -> POST /v1/search/jobs (singular 'search' — the guides say
-   /v1/searches/jobs and that path is wrong).
+1. PICK THE DOOR. New people: GET /v1/developers/search. Depth on people you hold:
+   /v1/developers/enrich. More like one person: /v1/developers/similar. Addresses:
+   /v1/developers/emails. Rank logins against a role: POST /v1/fit-rank.
 
-2. FAN OUT. The role description is a topic, not a query. Decompose into 10-25 queries across
-   language / domain / artifact / seniority / geography. Seed `repos` with the 5-15 canonical
-   projects of the space. Vary the LEVER, not just the wording. Call
-   GET /v1/developers/similar on every strong hit. Page with `exclude`.
+2. FAN OUT. The role description is a topic. Split it into lanes named by artifacts. Write
+   several one-idea q phrasings per lane. Seed `repos` with the canonical projects of the space.
+   Vary the lever as well as the wording. Call similar on every strong hit. Page with `exclude`.
 
-3. SPEND CAREFULLY. Search wide at depth=core. Only enrich or buy emails for survivors.
-   `limit` is a ceiling, not a price. Re-enriching this month's developers costs 1 credit.
-   Emails are 100 credits/developer and hasEmail only FILTERS. Read `x-cost` for the real
-   debit. State your budget before the sweep.
+3. KNOW THE TWO FAMILIES. GitHub-native levers (lang, skills, repos, subjects, techs, orgs,
+   employer, minCracked/maxCracked, pushedAfter, hideHighProfile, country, city) reach everyone.
+   Professional levers (company, pastCompanies, schools, titles, experienceTier, yoeMin/yoeMax,
+   state) reach linked profiles only: run them as a separate pass and join on id.
+   lang/country/city leave unknowns in: add requireLocation=true and confirm on the row.
 
-4. READ RESULTS CORRECTLY. Gate on `relevance`, in the direction `relevanceOrder` says —
-   it INVERTS by lane and null does not mean "all equal". NEVER gate or display `score`.
-   Check `unsupported` for filters that did not bind. Check `countStatus.shortfallReason`
-   before claiming you hit a target. Dedupe on `developer.developerId`, never on login.
+4. READ RESULTS CORRECTLY. Row order is the ranking; there is no score field. match.repos is
+   the evidence; role owner means the repo is under their namespace. match.status unattributed
+   says nothing about strength. Read countStatus.shortfallReason before claiming a target:
+   only `corpus` means exhausted. Dedupe on id. An absent details namespace is unknown.
 
-5. REPORT. Cite evidence.matchedRepos for every person. State total cost. Declare dropped
-   filters, unfetched pages, and shortfalls. Never state corpus size or population counts.
+5. GO DEEP LAST. Search at depth=core. Enrich only the survivors. Request ai.* facets twice:
+   pending first, value second.
+
+6. REPORT. Cite match.repos for every person. Separate what you filtered from what you
+   confirmed. Mark unknowns. Declare pages not fetched, thin lanes and cuts.
 ```
