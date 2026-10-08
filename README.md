@@ -5,7 +5,7 @@ the [Vamo](https://vamotalent.ai) Developer API directly: a key, an HTTP client 
 are everything it needs.
 
 Each skill is a single markdown file with YAML frontmatter, in the standard
-`skills/<name>/SKILL.md` layout. They are plain prose — no code, no dependencies, no build
+`skills/<name>/SKILL.md` layout. They are plain prose, no code, no dependencies, no build
 step. An agent reads one and behaves better.
 
 ## Skills
@@ -27,7 +27,7 @@ angle for each person. `vamo-search` is the reference for the API underneath bot
 
 ## Why these exist
 
-Both encode failures that are silent — the kind where the output looks fine and is wrong:
+Both encode failures that are silent, the kind where the output looks fine and is wrong:
 
 - **One query is not a search.** A human query is a topic; a search engine wants a facet.
   Running the user's words verbatim and taking page one is the single biggest quality loss in
@@ -44,7 +44,7 @@ Both encode failures that are silent — the kind where the output looks fine an
 
 ## Install
 
-**Claude Code** — copy a skill directory into either location:
+**Claude Code**: copy a skill directory into either location:
 
 ```bash
 # available everywhere
@@ -54,7 +54,7 @@ cp -r skills/fanout-search ~/.claude/skills/
 cp -r skills/fanout-search .claude/skills/
 ```
 
-**Anything else** — the files are plain markdown. Paste the body into a system prompt, load it
+**Anything else**: the files are plain markdown. Paste the body into a system prompt, load it
 as a tool description, or serve it as a doc. Each skill also ends with a self-contained
 **drop-in prompt** block you can hand to a weaker model verbatim.
 
