@@ -1,6 +1,8 @@
 # vamo-skills
 
-Agent skills for finding people and things.
+Agent skills for finding people and things. The Vamo skills are written for an agent that calls
+the [Vamo](https://vamotalent.ai) Developer API directly: a key, an HTTP client and these files
+are everything it needs.
 
 Each skill is a single markdown file with YAML frontmatter, in the standard
 `skills/<name>/SKILL.md` layout. They are plain prose — no code, no dependencies, no build
@@ -11,15 +13,16 @@ step. An agent reads one and behaves better.
 | Skill | What it's for |
 |---|---|
 | [`fanout-search`](skills/fanout-search/SKILL.md) | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Corpus-agnostic: GitHub, arXiv, web, vector index, internal DB. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | Using the [Vamo](https://vamotalent.ai) developer-search API without misreading a result or overspending. |
+| [`vamo-api-quickstart`](skills/vamo-api-quickstart/SKILL.md) | First calls to the Vamo Developer API: a key, sixteen copy-paste curls covering every route, and how to read the response. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | Choosing the right endpoint and filter, and reading what comes back: the two filter families, short pages, unknowns. |
 | [`role-decomposition`](skills/role-decomposition/SKILL.md) | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
 | [`vamo-sourcing-agent`](skills/vamo-sourcing-agent/SKILL.md) | Running a role end to end with the Vamo API: recall, qualification, the outreach angle per person. Ships with a 50-domain query library. |
 
 `fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
-that API's levers, response traps, and cost model.
+that API's levers and response traps.
 
-For a full sourcing run, use them in order. `role-decomposition` turns what the hiring team said
-into a spec. `vamo-sourcing-agent` runs that spec through the funnel and writes the outreach
+For a full sourcing run, use them in order. `vamo-api-quickstart` gets the calls working.
+`role-decomposition` turns what the hiring team said into a spec. `vamo-sourcing-agent` runs that spec through the funnel and writes the outreach
 angle for each person. `vamo-search` is the reference for the API underneath both.
 
 ## Why these exist
@@ -33,9 +36,11 @@ Both encode failures that are silent — the kind where the output looks fine an
   else's description of it outranks the thing itself. Measured on a 863-hit GitHub sweep:
   seven load-bearing repos in the field appeared only as mentions inside other repos'
   descriptions, and zero were returned as results.
-- **Ranking fields lie if you don't read their metadata.** A relevance score whose direction
-  inverts by backend will hand you your worst matches as your best, and nothing in the
-  response will look wrong.
+- **A filter you sent is a different claim from a field you confirmed.** Some filters leave
+  people in when the data is silent, and some reach only part of the population. A list built
+  on filters alone looks complete and carries people who fail the requirement.
+- **A brief is several kinds of statement.** Work, hard requirements, preferences and exclusions
+  each need a different mechanism. Put them all in one query and most of them do nothing.
 
 ## Install
 
@@ -66,4 +71,5 @@ as a tool description, or serve it as a doc. Each skill also ends with a self-co
 ## Contents policy
 
 These files are written to be publishable: no keys, no account identifiers, no corpus or
-population sizes, no internal infrastructure detail. Public API surface and method only.
+population sizes, no prices, no customer names, no internal infrastructure detail. Public API
+surface and method only. Examples use invented companies and people.

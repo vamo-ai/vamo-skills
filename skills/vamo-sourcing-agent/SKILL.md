@@ -1,11 +1,11 @@
 ---
 name: vamo-sourcing-agent
-description: Use when an agent is sourcing software engineers with the Vamo Developer API or Search MCP and must go from a role to a qualified, contactable shortlist with a personalized outreach angle per person. Also use when a sourcing run returns celebrity maintainers, thin profiles, keyword-matched noise, or candidates with nothing specific to write about. Triggers "source engineers for this role", "build a shortlist", "find more like our best engineer", "who should we email about this job", "write the outreach angle", "qualify these candidates".
+description: Use when sourcing software engineers by calling the Vamo Developer API directly and the job is to go from a role to a qualified, contactable shortlist with a personalized outreach angle per person. Also use when a sourcing run returns celebrity maintainers, thin profiles, keyword-matched noise, or candidates with nothing specific to write about. Triggers "source engineers for this role", "build a shortlist", "find more like our best engineer", "who should we email about this job", "write the outreach angle", "qualify these candidates", "rank and cut this list".
 ---
 
 # Sourcing Engineers by Evidence: A Field Guide for Agents
 
-Companion skills in this repo: `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-search` covers the API mechanics. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
+Written for an agent that calls the API directly. Companion skills in this repo: `vamo-api-quickstart` has a curl for every route, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-search` covers how to read results. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
 
 A working manual for an agent that sources software engineers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
 
@@ -115,7 +115,7 @@ Two notes that carry weight:
 
 ## 4. The knobs: every capability, and when to reach for it
 
-Base URL `api.vamotalent.ai`, auth `Authorization: Bearer $VAMO_KEY`. The same parameters ride the Search MCP tool `search_developers`.
+Base URL `api.vamotalent.ai`, auth `Authorization: Bearer $VAMO_KEY`.
 
 Optional shell shorthand used in examples:
 
@@ -258,6 +258,49 @@ The target is the middle-upper band: enough proof-of-work to write a real email 
 
 8. **Is there a specific thing to write the email about?** This is the gate that turns a list into a campaign. Name one concrete, checkable artifact tied to this role: a repo, a subsystem, a technique they used. If you cannot write that one sentence on the first try, the candidate fails, regardless of how good the scores look.
 
+### Check the identity before you trust it
+
+A linked professional profile is matched to a GitHub account, and a match can point at a different person with the same name. One wrong link corrupts the title, the employer, the school and the location together. Before using anything under `details.identity`:
+
+- Compare the name on the row with the name and headline on the linked profile. No overlap means you set the linked profile aside and work from the GitHub side.
+- Treat a location as confirmed when two sources agree: `details.contact.location` with `source` of `linkedin` beside a GitHub `raw` string that fits, or an employer and a work email domain that fit.
+- When a years-of-experience figure and the account's `joinedAt` disagree by several years, suspect the link before you suspect the person.
+
+### Rank, diversify, cut
+
+Search order compares rows inside one query. Across queries and lanes you rank on evidence you read. A scoring shape that works:
+
+| Signal | Weight | Reading |
+| --- | --- | --- |
+| Reputation in the gettable middle | high | Peaks near the center of your band and falls off toward both ends. The top of the range is penalized on purpose. |
+| Repo evidence | high | A matched tool they own with real adoption. Lower for a toy, lower again for a celebrity project. |
+| Identity completeness | medium | Linked profile that passed the name check, an email on file, a confirmed country. |
+| Seniority evidence | medium | Title plus tenure first, then trajectory, then scope, then the band as corroboration. |
+| Recent activity | medium | `gardenSummary.activeWeeks`, `last90Days`, `lastActiveDay`. |
+| Reach penalties | negative | Very large following, a clear step down in title, a different function. |
+
+`POST /v1/fit-rank` gives an independent read (`fit`, `gettable`, `bridgeable`) against the role text. Use it to check your own ordering and to catch people you scored too high on reputation alone.
+
+Then diversify before you cut, so the list is many conversations and not one:
+
+- A cap per repository and a cap per employer. A shortlist drawn from one team is one conversation.
+- A cap per primary language unless the role is single-language.
+- For a remote role, a cap per country.
+- Keep the top of the list to target, and hold the next group as a documented reserve.
+
+### What to hand over
+
+Two artifacts. A table for the sequence tool, and a brief for the person who has to trust it.
+
+The table, one row per person: name, proving repo, repo stars, why they match, LinkedIn URL, GitHub URL, email, current title, current company, tenure, company source, country, country source, seniority source, band, evidence mode, outreach angle, flags.
+
+- **Why they match** is two to four sentences that stand alone: what the repo is, which requirement it proves and how (the technique, the subsystem, the design choice visible in the code or README), and one concrete fact about the work. Read the README before writing it.
+- **Source columns are never blank.** Each says where the fact came from, and an inferred value is marked inferred.
+- **Evidence mode** is `oss`, `professional` or `both`, from Q6.
+- **Flags** holds every unknown. It is the column the reader scans first.
+
+The brief: the parsed requirements, the funnel counts at every stage with the reason for each drop, the people as readable cards, the reserve, the near-misses cut on a single criterion (comp, location, already contacted) since those come back when the role changes, and every query you ran, verbatim, so the run can be repeated.
+
 ---
 
 ## 8. Reading a developer: what the signals mean
@@ -322,6 +365,12 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 **F. Candidate benchmark / one-pager.** Deep-research a single developer, read the placements, render a one-page pitch sheet: persona descriptor, the contribution garden as proof of ship, the two or three strongest placements. Two high signals beat one; several related strengths is a pattern.
 
 **G. Rehydrate a known list.** Have logins already? `enrich?logins=` in batches, then qualify. No search needed.
+
+**H. Early-career list.** Graduation year has no filter, so it is read after enrich. Recall with artifact queries and a band set from a benchmark. Keep people whose matched repo is a real tool they own. Enrich at `depth=enriched`, confirm location, then read `details.identity.education[]`: ignore secondary schools, parse the years permissively, and keep people whose university dates fit the window. Rank by activity from the garden summary. Deliver two lists: verified graduates, and highly active builders whose education is silent, labeled as unverified. A strong school is a ranking bonus on either list. Missing education is common among the strongest builders, so a school gate removes most of them.
+
+**I. Deep contributors to projects the client respects.** Seed `repos` and `orgs` with the named projects and run a repo deep-research on each to read its contributors. Keep people with a long contribution record on one project: many months, substantive changes, `repos[].commits` to back it. A burst of small pull requests across many famous repos reads as farming. Leave out the primary maintainers of projects that compete directly with the client when the client knows them personally.
+
+**J. Two tiers of outreach.** Split the final list by how much hand work each person merits. A small top tier (top of the band, an owned tool with real users, a priority lane) gets a hand-written note. Everyone else who passes gets the standard sequence with a per-person bridge. Lead each note with the part of the company's work that matches the lane the person came from.
 
 ---
 
