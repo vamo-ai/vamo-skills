@@ -12,9 +12,15 @@ step. An agent reads one and behaves better.
 |---|---|
 | [`fanout-search`](skills/fanout-search/SKILL.md) | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Corpus-agnostic: GitHub, arXiv, web, vector index, internal DB. |
 | [`vamo-search`](skills/vamo-search/SKILL.md) | Using the [Vamo](https://vamotalent.ai) developer-search API without misreading a result or overspending. |
+| [`role-decomposition`](skills/role-decomposition/SKILL.md) | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
+| [`vamo-sourcing-agent`](skills/vamo-sourcing-agent/SKILL.md) | Running a role end to end with the Vamo API: recall, qualification, the outreach angle per person. Ships with a 50-domain query library. |
 
 `fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
 that API's levers, response traps, and cost model.
+
+For a full sourcing run, use them in order. `role-decomposition` turns what the hiring team said
+into a spec. `vamo-sourcing-agent` runs that spec through the funnel and writes the outreach
+angle for each person. `vamo-search` is the reference for the API underneath both.
 
 ## Why these exist
 
@@ -49,7 +55,8 @@ as a tool description, or serve it as a doc. Each skill also ends with a self-co
 
 ## Adding a skill
 
-1. `skills/<name>/SKILL.md`, frontmatter with `name` and `description`.
+1. `skills/<name>/SKILL.md`, frontmatter with `name` and `description`. Heavy reference
+   material goes in `skills/<name>/references/` and is linked from the skill.
 2. Write the `description` for *retrieval*, not for humans: state when to use it and include
    the phrases a user would actually say. That string is how an agent decides to load it.
 3. Lead with the traps. Agents need the failure modes up front; humans need the happy path up
