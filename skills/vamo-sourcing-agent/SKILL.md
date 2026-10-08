@@ -240,7 +240,9 @@ Recall is generous on purpose, so qualification is where the run is won or lost.
 
 The target is the middle-upper band: enough proof-of-work to write a real email about, enough room in their story that the role is a step forward.
 
-**Run each keeper through eight questions. Two clear fails, or four unknowns, and you cut.**
+**These two failure modes describe a full-time hire. For part-time expert, advisory or review work the first one inverts: depth is the point, senior titles are the target, and Q1 and Q2 become "would this person take on outside work of this kind" (see playbook K).
+
+Run each keeper through eight questions. Two clear fails, or four unknowns, and you cut.**
 
 1. **Would this person reply to this company for this role?** A lateral or half-step-up move gets the best reply rate. Cut clear downgrades (Staff or Director being pitched a Senior IC seat), and cut different functions (an engineering manager, a solutions architect, or a devrel for a hands-on IC req). They may be excellent; they will not switch into a step down or a different job.
 
@@ -263,6 +265,7 @@ The target is the middle-upper band: enough proof-of-work to write a real email 
 A linked professional profile is matched to a GitHub account, and a match can point at a different person with the same name. One wrong link corrupts the title, the employer, the school and the location together. Before using anything under `details.identity`:
 
 - Compare the name on the row with the name and headline on the linked profile. No overlap means you set the linked profile aside and work from the GitHub side.
+- Read `city`, `country` and `raw` together. The resolved country can be empty when the city or the raw string plainly names the place.
 - Treat a location as confirmed when two sources agree: `details.contact.location` with `source` of `linkedin` beside a GitHub `raw` string that fits, or an employer and a work email domain that fit.
 - When a years-of-experience figure and the account's `joinedAt` disagree by several years, suspect the link before you suspect the person.
 
@@ -371,6 +374,8 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 **I. Deep contributors to projects the client respects.** Seed `repos` and `orgs` with the named projects and run a repo deep-research on each to read its contributors. Keep people with a long contribution record on one project: many months, substantive changes, `repos[].commits` to back it. A burst of small pull requests across many famous repos reads as farming. Leave out the primary maintainers of projects that compete directly with the client when the client knows them personally.
 
 **J. Two tiers of outreach.** Split the final list by how much hand work each person merits. A small top tier (top of the band, an owned tool with real users, a priority lane) gets a hand-written note. Everyone else who passes gets the standard sequence with a per-person bridge. Lead each note with the part of the company's work that matches the lane the person came from.
+
+**K. Part-time expert bench.** For advisory, review or task-authoring work, recall with a floor and no ceiling, since principal and staff engineers are the people wanted. Give each area of expertise in the description its own lane, and rank people found in several lanes first. Treat contributors to the canonical projects of the field as primary evidence and confirm depth with `repos[].commits` or a repo deep-research report. Owned teaching implementations and benchmark harnesses count, because the work is explaining and measuring. Segment the list by region when terms differ by region. Leave permission for outside work and conflict of interest to the first call, and flag anyone employed by a company the client works with.
 
 ---
 

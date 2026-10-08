@@ -124,6 +124,33 @@ country Gate, a seniority ask the comp band cannot reach, a remote-friendly line
 requirement: record both quotes and ask. Resolving it yourself hides a decision that belongs to
 the client.
 
+### Read the engagement type first
+
+The same person is a good target for one kind of role and a wasted message for another. Decide
+which kind this is before sorting anything else, because it changes the band and several bins.
+
+| Engagement | Band | What changes |
+| --- | --- | --- |
+| Full-time hire | Floor and ceiling. The gettable middle | Titles far above the seat are cut. Location and relocation matter |
+| Contract or freelance | Floor, a loose ceiling | Availability is a Screen item. Location matters only for hours and pay |
+| Part-time expert, advisor, reviewer | Floor only | Depth is the point, so principal and staff titles are targets. Location becomes a segment |
+
+For part-time and contract work add two Screen items for the first call: whether the person's
+employer permits outside work, and whether their employer is close enough to the client's business
+to be a conflict.
+
+A job description for expert work usually lists areas ("expertise in one or more of the
+following"). Each bullet is a lane. Covering several of them is a Rank signal.
+
+The duties section names habits you can see in public work:
+
+| Duty in the description | Observable proxy |
+| --- | --- |
+| "Measurable speedups, and can explain where they came from" | A README that reports numbers against a baseline and explains the cause |
+| "Strong testing", "checks edge cases" | A test suite or correctness harness beside the fast path |
+| "Builds benchmarks or evaluators" | An owned benchmark or evaluation harness |
+| "Clear technical writing", "reviews others' work" | Teaching implementations, design notes, substantive review comments |
+
 ---
 
 ## Step 3. Split into lists
@@ -131,6 +158,10 @@ the client.
 Two populations with different gates are two lists. A senior hire and a new-grad hire can share
 lanes, with different lane priorities, and share nothing else: each list gets its own band, gates,
 target count and output file.
+
+**A pay or eligibility tier by region is a segment.** When the role is open across regions with
+different terms, keep one list and add a `segment` column computed from the confirmed location.
+People whose location is silent stay in with the segment marked unknown.
 
 A Gate that reads a field most people leave empty creates a third kind of list. When graduation
 year is a Gate, the people whose education is silent go to an **unverified** list, labeled as
@@ -176,10 +207,23 @@ Each lane is a card:
   seed_orgs: []                         # for `orgs`
   seed_people: []                       # logins for /v1/developers/similar
   levers: { lang: "rust" }              # only what is specific to this lane
+  evidence: owner                       # owner, contributor, research or teaching (see below)
   pitch: the engine team's recalculation core
   priority: 1                           # 1 center of the role, 2 adjacent, 3 long shot
   grade: untested                       # set in Step 8
 ```
+
+`evidence` says what kind of proof the lane produces, which decides how you grade it:
+
+| Evidence | The work lives in | Confirm with |
+| --- | --- | --- |
+| `owner` | Tools people publish under their own name | `match.repos[].role`, stars, the README |
+| `contributor` | A few canonical projects owned by organizations | `repos[].commits`, months of contribution, a repo deep-research report |
+| `research` | Paper repositories | Authorship and what the person implemented. Stars follow the paper |
+| `teaching` | From-scratch or annotated implementations | Working code, measured results, clear explanation |
+
+A lane is often mostly one kind. Inference engines and compilers live in organization repos, so
+their best people read as contributors. Grading that lane on owner matches would call it weak.
 
 `pitch` names the part of the company's work to lead with for people from this lane. Recording it
 now means the outreach for a compiler person and for a sync person starts from different
@@ -190,6 +234,10 @@ Five to eight queries per lane. Query rules:
 - **Describe an artifact.** Name the thing and what makes it hard.
 - **One idea per query.** Five narrow queries beat one wide one.
 - **Name the mechanism.** "Tree shaking", "leader leases", "plural rules", "rollback netcode".
+- **Anchor every query in the domain.** A short term or acronym means different things in
+  different fields: a cache term pulls storage projects, "streaming" pulls media, "benchmark"
+  pulls every language shoot-out. Put the domain noun beside it ("for language model inference",
+  "of GPU kernels"). Read the first page for leaks and add the anchor where one shows.
 - **Swap the artifact noun to widen.** Parser, then linter, formatter, minifier, bundler, language
   server.
 - **For a care-axis lane, name the personal use.** "A habit tracker I built for myself" finds
@@ -287,7 +335,14 @@ Behaviors that decide whether a gate holds:
 - **`country`, `city` and `lang` filter on evidence.** A developer with nothing on file for the
   field passes. For a location Gate send `requireLocation=true` as well, then confirm the country
   on every survivor. A `source` of `github` is geocoded from a free-text string, so read `raw`
-  beside it. For a language Gate, confirm on the matched repos.
+  beside it. The resolved `country` can be empty while `city` or `raw` plainly names the place:
+  read all three before calling a location unknown, and derive the country yourself when the
+  city settles it. For a language Gate, confirm on the matched repos.
+- **Education lists can lead with a secondary school.** Read the university entries when
+  confirming a school or a graduation year.
+- **A narrower surface changes where the binding runs.** A wrapper or tool that exposes fewer
+  filters than the API still returns the fields. Apply the band, the location check and the
+  exclusions by reading each row, and keep the same confirm column.
 - **`pastCompanies` matches the full employment history**, the current employer included. When a
   company is wanted as a past employer and off limits as a current one, confirm `current` is false.
 - **"Linked profiles" filters reach a subset.** They match only developers with a linked
@@ -325,11 +380,19 @@ funnel stays in with that signal unknown.
 
 - **People the client knows.** Maintainers of directly competing projects are usually off limits
   for relationship reasons. Name those projects and exclude their primary maintainers.
-- **Repo kinds that are not evidence.** A match on a link list, a tutorial, a course repo or a
-  docs repo proves reading, and a typo fix on a famous repo proves less. Keep a person on the
-  strength of a tool they own or a long contribution record.
+- **Repo kinds that are not evidence.** A match on a link list, a course-notes repo or a docs
+  repo proves reading, and a typo fix on a famous repo proves less. Keep a person on the strength
+  of a tool they own or a long contribution record. One exception follows from the role: when the
+  work is explaining, reviewing or writing tasks for others, an owned teaching implementation with
+  working code and measured results is strong evidence.
+- **Drive-by contributors with high scores.** A contributor match from someone whose own
+  repositories and languages sit outside the lane is usually a small fix. Check that their own
+  work is in the domain before the score carries them up the list.
 - **Activity that is automation.** A garden active nearly every day of the year across a very
   large number of repos reads as scripted. Flag it for a look before it ranks high.
+- **Quiet public activity.** Experienced people often do their current work in private. For a
+  senior or expert list, recent activity is a Rank signal. Make it a Gate only when the client
+  asked for people building in public now.
 
 ---
 
@@ -342,6 +405,8 @@ and the gates. The agent runs the rest.
 role:
   company: <name, stage, size, what they ship>
   center: <one sentence: the work at the middle of this role>
+  engagement: <full-time | contract | part-time expert>
+  segments: <none, or the rule that assigns each person a segment from their location>
   sources: [job description, kickoff notes <date>]
 
 lists:
@@ -400,7 +465,7 @@ role_text: >
   <three to six sentences describing the work, for POST /v1/fit-rank at qualification time>
 
 merge:
-  order: gates, then confirmed rank signals (count), then lane priority, then recent activity
+  order: gates, then confirmed rank signals (count), then lanes hit, then lane priority, then recent activity
   caps: no more than a quarter of a list from one lane, three people per employer, two per repo
 
 output_columns:
@@ -418,6 +483,9 @@ Rules for the file:
 - `flags` in the output holds every unknown and every assumption that touched that person.
 - `found by` records the lane and funnel, so yield per lane can be read off the final list.
 
+A person returned by several lanes is central to the role. Count the lanes each person was found
+in and use it in the order.
+
 `merge` exists because search order compares rows inside one query only. Across lanes, the spec
 decides: Gates first, then how many Rank signals are confirmed, then lane priority, then activity,
 under caps that keep one team or one lane from filling the list.
@@ -432,16 +500,20 @@ Before the full run, test the lanes.
 2. Read `countStatus`. A short page with any `shortfallReason` other than `corpus` has more behind
    its `cursor`, so page before judging the lane.
 3. Enrich the rows you would keep at `depth=enriched`, 25 ids per call, and confirm the Gates.
-4. Pace the calls: search and enrich share a per-account rate limit, listed in the spec.
+4. Pace the calls: search and enrich share a per-account rate limit, listed in the spec. Run the
+   queries in parallel groups of about eight. One long sequential run can exceed a time limit and
+   lose every result.
+5. Record which lanes returned each person as you go.
 
-For each lane record four numbers: people returned, rows whose matched repo is a real tool they
-own or built, rows inside the band, rows that pass the Gates after enrich. Grade it:
+For each lane record four numbers: people returned, rows with real evidence of the lane's kind
+(an owned tool, or for a `contributor` lane a canonical project they demonstrably built), rows
+inside the band, rows that pass the Gates after enrich. Grade it:
 
 | Grade | Reading | Next move |
 | --- | --- | --- |
 | Rich | Most rows own or built a real tool, inside the band | Page deeper |
 | Mixed | Good people among tutorials, lists and forks | Tighten the artifact wording, add a mechanism |
-| Weak | Few builders, or off-topic | Rewrite as a concrete artifact, or seed with `repos` |
+| Weak | Few builders, or off-topic | Rewrite as a concrete artifact, anchor the domain, or seed with `repos` |
 
 A page of `unattributed` rows cannot be graded on matched repos. Grade it on the profiles after
 enrich.
@@ -473,6 +545,10 @@ real rows. Send it for redline, then hand it to `vamo-sourcing-agent`.
 | The client's own team in the results | Benchmarks and staff not excluded | Their ids in `exclude` |
 | Tutorials and link lists at the top | Query names a topic | Name the artifact and the mechanism |
 | A lane graded Weak on a short page | `countStatus` not read | Page with the cursor first |
+| A lane of strong contributors graded Weak | Graded on owner matches | Set the lane's `evidence` kind and grade on that |
+| Off-field projects on the first page | An ambiguous term with no domain anchor | Add the domain noun to the query |
+| Principal engineers cut from an expert bench | Full-time gettability rules applied to part-time work | Set `engagement` and drop the ceiling |
+| People with a city on file marked location unknown | Only `country` was read | Read `city` and `raw` as well |
 | One lane fills the whole list | No merge rule | `merge.caps` in the spec |
 | The client says "this is not what I meant" | Spec never shown before the run | Send the Step 7 file for redline first |
 
@@ -486,6 +562,10 @@ You are decomposing a role into a search spec for the Vamo Developer API
 
 INPUTS: job description, intake notes, benchmark people (GitHub logins), admired repos with the
 client's comments, off-limits companies and people, already-contacted list, target count.
+
+0. ENGAGEMENT. Full-time hire, contract, or part-time expert work? Full-time gets a floor and a
+   ceiling. Expert work gets a floor only, senior titles are targets, and outside-work permission
+   and conflict of interest become first-call questions. Regional pay tiers are a segment column.
 
 1. SORT. Go through the notes line by line. Quote each statement and bin it: LANE (a kind of
    work), GATE (binary, the client rejects on failure), RANK (preference, unknown stays in),
@@ -503,7 +583,8 @@ client's comments, off-limits companies and people, already-contacted list, targ
    in the notes, projects the client respects, adjacent crafts, what a person who loves this
    problem builds unpaid, what each benchmark built. Each lane: what it maps to, the artifact in
    one sentence, 5-8 queries, seed repos, seed orgs, seed people, lane levers, the pitch area,
-   priority 1-3. Queries describe an ARTIFACT and its mechanism, one idea each. Schools,
+   priority 1-3, evidence kind (owner, contributor, research, teaching). Queries describe an
+   ARTIFACT and its mechanism, one idea each, with the domain noun beside any ambiguous term. Schools,
    employers, cities, years and adjectives never go in q.
 
 4. CALIBRATE. Enrich benchmark logins at depth=deep with facets=tags.repos. Read
@@ -524,9 +605,10 @@ client's comments, off-limits companies and people, already-contacted list, targ
    rank, lanes with priority, tiers), lane cards, exclude, screen, open_questions, role_text,
    merge (order and caps), output_columns. Quote the note behind every line. Mark assumptions.
 
-7. PROBE. One page per query at depth=core, limit 10-25. Read countStatus and page before
+7. PROBE. One page per query at depth=core, limit 10-25, in parallel groups of about eight. Read countStatus and page before
    judging a short page. Enrich keepers at depth=enriched, 25 per call. Per lane record:
-   returned, built a real tool, in band, pass gates. Grade Rich / Mixed / Weak. Plan the full
+   returned, real evidence of the lane's kind, in band, pass gates. Track which lanes found each
+   person. Grade Rich / Mixed / Weak. Plan the full
    run from keepers per query. Rewrite weak lanes as concrete artifacts and show them in the spec.
 
 Stop after the spec and the lane grades. Ask the client to redline it before the full run.

@@ -117,7 +117,8 @@ Report a target as met only when the rows you hold meet it.
 ### Unknown is its own answer
 
 A missing `details` namespace, a null location, an empty education list: each means the data is
-silent. Carry it as unknown through your ranking. Drop on unknown only when the requirement is a
+silent. Check the neighbours before settling on unknown: a location with an empty `country` often
+has a `city` or a `raw` string that names the place. Carry it as unknown through your ranking. Drop on unknown only when the requirement is a
 hard gate and the person asking has said so.
 
 ---
@@ -170,6 +171,8 @@ A role description is a topic. The `fanout-search` skill covers the general meth
 | A sort did nothing | The query routed to a lane the sort does not bind on | Drop `q`, or sort the rows you hold yourself |
 | `ai.*` value missing | Facet still `pending` | Read the same request again |
 | Two people merged or split | Deduped on login | Dedupe on `id` |
+| A long run returned nothing | Many sequential calls hit a time limit | Run queries in parallel groups of about eight |
+| Unrelated projects on page one | A short or ambiguous term in `q` | Put the domain noun beside it |
 
 ---
 

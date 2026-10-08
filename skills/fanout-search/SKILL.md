@@ -1,6 +1,6 @@
 ---
 name: fanout-search
-description: Use when a search request is a topic rather than a single lookup — sourcing candidates, literature reviews, competitive scans, "find me the best N repos/papers/tools for X", or any task where missing good results is worse than doing extra queries. Turns one human query into 25-40 machine queries plus a known-item arm, then ranks the union. Corpus-agnostic (GitHub, arXiv, web, vector index, internal DB). Triggers "find all", "best N", "comprehensive list", "research X thoroughly", "make sure we don't miss".
+description: Use when a search request is a topic rather than a single lookup, sourcing candidates, literature reviews, competitive scans, "find me the best N repos/papers/tools for X", or any task where missing good results is worse than doing extra queries. Turns one human query into 25-40 machine queries plus a known-item arm, then ranks the union. Corpus-agnostic (GitHub, arXiv, web, vector index, internal DB). Triggers "find all", "best N", "comprehensive list", "research X thoroughly", "make sure we don't miss".
 ---
 
 # Fanout Search
@@ -21,11 +21,11 @@ One query returns one engine's opinion of one phrasing. Thirty queries return th
 
 ---
 
-## Step 1 — Decompose into axes
+## Step 1. Decompose into axes
 
 Find the dimensions the field actually splits along, then take the cross product. Ask: _if I were writing a taxonomy of this region, what are the column headers?_
 
-Generic axis kit — most domains use 4–6 of these:
+Generic axis kit, most domains use 4–6 of these:
 
 | Axis            | Question               | Robotics example                                |
 | --------------- | ---------------------- | ----------------------------------------------- |
@@ -42,7 +42,7 @@ Write one query per meaningful cell. Skip cells that are nonsense (drone + tacti
 
 ---
 
-## Step 2 — Lift the vocabulary
+## Step 2. Lift the vocabulary
 
 Weak agents search the user's words. Strong agents search the _field's_ words. For each axis value, add:
 
@@ -50,14 +50,14 @@ Weak agents search the user's words. Strong agents search the _field's_ words. F
 - **Insider term for the outsider term.** User says "robot AI brain"; field says "embodied foundation model", "generalist policy".
 - **Named artifacts as bare nouns.** The model, simulator and benchmark names everyone in the field cites. Names retrieve ecosystems.
 - **Org names.** The handful of labs and organizations that publish most of the field's code. Labs cluster.
-- **Meta-terms.** `awesome <topic>`, `<topic> survey`, `<topic> paper list`. These are high-recall hubs — one hit yields fifty candidates.
+- **Meta-terms.** `awesome <topic>`, `<topic> survey`, `<topic> paper list`. These are high-recall hubs, one hit yields fifty candidates.
 - **Other languages** where the field is active. Chinese robotics/embodied-AI repos are a large, mostly-disjoint slice you miss entirely by searching only English.
 
 If you don't know the field's vocabulary, that is itself step 0: run 2–3 broad probes, read the top 20 titles, harvest the recurring nouns, _then_ build the real query set.
 
 ---
 
-## Step 3 — Add the known-item arm ← the step everyone skips
+## Step 3. Add the known-item arm ← the step everyone skips
 
 **Keyword search systematically under-retrieves the most famous items in a field.**
 
@@ -69,23 +69,23 @@ So: **before searching, write down every canonical item you already know.** Fetc
 
 If you know nothing about the field, get the list from meta-terms first (step 2: `awesome <topic>`), read one or two hub documents, extract the names everyone cites, then fetch those by name.
 
-Cost is trivial — direct lookups are cheap and don't touch the search rate limit.
+Cost is trivial, direct lookups are cheap and don't touch the search rate limit.
 
 ---
 
-## Step 4 — Fan out
+## Step 4. Fan out
 
 Run every query. Mechanical, parallelizable, no model needed.
 
 - Respect rate limits (GitHub search: 30/min authed → sleep ~2.2s between calls).
 - 2 pages per query is usually enough; page 3+ is tail noise.
-- Apply a quality floor at the API level when supported (`stars:>50`) — it costs nothing and halves your junk.
+- Apply a quality floor at the API level when supported (`stars:>50`), it costs nothing and halves your junk.
 - Store raw results append-only as JSONL. Never filter during collection; you'll want to re-filter with different thresholds later and re-fetching is the expensive part.
 - Record which query produced each hit, or at minimum a per-item hit count.
 
 ---
 
-## Step 5 — Gate
+## Step 5. Gate
 
 Broad queries drag in garbage. A robotics sweep pulled in a web scraper, a UI library, and a list of CS video lectures.
 
@@ -101,11 +101,11 @@ For robotics: DOMAIN = `robot|embodied|manipulat|humanoid|drone|navigation|drivi
 
 Build the BAN list _from what you actually saw_, not from imagination. Look at the raw results, spot the junk clusters, ban those. Two minutes of looking beats an hour of guessing.
 
-Gate the keyword arm only. **Known-items bypass the gate** — you already vouched for them, and canonical repos often have terse descriptions that fail keyword gates. The field's best-known physics simulator describes itself as a general purpose physics simulator. The word "robot" never appears.
+Gate the keyword arm only. **Known-items bypass the gate**, you already vouched for them, and canonical repos often have terse descriptions that fail keyword gates. The field's best-known physics simulator describes itself as a general purpose physics simulator. The word "robot" never appears.
 
 ---
 
-## Step 6 — Rank and cut
+## Step 6. Rank and cut
 
 Composite beats any single signal:
 
@@ -115,9 +115,9 @@ score = log10(popularity + 1) * 2      # log, so 30k stars doesn't erase everyth
       + recency_bonus                  # 1.2 if <6mo, 0.4 if <18mo, else 0
 ```
 
-Give known-items a modest hit-count (≈4), not a maximum. They're a nudge onto the list, not a guarantee of the top. Overweighting them buries legitimately huge finds — a seed bonus of 9 pushed a 2.5k-star repo above a 7.9k-star one until it was dialed back.
+Give known-items a modest hit-count (≈4), not a maximum. They're a nudge onto the list, not a guarantee of the top. Overweighting them buries legitimately huge finds, a seed bonus of 9 pushed a 2.5k-star repo above a 7.9k-star one until it was dialed back.
 
-Tune weights by looking at the top 20 and asking "is this the order an expert would give?" If the answer is no, the weights are wrong — not the list.
+Tune weights by looking at the top 20 and asking "is this the order an expert would give?" If the answer is no, the weights are wrong, not the list.
 
 Then sort, cut to N, export with enough columns to re-filter without re-running: `rank, id, popularity, type, category, language, last_updated, url, description`.
 
@@ -125,7 +125,7 @@ Add a `type` column separating primary artifacts from meta artifacts (code vs. p
 
 ---
 
-## Coverage check — do this before you report
+## Coverage check: do this before you report
 
 Name 5–10 things you are confident _should_ be in the result. Check whether they are. Every miss is a query you didn't write. Add it, re-run, repeat.
 
@@ -158,7 +158,7 @@ TARGET: {{N}} results
    harvest recurring nouns, then write the real query set.
 
 3. KNOWN ITEMS. List 40-70 canonical items in this field that you already know by
-   name. Fetch them DIRECTLY by id/name/url — do not rely on search to surface them.
+   name. Fetch them DIRECTLY by id/name/url, do not rely on search to surface them.
    Keyword search structurally under-retrieves famous items, because everyone else's
    description of them outranks the thing itself. If you know none, extract names
    from the meta-term hits in step 2 first.
@@ -198,7 +198,7 @@ If you split this across agents, have the expansion agent emit exactly this. Eve
     "qualifier": ["model", "policy", "dataset"],
     "ban": ["web crawler", "no-code", "video lectures"]
   },
-  "expected": ["items you'd bet money are in the final list — used for the coverage check"]
+  "expected": ["items you'd bet money are in the final list, used for the coverage check"]
 }
 ```
 
@@ -233,6 +233,6 @@ Elapsed: ~4 minutes, dominated by search rate-limit sleeps.
 
 - Only step 1–3 need a model. Steps 4–6 are deterministic code. Don't spend a model call on what a regex does.
 - Cache raw results. Re-filtering is free; re-fetching costs rate limit and time.
-- When ranking by popularity, know your metric's health. GitHub stars, for instance, stopped flowing through the public firehose around May 2026 — the repo API is still accurate, but any star data sourced from event streams trails badly.
+- When ranking by popularity, know your metric's health. GitHub stars, for instance, stopped flowing through the public firehose around May 2026, the repo API is still accurate, but any star data sourced from event streams trails badly.
 - `vamo-search` in this repo applies this method to one specific API, including the levers and
   cost model that change how aggressively you should fan out.
