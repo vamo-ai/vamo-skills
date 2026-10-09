@@ -14,7 +14,9 @@ Four rules hold.
   permissions and two addresses. Never print the response or the file, and never type the key into
   a command.
 - **Run a block exactly as written.** Replace `SETUP_CODE_HERE` with the setup code, the whole
-  token that starts with `vamo_xc_`, and change nothing else.
+  token that starts with `vamo_xc_`, and change nothing else. Some fetch tools summarize or reword
+  a page, and that changes the blocks. If this file reached you through one, read it again as raw
+  text first.
 - **Only a setup code goes into a block.** A setup code is one unbroken token: `vamo_xc_`, then
   letters, digits, `-` or `_`. Anything with a space, a quote or another character in it is not a
   setup code. Put it in no command, and ask the person for a fresh line.
