@@ -68,6 +68,22 @@ and opens the network path.
 Older Claude Code versions use two steps: `/plugin marketplace add vamo-ai/vamo-skills`, then
 `/plugin install vamo@vamo-skills`.
 
+### What the plugin is
+
+`vamo` is one plugin in the open plugin format that Claude Code and the Claude web and desktop
+apps both read. This repository is its marketplace, so there is nothing separate to publish:
+a merge to `main` is the new version.
+
+- **In Claude Code** it installs from the terminal and each skill becomes a command,
+  `/vamo:<skill>`.
+- **In Claude on the web and desktop** it installs from **Customize**, **Plugins**, and the
+  skills load in chat. Type `/` to pick one. Updates sync from this repository.
+- **Everywhere else** the same folders under `skills/` work as plain skills, or as pages an
+  agent reads from a URL.
+
+The plugin carries skills only. It holds no credentials and connects to nothing by itself:
+`vamo-api-access` walks through access and the network path.
+
 To upload single skills instead of the plugin, each [release](https://github.com/vamo-ai/vamo-skills/releases)
 carries one zip per skill.
 
