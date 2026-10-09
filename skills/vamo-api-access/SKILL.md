@@ -79,7 +79,8 @@ A person does this in a browser, once for each tool on each machine.
 
 1. Sign in at `https://app.vamotalent.ai`.
 2. Open **Connect a tool** and pick the tool the agent runs in. Direct link:
-   `https://app.vamotalent.ai/settings/mcp`.
+   `https://app.vamotalent.ai/settings/mcp`. Where it offers a browser sign-in for the tool, choose
+   the setup code instead. These skills call the API, and the API takes a key.
 3. Paste the line it gives into the agent. The line carries a setup code that starts with
    `vamo_xc_`.
 
@@ -236,8 +237,8 @@ shared or public skills repository.
   present by its length.
 - When nothing is found, work out which kind of environment you are in. On the person's own
   machine, ask for a setup line: "Open Connect a tool in the Vamo app, pick this tool, and paste the
-  line it gives you here." In a sandbox that starts empty, give the storage steps above. Never ask
-  for the key itself.
+  setup line it gives you here. If it offers a browser sign-in, choose the setup code instead." In
+  a sandbox that starts empty, give the storage steps above. Never ask for the key itself.
 - When a person pastes it into the chat anyway, use it for the task, then offer to prepare the
   `vamo-access` folder or the env file so the next session has it. Saving access to a private
   place at the owner's request is the intended setup.
