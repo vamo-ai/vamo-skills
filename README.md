@@ -12,17 +12,20 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.1 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 2.0.0 | Searching for engineers: choosing the endpoint and filters, covering a role with many angles, reading and qualifying what comes back. Includes the full method for a role and query phrasings for 50 domains. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.2 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 2.1.0 | **Discover.** Find engineers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
+| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.0.0 | **Enrich.** Start from people you already have: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
+| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.0.0 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
 | [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.2 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
-| [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus: GitHub, arXiv, web, a vector index, an internal database. |
+| [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus. |
 
 `fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
 that API's levers and response traps.
 
-For a whole role, use them in order. `vamo-api-access` gets the connection working.
-`role-decomposition` turns what the hiring team said into a search spec. `vamo-search` runs it and
-reads the results.
+Three questions cover most of what people bring. *Who should I be talking to?* is
+`vamo-search`. *What do we know about these people?* is `vamo-enrich`. *How do I make this run by
+itself?* is `vamo-workflows`. For a whole role, `role-decomposition` turns what the hiring team
+said into a search spec first.
 
 ### The spec is the source of truth
 

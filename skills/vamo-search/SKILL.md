@@ -2,7 +2,7 @@
 name: vamo-search
 description: Use when searching for software engineers with the Vamo Developer API: finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
   updated: "2026-10-09"
 ---
 
@@ -20,9 +20,13 @@ access level and rate limit. **When this skill and the spec disagree, the spec w
 `vamo-api-access` covers setup, access and errors, with a curl walkthrough of every route.
 `role-decomposition` turns a role into a search spec.
 
-Two reference files go deeper. Read them when the task is a whole role and not a single lookup:
+Three reference files go deeper:
 
-- `references/sourcing-guide.md`: the full method for a role. Sizing the funnel, the eight
+- `references/discovery-recipes.md`: twelve starting points and the calls for each. A
+  technology, a title, a company, a school, a repository, a place, your own team, one person, a
+  job description, a talent map, a credibility bar. **Start here when someone asks to find
+  people.**
+- `references/sourcing-guide.md`: the full method for a whole role. Sizing the funnel, the eight
   qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
   and worked reasoning traces.
 - `references/domain-library.md`: query phrasings for fifty domains.

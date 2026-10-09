@@ -4,6 +4,18 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (fourth release)
+
+- **vamo-enrich 1.0.0** (new). Starting from people you already have: an interview check, a
+  candidate one-pager, contact details, a personalized opening line, enriching a list from
+  another tool, screening a pipeline, deep research on a set.
+- **vamo-workflows 1.0.0** (new). Making it repeatable: rules for anything that runs twice, one
+  record shape, and patterns for an agent loop, a weekly search, enrichment in front of a
+  message, and hand-offs to other tools.
+- **vamo-search 2.1.0**. Adds `references/discovery-recipes.md`: twelve starting points and the
+  calls for each.
+- **vamo-api-access 1.1.2**. Lists the new skills.
+
 ## 2026-10-09 (third release)
 
 - **vamo-search 2.0.0**. Absorbs `vamo-sourcing-agent`, which is removed. The field guide is now
