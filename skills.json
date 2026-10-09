@@ -3,34 +3,67 @@
   "repository": "https://github.com/vamo-ai/vamo-skills",
   "skills": {
     "vamo-api-access": {
+      "title": "API access",
+      "category": "Start here",
       "version": "1.1.0",
       "updated": "2026-10-09",
       "path": "skills/vamo-api-access",
-      "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification, errors. Includes the curl walkthrough and platform notes."
-    },
-    "vamo-search": {
-      "version": "1.1.1",
-      "updated": "2026-10-09",
-      "path": "skills/vamo-search",
-      "summary": "Choosing endpoints and filters, and reading results."
+      "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification, errors. Includes the curl walkthrough and platform notes.",
+      "files": [
+        "SKILL.md",
+        "references/curl-trainer.md",
+        "references/platforms.md"
+      ]
     },
     "role-decomposition": {
+      "title": "Role decomposition",
+      "category": "Sourcing",
       "version": "1.2.1",
       "updated": "2026-10-09",
       "path": "skills/role-decomposition",
-      "summary": "Intake notes and a job description into a search spec."
+      "summary": "Intake notes and a job description into a search spec.",
+      "files": [
+        "SKILL.md",
+        "references/worked-example.md"
+      ]
     },
     "vamo-sourcing-agent": {
+      "title": "Sourcing agent",
+      "category": "Sourcing",
       "version": "1.1.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-sourcing-agent",
-      "summary": "A role to a qualified shortlist with an outreach angle. Includes a 50-domain query library."
+      "summary": "A role to a qualified shortlist with an outreach angle. Includes a 50-domain query library.",
+      "files": [
+        "SKILL.md",
+        "references/domain-library.md"
+      ]
+    },
+    "vamo-search": {
+      "title": "Search",
+      "category": "Search",
+      "version": "1.1.1",
+      "updated": "2026-10-09",
+      "path": "skills/vamo-search",
+      "summary": "Choosing endpoints and filters, and reading results.",
+      "files": [
+        "SKILL.md"
+      ]
     },
     "fanout-search": {
+      "title": "Fanout search",
+      "category": "Search",
       "version": "1.0.1",
       "updated": "2026-10-09",
       "path": "skills/fanout-search",
-      "summary": "Covering a topic with many queries and ranking the union. Works on any corpus."
+      "summary": "Covering a topic with many queries and ranking the union. Works on any corpus.",
+      "files": [
+        "SKILL.md"
+      ]
     }
+  },
+  "plugin": {
+    "name": "vamo",
+    "marketplace": "vamo-ai/vamo-skills"
   }
 }
