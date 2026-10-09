@@ -4,6 +4,12 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## Hosted catalog
+
+- The skills are served at `https://vamotalent.ai/skills`, as a catalog and as raw markdown, read
+  live from this repository. README and **vamo-api-access 1.1.1** point update checks at
+  `https://vamotalent.ai/skills/index.json`.
+
 ## 2026-10-09 (second release)
 
 - **vamo-api-access 1.1.0**. Renamed from `vamo-api`. Platform-agnostic: storage is described by

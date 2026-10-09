@@ -12,7 +12,7 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.1 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
 | [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Corpus-agnostic: GitHub, arXiv, web, vector index, internal DB. |
 | [`vamo-search`](skills/vamo-search/SKILL.md) | 1.1.1 | Choosing the right endpoint and filter, and reading what comes back: the two filter families, short pages, unknowns. |
 | [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.1 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
@@ -51,6 +51,10 @@ Both encode failures that are silent, the kind where the output looks fine and i
 - **A brief is several kinds of statement.** Work, hard requirements, preferences and exclusions
   each need a different mechanism. Put them all in one query and most of them do nothing.
 
+**Browse them on the web:** [vamotalent.ai/skills](https://vamotalent.ai/skills). Every skill is
+also served as raw markdown at `https://vamotalent.ai/skills/<name>.md`, read live from this
+repository.
+
 ## Install
 
 The skills are plain markdown in the standard `skills/<name>/SKILL.md` layout, so they work in
@@ -63,7 +67,7 @@ and opens the network path.
 | Claude Code | `/plugin install vamo --marketplace vamo-ai/vamo-skills` | `/vamo:vamo-api-access`, `/vamo:role-decomposition`, and so on |
 | Claude on the web or desktop | **Customize**, **Plugins**, **Add**, **Add marketplace**, enter `vamo-ai/vamo-skills`, then install **vamo** | Type `/` and pick `vamo:<skill>` |
 | Any agent with a skills directory | Copy the folders under `skills/` into that directory | By name, or let the agent pick from the description |
-| Any agent at all | Tell it: *"Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-api-access/SKILL.md and follow it"* | One skill per message |
+| Any agent at all | Tell it: *"Fetch https://vamotalent.ai/skills/install.md and follow the instructions"* | It installs the set, or reads one skill per task from its URL |
 
 Older Claude Code versions use two steps: `/plugin marketplace add vamo-ai/vamo-skills`, then
 `/plugin install vamo@vamo-skills`.
@@ -108,8 +112,8 @@ header. [`skills.json`](skills.json) lists the current version of every skill, a
 **How to check**
 
 ```bash
-curl -s https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills.json \
-  | jq -r '.skills | to_entries[] | "\(.key) \(.value.version) (\(.value.updated))"'
+curl -s https://vamotalent.ai/skills/index.json \
+  | jq -r '.skills[] | "\(.name) \(.version) (\(.updated))"'
 ```
 
 Compare each line with the version in the header of the copy you have installed. An agent can

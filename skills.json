@@ -5,7 +5,7 @@
     "vamo-api-access": {
       "title": "API access",
       "category": "Start here",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-api-access",
       "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification, errors. Includes the curl walkthrough and platform notes.",
@@ -65,5 +65,6 @@
   "plugin": {
     "name": "vamo",
     "marketplace": "vamo-ai/vamo-skills"
-  }
+  },
+  "hosted": "https://vamotalent.ai/skills"
 }

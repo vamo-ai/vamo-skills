@@ -2,7 +2,7 @@
 name: vamo-api-access
 description: Use when an agent needs access to the Vamo Developer API over HTTP: first-time setup, or a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
   updated: "2026-10-09"
 ---
 
@@ -314,8 +314,10 @@ Habits that matter on any task:
 
 ## Staying current
 
-This skill carries a version in its header. The list of current versions is `skills.json` at the
-root of the skills repository, with changes described in `CHANGELOG.md`.
+This skill carries a version in its header. The current version of every skill is listed at
+`https://vamotalent.ai/skills/index.json`, and each skill's latest text is at
+`https://vamotalent.ai/skills/<name>.md`. The source and its changelog are in the public skills
+repository.
 
 Check for a newer version:
 
