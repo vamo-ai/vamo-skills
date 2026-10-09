@@ -119,7 +119,9 @@ is a wording fix. A major version means the earlier behavior is now wrong.
 5. Teach method and point at the spec for routes and parameters. If the spec is missing
    something an agent needs, open a change against the spec as well.
 6. On every change, raise the version in the header and in `skills.json`, add a changelog
-   line, and run `bash scripts/package.sh` to build the zips for the release.
+   line, and run `bash scripts/package.sh` to build the zips for the release. `skills.json` also carries each
+   skill's display `title`, `category` and `files`; the packaging script fails if `files` and
+   the folder disagree.
 
 ## Contents policy
 
