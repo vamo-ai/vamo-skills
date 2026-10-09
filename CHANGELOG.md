@@ -4,6 +4,12 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (fifth release)
+
+- **role-decomposition 1.3.0**. Top tier is a different thing from famous: no score ceiling still
+  keeps the reach screen on, and very large followings are set aside in a separate file.
+- **vamo-search 2.1.1**. The sourcing guide says the same for expert benches.
+
 ## 2026-10-09 (fourth release)
 
 - **vamo-enrich 1.0.0** (new). Starting from people you already have: an interview check, a

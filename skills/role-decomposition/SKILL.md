@@ -2,7 +2,7 @@
 name: role-decomposition
 description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software engineers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
 metadata:
-  version: "1.2.2"
+  version: "1.3.0"
   updated: "2026-10-09"
 ---
 
@@ -140,9 +140,13 @@ which kind this is before sorting anything else, because it changes the band and
 
 **The client's stated bar overrides the table.** When the client says they want the very best and
 are glad to see principals, directors and staff engineers, set a high floor (`minCracked=85`, or
-`tier=elite`), no ceiling, and leave `hideHighProfile` off, whatever the engagement. Record their
-words beside the band. Gettability then becomes a Rank signal: order by depth first, and note who
-is likely to answer.
+`tier=elite`) and no score ceiling, whatever the engagement. Record their words beside the band.
+
+**Top tier is a different thing from famous.** A principal engineer with a few hundred followers
+and a household name in the field can carry the same score. The second gets a steady stream of
+inbound whatever the role. Keep `hideHighProfile=true` on, and after enrich set aside anyone with
+a very large public following (`details.githubProfile.core.followers`). Write those names to a
+separate file with the reason, so the client can see who was left off and overrule it.
 
 For part-time and contract work add two Screen items for the first call: whether the person's
 employer permits outside work, and whether their employer is close enough to the client's business
@@ -557,6 +561,7 @@ real rows. Send it for redline, then hand it to `vamo-search`.
 | A lane of strong contributors graded Weak | Graded on owner matches | Set the lane's `evidence` kind and grade on that |
 | Off-field projects on the first page | An ambiguous term with no domain anchor | Add the domain noun to the query |
 | Principal engineers cut from an expert bench | Full-time gettability rules applied to part-time work | Set `engagement` and drop the ceiling |
+| Household names on a top-tier list | No score ceiling was read as no reach screen | Keep `hideHighProfile` on and set aside very large followings |
 | People with a city on file marked location unknown | Only `country` was read | Read `city` and `raw` as well |
 | One lane fills the whole list | No merge rule | `merge.caps` in the spec |
 | The client says "this is not what I meant" | Spec never shown before the run | Send the Step 7 file for redline first |
