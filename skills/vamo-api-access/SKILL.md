@@ -103,8 +103,9 @@ where [Store access](#store-access-so-it-persists) says it lives, and prints onl
 permissions and two addresses. Never make the request in a way that prints the response, and never
 ask the person to read out or paste a key.
 
-The line usually names a hosted page with the same steps. Exchange the code once: by following that
-page, or with the block here, never both.
+The line usually names a hosted page with the same steps. When it does, follow that page: it sends
+the code to the API that issued it. The block here is for a line that names no page, or a page that
+cannot be read. Exchange the code once, never both ways.
 
 Use a setup code only where the home directory lasts between sessions. In a sandbox that starts
 empty the stored key is gone when the session ends.

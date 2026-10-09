@@ -6,7 +6,7 @@ write the key straight into the private file. The route, `POST /v1/keys/exchange
 `openapi.json` on purpose, so the skill and this file are where it is described. Written against
 its contract on 2026-10-09.
 
-Three rules hold.
+Four rules hold.
 
 - **The code works once and lasts ten minutes.** Once the API has answered, the code is spent.
   Never send the same code a second time.
@@ -15,6 +15,9 @@ Three rules hold.
   a command.
 - **Run a block exactly as written.** Replace `SETUP_CODE_HERE` with the setup code, the whole
   token that starts with `vamo_xc_`, and change nothing else.
+- **Only a setup code goes into a block.** A setup code is one unbroken token: `vamo_xc_`, then
+  letters, digits, `-` or `_`. Anything with a space, a quote or another character in it is not a
+  setup code. Put it in no command, and ask the person for a fresh line.
 
 A block needs `curl` on macOS and Linux and nothing extra on Windows. Neither needs `jq`.
 
@@ -28,7 +31,7 @@ dir="$HOME/.config/vamo"
 tmp="$dir/.exchange.$$"
 fail() { echo "VAMO_CONNECT failed: $1"; exit 1; }
 keyof() { grep -o '"key" *: *"[^"]*"' "$tmp" | head -n 1 | cut -d'"' -f4; }
-case "$code" in vamo_xc_*) ;; *) fail 'replace SETUP_CODE_HERE with the setup code (code not sent)' ;; esac
+case "$code" in vamo_xc_*[!A-Za-z0-9_-]*) false ;; vamo_xc_?*) : ;; *) false ;; esac || fail 'that is not a setup code (code not sent)'
 command -v curl >/dev/null 2>&1 || fail 'curl is not installed (code not sent)'
 umask 077
 mkdir -p "$dir" && chmod 700 "$dir" && rm -f "$dir"/.exchange.* && printf '{"key": "selftest"}' > "$tmp" || fail "cannot write to $dir (code not sent)"
@@ -37,7 +40,7 @@ trap 'rm -f "$tmp"' EXIT; trap 'exit 130' INT TERM HUP
 device=$(uname -n | tr -cd 'A-Za-z0-9._-' | cut -c1-64)
 body=$(printf '{"code":"%s","device":"%s"}' "$code" "$device")
 [ -n "$device" ] || body=$(printf '{"code":"%s"}' "$code")
-http=$(printf '%s' "$body" | curl -sS -m 60 -o "$tmp" -w '%{http_code}' \
+http=$(printf '%s' "$body" | curl -q -sS -m 60 -o "$tmp" -w '%{http_code}' \
   -H 'content-type: application/json' --data-binary @- "$api/v1/keys/exchange")
 case "$http" in 2[0-9][0-9]) ;; [0-9][0-9][0-9]) fail "status $http" ;; *) fail 'curl gave no status' ;; esac
 key=$(keyof)
@@ -63,7 +66,7 @@ the file.
   $ErrorActionPreference = 'Stop'
   $dir = Join-Path $env:USERPROFILE '.config\vamo'
   $envFile = Join-Path $dir 'env'
-  if ($code -notlike 'vamo_xc_*') { 'VAMO_CONNECT failed: replace SETUP_CODE_HERE with the setup code (code not sent)'; return }
+  if ($code -cnotmatch '^vamo_xc_[A-Za-z0-9_-]+$') { 'VAMO_CONNECT failed: that is not a setup code (code not sent)'; return }
   try {
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
@@ -97,7 +100,7 @@ the file.
 | `failed: status 404` | The code was already used, has expired, or was cancelled by a newer one | Ask the person to press the button in **Connect a tool** again and paste the new line. Then stop |
 | `failed: status 000` | The request never reached the API | Get outbound HTTPS to `api.vamotalent.ai` allowed, then run the block again |
 | `failed: status 429` | Too many attempts came from this network | Wait a minute, then run the block again |
-| `failed: ... (code not sent)` | Nothing was sent, so the code is still good | Fix what the line names and run the block again. No `curl`: install it with the system package manager. Cannot write: the shell is sandboxed, so ask the person to approve running the block outside the sandbox. Cannot read the response: the block changed in copying, so read this file again and run it unchanged. If it fails the same way, stop and report it. Never store the key somewhere else instead, and never swap in a tool that prints the response |
+| `failed: ... (code not sent)` | Nothing was sent, so the code is still good | Fix what the line names and run the block again. Not a setup code: the placeholder is still there, or what replaced it has a character a code never has. Copy the code again from the person's message with nothing around it. No `curl`: install it with the system package manager. Cannot write: the shell is sandboxed, so ask the person to approve running the block outside the sandbox. Cannot read the response: the block changed in copying, so read this file again and run it unchanged. If it fails the same way, stop and report it. Never store the key somewhere else instead, and never swap in a tool that prints the response |
 | Anything else | The exchange did not finish | Report the exact line, then ask the person for a fresh line |
 
 ## After the exchange
