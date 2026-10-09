@@ -235,7 +235,7 @@ Recall is generous on purpose, so qualification is where the run is won or lost.
 
 The target is the middle-upper band: enough proof-of-work to write a real email about, enough room in their story that the role is a step forward.
 
-**These two failure modes describe a full-time hire. For part-time expert, advisory or review work the first one inverts: depth is the point, senior titles are the target, and Q1 and Q2 become "would this person take on outside work of this kind" (see playbook K).
+**These two failure modes describe a full-time hire. For part-time expert, advisory or review work the first one inverts: depth is the point, senior titles are the target, and Q1 and Q2 become "would this person take on outside work of this kind" (see playbook K). Depth still does not mean fame: set aside people with a very large public following on any list, since they are a different outreach problem from a senior engineer.
 
 Run each keeper through eight questions. Two clear fails, or four unknowns, and you cut.**
 

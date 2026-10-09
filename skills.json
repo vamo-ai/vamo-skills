@@ -16,7 +16,7 @@
     },
     "vamo-search": {
       "title": "Search",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-search",
       "summary": "Find engineers by what they built. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
@@ -49,7 +49,7 @@
     },
     "role-decomposition": {
       "title": "Role decomposition",
-      "version": "1.2.2",
+      "version": "1.3.0",
       "updated": "2026-10-09",
       "path": "skills/role-decomposition",
       "summary": "Turning a job description and intake notes into a search spec.",

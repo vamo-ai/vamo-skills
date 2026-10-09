@@ -2,7 +2,7 @@
 name: vamo-search
 description: Use when searching for software engineers with the Vamo Developer API: finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
   updated: "2026-10-09"
 ---
 
