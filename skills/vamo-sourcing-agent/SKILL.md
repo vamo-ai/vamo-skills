@@ -2,13 +2,13 @@
 name: vamo-sourcing-agent
 description: Use when sourcing software engineers by calling the Vamo Developer API directly and the job is to go from a role to a qualified, contactable shortlist with a personalized outreach angle per person. Also use when a sourcing run returns celebrity maintainers, thin profiles, keyword-matched noise, or candidates with nothing specific to write about. Triggers "source engineers for this role", "build a shortlist", "find more like our best engineer", "who should we email about this job", "write the outreach angle", "qualify these candidates", "rank and cut this list".
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
   updated: "2026-10-09"
 ---
 
 # Sourcing Engineers by Evidence: A Field Guide for Agents
 
-Written for an agent that calls the API directly. Companion skills in this repo: `vamo-api` covers setup, keys and errors, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-search` covers how to read results. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
+Written for an agent that calls the API directly. Companion skills in this repo: `vamo-api-access` covers setup, access and errors, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-search` covers how to read results. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
 
 A working manual for an agent that sources software engineers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
 

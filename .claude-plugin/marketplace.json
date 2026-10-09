@@ -1,0 +1,12 @@
+{
+  "name": "vamo-skills",
+  "owner": { "name": "Vamo" },
+  "description": "Agent skills for the Vamo Developer API",
+  "plugins": [
+    {
+      "name": "vamo",
+      "source": "./",
+      "description": "Access setup, search, role decomposition and end-to-end sourcing with the Vamo Developer API."
+    }
+  ]
+}

@@ -12,16 +12,16 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api`](skills/vamo-api/SKILL.md) | 1.0.0 | **Start here.** Calling the Vamo Developer API directly: getting a key, storing it so it persists, opening network access, verifying, reading errors. Includes a curl walkthrough of every route. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
 | [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Corpus-agnostic: GitHub, arXiv, web, vector index, internal DB. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 1.1.0 | Choosing the right endpoint and filter, and reading what comes back: the two filter families, short pages, unknowns. |
-| [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.0 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
-| [`vamo-sourcing-agent`](skills/vamo-sourcing-agent/SKILL.md) | 1.1.0 | Running a role end to end with the Vamo API: recall, qualification, the outreach angle per person. Ships with a 50-domain query library. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 1.1.1 | Choosing the right endpoint and filter, and reading what comes back: the two filter families, short pages, unknowns. |
+| [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.1 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
+| [`vamo-sourcing-agent`](skills/vamo-sourcing-agent/SKILL.md) | 1.1.1 | Running a role end to end with the Vamo API: recall, qualification, the outreach angle per person. Ships with a 50-domain query library. |
 
 `fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
 that API's levers and response traps.
 
-For a full sourcing run, use them in order. `vamo-api` gets the connection working.
+For a full sourcing run, use them in order. `vamo-api-access` gets the connection working.
 `role-decomposition` turns what the hiring team said into a spec. `vamo-sourcing-agent` runs that
 spec through the funnel and writes the outreach angle for each person. `vamo-search` is the
 reference for reading results underneath both.
@@ -53,27 +53,28 @@ Both encode failures that are silent, the kind where the output looks fine and i
 
 ## Install
 
-**Claude on the web or desktop.** Download the zip for each skill from the latest
-[release](https://github.com/vamo-ai/vamo-skills/releases). In Claude, open **Customize**, then
-**Skills**, choose **+**, **Create skill**, **Upload a skill**, and upload each zip. Skills need
-**Code execution and file creation** turned on under **Settings**, **Capabilities**. Then follow
-`vamo-api` to add your key and open network access.
+The skills are plain markdown in the standard `skills/<name>/SKILL.md` layout, so they work in
+any agent that reads skills, and in any agent that can read a file and follow it. Pick the row
+that matches your agent. Start with `vamo-api-access` in every case: it stores your API access
+and opens the network path.
 
-**Claude Code and other terminal agents.** Copy a skill directory into either location:
+| Your agent | Install | Use |
+| --- | --- | --- |
+| Claude Code | `/plugin install vamo --marketplace vamo-ai/vamo-skills` | `/vamo:vamo-api-access`, `/vamo:role-decomposition`, and so on |
+| Claude on the web or desktop | **Customize**, **Plugins**, **Add**, **Add marketplace**, enter `vamo-ai/vamo-skills`, then install **vamo** | Type `/` and pick `vamo:<skill>` |
+| Any agent with a skills directory | Copy the folders under `skills/` into that directory | By name, or let the agent pick from the description |
+| Any agent at all | Tell it: *"Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-api-access/SKILL.md and follow it"* | One skill per message |
 
-```bash
-# available everywhere
-cp -r skills/vamo-api ~/.claude/skills/
+Older Claude Code versions use two steps: `/plugin marketplace add vamo-ai/vamo-skills`, then
+`/plugin install vamo@vamo-skills`.
 
-# or scoped to one project
-cp -r skills/vamo-api .claude/skills/
-```
+To upload single skills instead of the plugin, each [release](https://github.com/vamo-ai/vamo-skills/releases)
+carries one zip per skill.
 
-**Your API key is never part of these files.** `vamo-api` explains where it goes.
+**Your API key is never part of these files.** `vamo-api-access` explains where it goes.
 
-**Anything else**: the files are plain markdown. Paste the body into a system prompt, load it
-as a tool description, or serve it as a doc. Each skill also ends with a self-contained
-**drop-in prompt** block you can hand to a weaker model verbatim.
+Each skill also ends with a self-contained **drop-in prompt** block where one applies, for
+handing to a smaller model verbatim.
 
 ## Staying current
 
@@ -98,8 +99,9 @@ curl -s https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills.json \
 Compare each line with the version in the header of the copy you have installed. An agent can
 run this check itself at the start of a session and tell you which skills are behind.
 
-**How to update.** Replace the installed skill folder with the new one, or upload the new zip
-over the old skill. A personal `vamo-key` skill is separate and stays as it is.
+**How to update.** A plugin install updates from the marketplace: in Claude Code run
+`/plugin marketplace update vamo-skills`, and on the web and desktop apps the marketplace syncs
+from this repository. For copied folders or uploaded zips, replace the skill with the new one. A private `vamo-access` skill is separate and stays as it is.
 
 **What the numbers mean.** A new minor version changes what an agent should do. A patch version
 is a wording fix. A major version means the earlier behavior is now wrong.

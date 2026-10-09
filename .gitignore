@@ -1,5 +1,5 @@
 dist/
 .DS_Store
-vamo-key/
+vamo-access/
 vamo.env
 .env
