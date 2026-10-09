@@ -12,7 +12,7 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.2 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.2.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it with a setup code, storing it so it persists on macOS, Linux and Windows, opening the network path, verifying, reading errors. |
 | [`vamo-search`](skills/vamo-search/SKILL.md) | 2.1.1 | **Discover.** Find engineers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
 | [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.0.0 | **Enrich.** Start from people you already have: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
 | [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.0.0 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
