@@ -4,6 +4,14 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (automation)
+
+- Pull requests are validated by `scripts/validate.py`: the manifest against the folders, each
+  skill header, the plugin manifests, the contents policy, and a new version plus a changelog
+  line for every skill that changed.
+- A merge to `main` that changes a skill publishes a release with one zip per skill.
+- No skill changed.
+
 ## 2026-10-09 (fifth release)
 
 - **role-decomposition 1.3.0**. Top tier is a different thing from famous: no score ceiling still

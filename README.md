@@ -137,10 +137,23 @@ is a wording fix. A major version means the earlier behavior is now wrong.
 4. Assert only what you verified. Cite the spec, the route tree, or the measurement.
 5. Teach method and point at the spec for routes and parameters. If the spec is missing
    something an agent needs, open a change against the spec as well.
-6. On every change, raise the version in the header and in `skills.json`, add a changelog
-   line, and run `bash scripts/package.sh` to build the zips for the release. `skills.json` also carries each
-   skill's display `title`, `category` and `files`; the packaging script fails if `files` and
-   the folder disagree.
+6. On every change, raise the version in the header and in `skills.json` and add a changelog
+   line. `skills.json` also carries each skill's display `title`, `summary` and `files`.
+
+Every pull request is validated. Run the same checks first with `python3 scripts/validate.py`:
+
+- `skills.json` and the folders under `skills/` list the same skills and the same markdown
+  files.
+- Each header has a `name` equal to its folder, a `description` of at most 1024 characters, and
+  a `metadata.version` equal to the one in `skills.json`.
+- The plugin manifests parse and name the same plugin as `skills.json`.
+- The contents policy holds: no em dashes, nothing that looks like a key, and none of the
+  words listed at the top of the script.
+- A skill that changed has a new version, and `CHANGELOG.md` changed with it.
+- `bash scripts/package.sh` builds one zip per skill.
+
+A merge to `main` that changes a skill publishes a
+[release](https://github.com/vamo-ai/vamo-skills/releases) with those zips attached.
 
 ## Contents policy
 

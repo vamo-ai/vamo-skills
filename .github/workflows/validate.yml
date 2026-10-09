@@ -1,0 +1,37 @@
+# Checks every pull request and every push to main. A pull request from a fork runs its own
+# copy of the scripts, so this workflow holds a read-only token and no secrets.
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # a pull request checks out its merge commit, whose first parent is the base
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Validate skills
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            python3 scripts/validate.py --base 'HEAD^1'
+          else
+            python3 scripts/validate.py
+          fi
+
+      - name: Build zips
+        run: bash scripts/package.sh
