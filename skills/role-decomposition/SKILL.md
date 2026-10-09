@@ -2,7 +2,7 @@
 name: role-decomposition
 description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software engineers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
   updated: "2026-10-09"
 ---
 
@@ -19,7 +19,7 @@ ranks people by what they built.
 
 This skill stops at the spec and its lane grades. `vamo-sourcing-agent` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
-`vamo-api` covers setup, keys and errors, with a curl for every call named here.
+`vamo-api-access` covers setup, access and errors, with a curl for every call named here.
 
 ---
 

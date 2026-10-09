@@ -1,16 +1,16 @@
 ---
-name: vamo-api
-description: Use when calling the Vamo Developer API directly over HTTP, setting it up for the first time, or when a call fails before it returns results. Covers getting an API key, storing it so it is still there in the next session, opening network access to the API, verifying the connection, and reading error responses. Symptoms include "there's no Vamo API key in this workspace", being asked to paste the key again in every chat, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up the Vamo API", "connect to Vamo", "my Vamo key isn't working", "allowlist Vamo", "how do I call Vamo".
+name: vamo-api-access
+description: Use when an agent needs access to the Vamo Developer API over HTTP: first-time setup, or a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10-09"
 ---
 
-# Vamo API: direct usage
+# Vamo API access
 
 Vamo searches GitHub developers by what they have built. This skill gets a direct HTTP
-connection working and keeps it working: a key, a safe place to keep it, network access, and what
-to do when a call fails.
+connection working and keeps it working in any agent: API access, a safe place to keep it, a
+network path to the API, and what to do when a call fails.
 
 Three things have to be true before any search runs. Check them in this order at the start of a
 session and fix the first one that fails.
@@ -18,8 +18,8 @@ session and fix the first one that fails.
 | Check | Test | If it fails |
 | --- | --- | --- |
 | The network reaches Vamo | `GET https://api.vamotalent.ai/openapi.json` returns JSON. No key needed | [Open network access](#open-network-access) |
-| A key is available | `VAMO_API_KEY` is set, or a saved key file is found | [Get a key](#get-a-key), then [Store the key](#store-the-key-so-it-persists) |
-| The key works | One small search returns results | [Read the error](#read-the-error) |
+| Access is available | `VAMO_API_KEY` is set, or a saved access file is found | [Get access](#get-access), then [Store it](#store-access-so-it-persists) |
+| Access works | One small search returns results | [Read the error](#read-the-error) |
 
 Do not fall back to a different data source when a check fails. A general GitHub search answers a
 different question and cannot apply Vamo's filters. Say which check failed and give the fix.
@@ -60,7 +60,7 @@ Use it to learn the shape, and check each parameter against the spec before rely
 
 ---
 
-## Get a key
+## Get access
 
 A person does this once, in a browser.
 
@@ -87,144 +87,145 @@ or per agent keeps a revoke from breaking anyone else.
 
 ---
 
-## Store the key so it persists
+## Store access so it persists
 
-The key should live in one private place that the agent can read by itself, every session. The
-three places it should never live: a chat message, a file that gets shared or committed, and a
-screen someone else is watching.
+The API key is the account's access to Vamo. It should live in one private place that the agent
+can read by itself in every session. It should never live in a chat message, in a file that gets
+shared or committed, or on a screen someone else is watching.
 
-Pick the row that matches where the agent runs.
+Agents run in two kinds of environment, and the right place differs.
 
-### A terminal agent on your own computer
+| The agent runs | Examples | Where access lives |
+| --- | --- | --- |
+| On your own machine, with a lasting filesystem | Terminal and editor coding agents | A private file in your home directory, or the operating system keychain |
+| In a sandbox that starts empty each session | Chat assistants with a code sandbox, hosted and cloud agents | The platform's private, lasting store for your account: a personal skill, a private project, or an environment secret |
 
-Claude Code, Codex, Cursor and similar tools run commands on your machine, so the key belongs in
-a private file there. Run this in your own terminal window, so the key is typed there and never
-into a chat:
+A sandbox that starts empty is why an agent asks for access again in every new session. Saving a
+file "in the workspace" there lasts only for that conversation.
+
+### On your own machine
+
+Run this in your own terminal window, so the value is typed there and never into a chat:
 
 ```bash
 mkdir -p ~/.config/vamo && chmod 700 ~/.config/vamo
-printf 'Paste your Vamo key, then press Enter: ' && read -rs K \
+printf 'Paste your Vamo API key, then press Enter: ' && read -rs K \
   && printf 'VAMO_API_KEY=%s\n' "$K" > ~/.config/vamo/env \
   && chmod 600 ~/.config/vamo/env && unset K && echo ' saved'
 ```
 
-The agent then loads it at the start of any session:
+Any agent on that machine then loads it at the start of a session:
 
 ```bash
 set -a; . ~/.config/vamo/env; set +a
 ```
 
-On macOS the Keychain works as well: `security add-generic-password -a "$USER" -s vamo-api-key -w`
-stores it after a prompt, and `security find-generic-password -s vamo-api-key -w` reads it back.
+An operating system keychain or a secrets manager works the same way: store the value once and
+have the agent read it into `VAMO_API_KEY`. Inside a project, a `.env` file is fine as long as
+`.env` is listed in `.gitignore` before the value goes in.
 
-Inside a project, a `.env` file is fine as long as `.env` is listed in `.gitignore` before the
-key goes in.
+### In a sandbox that starts empty
 
-### A chat app with a code sandbox
+Use whatever the platform offers for private, lasting, per-account data. In order of preference:
 
-Claude on the web and desktop runs code in a sandbox that starts empty in every conversation. A
-key saved "in the workspace" is gone in the next chat. That is why the agent keeps asking for it.
-
-The durable fix is a small private skill that carries the key. It loads into every conversation.
-
-1. Make a folder named `vamo-key` holding two files.
+1. **An environment secret**, where the platform has them. Name it `VAMO_API_KEY`. The agent sees
+   it as an environment variable and nothing else is needed.
+2. **A private access skill**, where the platform supports personal skills. It is a folder named
+   `vamo-access` with two files, uploaded once to your own account.
 
    `SKILL.md`:
 
    ```markdown
    ---
-   name: vamo-key
-   description: Use whenever a task calls the Vamo API. Holds this user's Vamo API key.
+   name: vamo-access
+   description: Use whenever a task calls the Vamo API. Provides this account's Vamo API access.
    ---
 
-   The key is in `vamo.env` beside this file, as `VAMO_API_KEY`. Load it into the environment
+   Access is in `vamo.env` beside this file, as `VAMO_API_KEY`. Load it into the environment
    before calling the API. Never print it, quote it, or copy it into another file.
    ```
 
    `vamo.env`:
 
    ```
-   VAMO_API_KEY=vamo_sk_your_key_here
+   VAMO_API_KEY=<paste the value here>
    ```
 
-2. Compress the folder to `vamo-key.zip`, with the folder itself at the top level of the zip.
-3. In Claude, open **Customize**, then **Skills**, choose **+**, then **Create skill**, then
-   **Upload a skill**, and upload the zip. Turn the skill on.
-4. Delete the zip and the folder from your computer.
+   Compress the folder with the folder itself at the top level of the zip, upload it as a
+   personal skill, then delete the zip and the folder from your computer.
+3. **A private project's instructions**, used only for Vamo work and shared with nobody.
 
-The skill is private to your account. Never share the zip, and never add this folder to a shared
-or public skills repository. On a Team or Enterprise workspace the upload option can be turned off
-by the organization. If it is missing, ask an organization owner.
+Whichever you use, it is yours alone. Never share the zip, and never add `vamo-access` to a
+shared or public skills repository.
 
-If skills are unavailable, the next best place is the instructions of a private Claude Project
-used only for Vamo work. Anyone the project is shared with can read it, so keep it unshared.
+`references/platforms.md` has the exact menu paths for the products we have checked.
 
 ### Rules for the agent
 
-- Look for the key before asking: the `VAMO_API_KEY` environment variable, then
-  `~/.config/vamo/env`, then a `vamo.env` in an installed `vamo-key` skill, then `.env` in the
-  working directory. `VAMO_KEY` is an accepted older name.
+- Look before asking: the `VAMO_API_KEY` environment variable, then `~/.config/vamo/env`, then a
+  `vamo.env` in an installed `vamo-access` skill, then `.env` in the working directory.
+  `VAMO_KEY` is an accepted older name.
 - Send it only as a header to `api.vamotalent.ai`: `Authorization: Bearer $VAMO_API_KEY`. Never
   put it in a URL, a filename, a log line or a reply.
-- When no key is found, give the person the steps above for their setup. Asking them to paste the
-  key into the chat is the last resort.
-- When a person pastes a key into the chat anyway, use it for the task, then offer to build the
-  `vamo-key` folder for them to upload so the next session has it. Saving a key to a private place
-  at the owner's request is the intended setup.
-- A key that has appeared in a shared chat, a screen share or a recording should be revoked and
+- When nothing is found, work out which kind of environment you are in and give the person the
+  matching steps above. Asking them to paste the value into the chat is the last resort.
+- When a person pastes it into the chat anyway, use it for the task, then offer to prepare the
+  `vamo-access` folder or the env file so the next session has it. Saving access to a private
+  place at the owner's request is the intended setup.
+- Access that has appeared in a shared chat, a screen share or a recording should be revoked and
   replaced.
 
 ---
 
 ## Open network access
 
-Many agent environments block outbound requests by default. The usual message is that the
-workspace network "only allows package registries", or the request to `api.vamotalent.ai` fails
-with a proxy error or a timeout while package installs work.
+Many agent environments restrict outbound requests by default. The usual signs: a message that
+the workspace network "only allows package registries", or a request to `api.vamotalent.ai` that
+fails with a proxy error or a timeout while package installs work.
 
 **One host needs to be allowed: `api.vamotalent.ai`, over HTTPS.** The API, its spec and its docs
 are all served from it. Allow that single host. Opening all domains is unnecessary and widens
 what a sandbox can send out.
 
-| Where the agent runs | Who can change it | Where |
-| --- | --- | --- |
-| Claude, individual plan | You | **Settings**, **Capabilities**. Turn on **Code execution and file creation**, turn on **Allow network egress**, and add `api.vamotalent.ai` to the allowed domains |
-| Claude, Team or Enterprise | An organization owner only | **Organization settings**, **Capabilities**. Choose the option that allows package managers and specific domains, and add `api.vamotalent.ai` |
-| A company firewall, proxy or another sandbox | Your IT or platform owner | Allow outbound HTTPS to `api.vamotalent.ai` |
+Every environment that restricts the network has a setting for allowed hosts. What differs is the
+name of the setting and who is permitted to change it.
 
-After the setting changes, start a new conversation. A running conversation keeps the network
-rules it started with.
+| Who administers the environment | What to do |
+| --- | --- |
+| You (a personal account, your own machine) | Find the agent's network or sandbox setting and add `api.vamotalent.ai` to its allowed hosts |
+| A workspace or organization admin | You cannot change it yourself. Send the admin one line: *"Please add api.vamotalent.ai to the allowed domains for the agent's code execution environment."* |
+| IT (a company proxy or firewall) | Ask for outbound HTTPS to `api.vamotalent.ai` |
 
-If you are a member of a Team or Enterprise workspace, you cannot change this yourself. Send the
-owner one line: *"Please add api.vamotalent.ai to the allowed domains for code execution under
-Organization settings, Capabilities."* The owner is whoever manages billing and members for the
-workspace.
+After the setting changes, start a new session. A running session keeps the network rules it
+started with.
+
+`references/platforms.md` gives the setting's name and location for the products we have checked.
 
 Other hosts, only if you use them:
 
 | Host | Used for |
 | --- | --- |
-| `app.vamotalent.ai` | Creating keys, in a browser. The agent never calls it |
+| `app.vamotalent.ai` | Creating API keys, in a browser. The agent never calls it |
+| `vamotalent.ai` | Reading these skills and the setup prompts as hosted pages |
 | `mcp.vamotalent.ai` | The Vamo MCP server, when connected as a tool |
-| `raw.githubusercontent.com` | Checking these skills for updates. Usually allowed already |
 
 ### When network access cannot be opened
 
-Connect Vamo as an MCP server. Connector traffic is separate from the sandbox network rules, so
-it works when direct calls are blocked. It exposes a smaller set of operations than the API.
-Setup is one line to the agent:
+Connect Vamo as an MCP server. On most platforms, connector traffic is governed separately from
+the sandbox's network rules, so it works when direct calls are blocked. It exposes a smaller set
+of operations than the API. Setup is one line to the agent:
 
 ```
 Fetch https://vamotalent.ai/agent-setup/search/prompt.md and follow the instructions
 ```
 
-Things that go wrong when editing a desktop app's connector config by hand:
+Things that go wrong when editing an app's connector config by hand:
 
 - Give the agent the whole current config file and ask for the whole new file back. Pasting a
   fragment in by hand is how braces get doubled.
-- Replace only the placeholder with the key. Keep the word `Bearer` and the space after it.
-- Save the file, quit the app completely, reopen it, and start a new conversation. Tools added to
-  the config appear only in conversations started after the restart.
+- Replace only the placeholder with your value. Keep the word `Bearer` and the space after it.
+- Save the file, quit the app completely, reopen it, and start a new session. Tools added to the
+  config appear only in sessions started after the restart.
 
 ---
 
@@ -234,10 +235,10 @@ Things that go wrong when editing a desktop app's connector config by hand:
 # 1. network: prints the API title
 curl -s -m 20 https://api.vamotalent.ai/openapi.json | jq -r .info.title
 
-# 2. key present: prints the length, never the key
-[ -n "$VAMO_API_KEY" ] && echo "key loaded (${#VAMO_API_KEY} chars)" || echo "no key"
+# 2. access present: prints the length, never the value
+[ -n "$VAMO_API_KEY" ] && echo "access loaded (${#VAMO_API_KEY} chars)" || echo "no access found"
 
-# 3. key works: prints one login
+# 3. access works: prints one login
 curl -s -m 60 -G https://api.vamotalent.ai/v1/developers/search \
   -H "Authorization: Bearer $VAMO_API_KEY" \
   --data-urlencode "q=rust database engine" --data-urlencode "limit=1" \
@@ -274,20 +275,20 @@ sixty seconds and let one call finish before deciding to retry.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| The agent asks for the key in every new chat | The sandbox starts empty each conversation | The `vamo-key` skill, or a private Project |
-| "I won't write the key to a file" | The agent is being careful with a pasted secret | Tell it you own the key and want it saved privately, then follow the storage steps |
-| "Network only allows package registries" | Outbound requests are limited | Allow `api.vamotalent.ai`, new conversation |
-| The network setting cannot be found | You are a member, not an owner | Send the owner the one-line request |
-| The domain was added and calls still fail | The conversation predates the change, or the setting did not save | New conversation. Ask the owner to confirm the entry is listed. Use the MCP connection meanwhile |
+| The agent asks for access in every new session | The sandbox starts empty each session | An environment secret, the `vamo-access` skill, or a private project |
+| "I won't write that to a file" | The agent is being careful with a pasted secret | Tell it the access is yours and you want it saved privately, then follow the storage steps |
+| "Network only allows package registries" | Outbound requests are limited | Allow `api.vamotalent.ai`, new session |
+| The network setting cannot be found | An admin controls it | Send the admin the one-line request |
+| The host was added and calls still fail | The session predates the change, or the setting did not save | New session. Ask the admin to confirm the entry is listed. Use the MCP connection meanwhile |
 | The agent offers a "rougher pass" with another search | A check failed and it substituted | Fix the failing check. The substitute cannot apply Vamo's filters |
-| Works in the terminal, fails in the chat app | They are separate environments with separate settings | Set up the key and the network in each one you use |
-| MCP tools do not appear after editing the config | The app was not fully restarted, or the chat is old | Quit completely, reopen, new conversation |
+| Works in one agent, fails in another | They are separate environments with separate settings | Set up access and the network in each one you use |
+| MCP tools do not appear after editing the config | The app was not fully restarted, or the session is old | Quit completely, reopen, new session |
 | Very few results | A small default page, or a narrow filter combination | Ask for the number you want and page with the cursor. See `vamo-search` for which filters shrink the pool |
 | School or employer filters return almost nobody | Those filters reach only people with a linked professional profile | Search on the work first, then use school or employer to rank. See `role-decomposition` |
 | A parameter from an example is rejected | The API moved on | The spec wins. Update the skill |
 
-Presenting on a shared screen: set up the key and run the verification before sharing. Creating
-or pasting a key live puts it in the recording.
+Presenting on a shared screen: set up access and run the verification before sharing. Creating
+or pasting an API key live puts it in the recording.
 
 ---
 
@@ -323,5 +324,5 @@ Check for a newer version:
 - when the spec and this skill disagree,
 - before setting up a new person or a new machine.
 
-Updating means replacing the skill folder with the newer one. In a chat app, upload the new zip
-over the old skill. The `vamo-key` skill is separate and is never replaced by an update.
+Updating means replacing the skill folder with the newer one, or uploading the new zip over the
+old skill. Your private `vamo-access` skill is separate and is never replaced by an update.

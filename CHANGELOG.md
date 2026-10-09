@@ -4,6 +4,15 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (second release)
+
+- **vamo-api-access 1.1.0**. Renamed from `vamo-api`. Platform-agnostic: storage is described by
+  kind of environment (your own machine, or a sandbox that starts empty) and network access by
+  who administers it. Product-specific menu paths moved to `references/platforms.md`. The private
+  access skill is named `vamo-access`.
+- **vamo-search 1.1.1, role-decomposition 1.2.1, vamo-sourcing-agent 1.1.1**. Cross-references
+  updated to the new name.
+
 ## 2026-10-09
 
 - **vamo-api 1.0.0** (new). Direct API usage: getting a key, which permissions to grant, storing

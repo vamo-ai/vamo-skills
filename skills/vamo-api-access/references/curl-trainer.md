@@ -1,6 +1,6 @@
 # Vamo Developer API: curl walkthrough
 
-Reference for the `vamo-api` skill. Sixteen steps, in order, cover the whole API. These are worked
+Reference for the `vamo-api-access` skill. Sixteen steps, in order, cover the whole API. These are worked
 examples written against the spec on 2026-10-09. Check a parameter in the spec before relying on
 it.
 
@@ -16,7 +16,7 @@ repository, `<org>` a GitHub organization, `<company>` and `<school>` plain name
 
 ## 1. Load your key and set up two helpers
 
-Getting a key and storing it safely are covered in the `vamo-api` skill. With the key in
+Getting access and storing it safely are covered in the `vamo-api-access` skill. With the key in
 `VAMO_API_KEY`:
 
 ```bash

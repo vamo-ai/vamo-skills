@@ -1,0 +1,10 @@
+{
+  "name": "vamo",
+  "description": "Agent skills for sourcing software engineers with the Vamo Developer API: access setup, search, role decomposition and end-to-end sourcing.",
+  "homepage": "https://vamotalent.ai",
+  "repository": "https://github.com/vamo-ai/vamo-skills",
+  "author": {
+    "name": "Vamo",
+    "url": "https://vamotalent.ai"
+  }
+}

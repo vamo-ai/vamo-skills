@@ -2,26 +2,26 @@
   "updated": "2026-10-09",
   "repository": "https://github.com/vamo-ai/vamo-skills",
   "skills": {
-    "vamo-api": {
-      "version": "1.0.0",
+    "vamo-api-access": {
+      "version": "1.1.0",
       "updated": "2026-10-09",
-      "path": "skills/vamo-api",
-      "summary": "Direct API setup: key, safe storage, network access, verification, errors. Includes the curl walkthrough."
+      "path": "skills/vamo-api-access",
+      "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification, errors. Includes the curl walkthrough and platform notes."
     },
     "vamo-search": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-search",
       "summary": "Choosing endpoints and filters, and reading results."
     },
     "role-decomposition": {
-      "version": "1.2.0",
+      "version": "1.2.1",
       "updated": "2026-10-09",
       "path": "skills/role-decomposition",
       "summary": "Intake notes and a job description into a search spec."
     },
     "vamo-sourcing-agent": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-sourcing-agent",
       "summary": "A role to a qualified shortlist with an outreach angle. Includes a 50-domain query library."
