@@ -1,8 +1,8 @@
 ---
 name: vamo-search
-description: Use when searching for software engineers, sourcing candidates for a role, or enriching developer profiles through the Vamo API, and the question is which endpoint or filter to use or how to read what came back. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, or strong engineers are missing from results. Triggers "find engineers who", "source for this role", "who built X", "enrich these developers", "get emails for".
+description: Use when searching for software engineers with the Vamo Developer API: finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "1.1.1"
+  version: "2.0.0"
   updated: "2026-10-09"
 ---
 
@@ -17,8 +17,15 @@ Base URL `https://api.vamotalent.ai`. Machine-readable spec:
 `https://api.vamotalent.ai/openapi.json`. Every operation carries an `x-vamo` block with its
 access level and rate limit. **When this skill and the spec disagree, the spec wins.**
 
-`vamo-api-access` covers setup, access and errors, with a curl walkthrough of every route. `role-decomposition` turns a role
-into a search spec. `vamo-sourcing-agent` runs that spec into a shortlist.
+`vamo-api-access` covers setup, access and errors, with a curl walkthrough of every route.
+`role-decomposition` turns a role into a search spec.
+
+Two reference files go deeper. Read them when the task is a whole role and not a single lookup:
+
+- `references/sourcing-guide.md`: the full method for a role. Sizing the funnel, the eight
+  qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
+  and worked reasoning traces.
+- `references/domain-library.md`: query phrasings for fifty domains.
 
 ---
 

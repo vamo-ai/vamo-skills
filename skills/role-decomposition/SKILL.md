@@ -2,7 +2,7 @@
 name: role-decomposition
 description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software engineers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
 metadata:
-  version: "1.2.1"
+  version: "1.2.2"
   updated: "2026-10-09"
 ---
 
@@ -17,7 +17,7 @@ Written against the Vamo Developer API (`https://api.vamotalent.ai`, spec at `/o
 wins over this file when they disagree). The sorting and lane method holds for any search that
 ranks people by what they built.
 
-This skill stops at the spec and its lane grades. `vamo-sourcing-agent` runs the spec through the
+This skill stops at the spec and its lane grades. `vamo-search` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
 `vamo-api-access` covers setup, access and errors, with a curl for every call named here.
 
@@ -256,7 +256,7 @@ Five to eight queries per lane. Query rules:
 
 Seed repos you name from memory are unchecked until a probe returns people for them. Mark them so.
 
-The `vamo-sourcing-agent` domain library holds phrasing sets for fifty domains. Start a lane's
+The `vamo-search` domain library (`references/domain-library.md`) holds phrasing sets for fifty domains. Start a lane's
 queries there when the domain is listed.
 
 ---
@@ -535,7 +535,7 @@ Record the grade on the lane card and show weak lanes to the client. A lane that
 a rewrite is a finding about where this work lives in public: move it to the profile funnel.
 
 The spec is ready when each priority-1 lane grades Rich or Mixed and every Gate has confirmed on
-real rows. Send it for redline, then hand it to `vamo-sourcing-agent`.
+real rows. Send it for redline, then hand it to `vamo-search`.
 
 `references/worked-example.md` shows fictional intake notes and the spec they become.
 

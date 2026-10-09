@@ -1,6 +1,6 @@
 # The use-case library: 50 domains, worked
 
-Reference for the `vamo-sourcing-agent` skill. Parameters used here (`q`, `orgs`, `techs`, `lang`, `pastCompanies`, `minCracked`, `maxCracked`, `depth`, `similar?login=`) are described in section 4 of `SKILL.md`.
+Reference for the `vamo-search` skill. Parameters used here (`q`, `orgs`, `techs`, `lang`, `pastCompanies`, `minCracked`, `maxCracked`, `depth`, `similar?login=`) are described in section 4 of `sourcing-guide.md`.
 
 This library is where most of the daily value lives. Each entry is built around one idea: **what does this developer build on the weekend, when nobody is paying them?** That is the tell of what they care about, and what they care about is what makes them great at your role and likely to reply to it.
 
