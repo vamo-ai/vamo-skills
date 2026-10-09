@@ -135,6 +135,12 @@ which kind this is before sorting anything else, because it changes the band and
 | Contract or freelance | Floor, a loose ceiling | Availability is a Screen item. Location matters only for hours and pay |
 | Part-time expert, advisor, reviewer | Floor only | Depth is the point, so principal and staff titles are targets. Location becomes a segment |
 
+**The client's stated bar overrides the table.** When the client says they want the very best and
+are glad to see principals, directors and staff engineers, set a high floor (`minCracked=85`, or
+`tier=elite`), no ceiling, and leave `hideHighProfile` off, whatever the engagement. Record their
+words beside the band. Gettability then becomes a Rank signal: order by depth first, and note who
+is likely to answer.
+
 For part-time and contract work add two Screen items for the first call: whether the person's
 employer permits outside work, and whether their employer is close enough to the client's business
 to be a conflict.
