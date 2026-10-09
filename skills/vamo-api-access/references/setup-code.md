@@ -30,8 +30,8 @@ case "$code" in vamo_xc_*) ;; *) fail 'replace SETUP_CODE_HERE with the setup co
 command -v curl >/dev/null 2>&1 || fail 'curl is not installed (code not sent)'
 umask 077
 tmp="$dir/.exchange.$$"
-mkdir -p "$dir" && chmod 700 "$dir" && : > "$tmp" || fail "cannot write to $dir (code not sent)"
-trap 'rm -f "$tmp"' EXIT
+mkdir -p "$dir" && chmod 700 "$dir" && rm -f "$dir"/.exchange.* && : > "$tmp" || fail "cannot write to $dir (code not sent)"
+trap 'rm -f "$tmp"' EXIT; trap 'exit 130' INT TERM HUP
 device=$(uname -n | tr -cd 'A-Za-z0-9._-' | cut -c1-64)
 body=$(printf '{"code":"%s","device":"%s"}' "$code" "$device")
 [ -n "$device" ] || body=$(printf '{"code":"%s"}' "$code")
