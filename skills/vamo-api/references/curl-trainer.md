@@ -1,11 +1,8 @@
----
-name: vamo-api-quickstart
-description: Use when making a first call to the Vamo Developer API, setting up an API key or the Vamo Search MCP server in an agent, or when a copy-paste curl is needed for developer search, filters, sorting, paging, depth, AI facets, enrich by login, similar developers, emails, summaries, deep research or fit ranking. Triggers "set up the Vamo API", "how do I call Vamo", "curl example for Vamo", "connect the Vamo MCP", "what does the Vamo response look like".
----
+# Vamo Developer API: curl walkthrough
 
-# Vamo Developer API: quickstart
-
-Search GitHub developers by what they have built. Sixteen steps, in order, cover the whole API.
+Reference for the `vamo-api` skill. Sixteen steps, in order, cover the whole API. These are worked
+examples written against the spec on 2026-10-09. Check a parameter in the spec before relying on
+it.
 
 Values in angle brackets are yours to fill in: `<login>` is a GitHub username, `<owner/name>` a
 repository, `<org>` a GitHub organization, `<company>` and `<school>` plain names in lowercase.
@@ -15,23 +12,20 @@ repository, `<org>` a GitHub organization, `<company>` and `<school>` plain name
 - Machine-readable spec `https://api.vamotalent.ai/openapi.json`. It is generated from the API, so
   it wins over this file when they disagree.
 
-Once the calls work, `role-decomposition` turns a role into a search spec and
-`vamo-sourcing-agent` runs it into a shortlist.
-
 ---
 
-## 1. Get a key and set up two helpers
+## 1. Load your key and set up two helpers
 
-Sign in at `app.vamotalent.ai`, then Settings, then API keys. The key is shown once.
+Getting a key and storing it safely are covered in the `vamo-api` skill. With the key in
+`VAMO_API_KEY`:
 
 ```bash
-export VAMO_KEY="vamo_sk_..."
-vamo()     { curl -s "https://api.vamotalent.ai$1" -H "Authorization: Bearer $VAMO_KEY"; }
-vamoPost() { curl -s -X POST "https://api.vamotalent.ai$1" -H "Authorization: Bearer $VAMO_KEY" -H "content-type: application/json" -d "$2"; }
+vamo()     { curl -s "https://api.vamotalent.ai$1" -H "Authorization: Bearer $VAMO_API_KEY"; }
+vamoPost() { curl -s -X POST "https://api.vamotalent.ai$1" -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" -d "$2"; }
 ```
 
-The helpers are shell shorthand. A plain `curl -s "..." -H "Authorization: Bearer $VAMO_KEY"`
-works the same anywhere. Keep the key in an environment variable and out of files you commit.
+The helpers are shell shorthand. A plain `curl -s "..." -H "Authorization: Bearer $VAMO_API_KEY"`
+works the same anywhere.
 
 ## 2. Run a first search
 
