@@ -72,6 +72,37 @@ Checked 2026-10-09.
   `/vamo:<skill>`. Update with `/plugin marketplace update vamo-skills`. Copying a skill folder
   into `~/.claude/skills/` or a project's `.claude/skills/` also works.
 
+## OpenAI Codex
+
+Checked 2026-10-09 against OpenAI's documentation.
+
+- **Skills:** Codex reads skills from `~/.agents/skills/` for every project, or from
+  `.agents/skills/` inside a repository. Copy the folders under `skills/` there. Run one with
+  `/skills`, or by typing `$` and its name, such as `$vamo-api-access`. Codex in the terminal, the
+  editor extension and the ChatGPT desktop app all read the same folders.
+- **Access, on your own machine:** `~/.config/vamo/env` as above.
+- **Network, on your own machine:** commands run in a sandbox with the network off by default.
+  The setting is `network_access = true` under `[sandbox_workspace_write]` in
+  `~/.codex/config.toml`. It opens the network for commands as a whole. Restart Codex after
+  editing the file.
+- **Codex cloud:** each task runs in a fresh container with internet access off once setup
+  finishes. In the environment's settings, turn on agent internet access with a domain allowlist
+  and add `api.vamotalent.ai`. Give the environment `VAMO_API_KEY` as an environment variable, or
+  as a network secret limited to `api.vamotalent.ai` where that option is offered. A plain secret
+  is available to setup scripts only and is gone by the time the agent runs.
+
+## ChatGPT
+
+Checked 2026-10-09 against OpenAI's documentation.
+
+- **Skills:** in beta and switched on per workspace by its owners. Where they are on, a skill
+  built elsewhere can be uploaded, and you run one by typing `@` and picking it. Each release of
+  the skills repository carries one zip per skill.
+- **Without Skills:** tell ChatGPT to read a skill's hosted page and follow it.
+- **Calling the API:** a chat reaches outside services through the tools and apps the workspace
+  has connected. If a chat cannot reach `api.vamotalent.ai` directly, connect the Vamo MCP server
+  as an app and use the skills with it, or run the same skills in Codex.
+
 ## A platform not listed here
 
 Ask the two questions the skill is built on. Where can one account keep a private value that is

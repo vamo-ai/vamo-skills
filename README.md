@@ -12,19 +12,17 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
-| [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Corpus-agnostic: GitHub, arXiv, web, vector index, internal DB. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 1.1.1 | Choosing the right endpoint and filter, and reading what comes back: the two filter families, short pages, unknowns. |
-| [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.1 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
-| [`vamo-sourcing-agent`](skills/vamo-sourcing-agent/SKILL.md) | 1.1.1 | Running a role end to end with the Vamo API: recall, qualification, the outreach angle per person. Ships with a 50-domain query library. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.1.1 | **Start here.** Access to the Vamo Developer API from any agent: getting it, storing it so it persists, opening the network path, verifying, reading errors. Includes a curl walkthrough of every route and per-platform notes. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 2.0.0 | Searching for engineers: choosing the endpoint and filters, covering a role with many angles, reading and qualifying what comes back. Includes the full method for a role and query phrasings for 50 domains. |
+| [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.2.2 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
+| [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus: GitHub, arXiv, web, a vector index, an internal database. |
 
 `fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
 that API's levers and response traps.
 
-For a full sourcing run, use them in order. `vamo-api-access` gets the connection working.
-`role-decomposition` turns what the hiring team said into a spec. `vamo-sourcing-agent` runs that
-spec through the funnel and writes the outreach angle for each person. `vamo-search` is the
-reference for reading results underneath both.
+For a whole role, use them in order. `vamo-api-access` gets the connection working.
+`role-decomposition` turns what the hiring team said into a search spec. `vamo-search` runs it and
+reads the results.
 
 ### The spec is the source of truth
 
@@ -62,6 +60,8 @@ and opens the network path.
 | --- | --- | --- |
 | Claude Code | `/plugin install vamo --marketplace vamo-ai/vamo-skills` | `/vamo:vamo-api-access`, `/vamo:role-decomposition`, and so on |
 | Claude on the web or desktop | **Customize**, **Plugins**, **Add**, **Add marketplace**, enter `vamo-ai/vamo-skills`, then install **vamo** | Type `/` and pick `vamo:<skill>` |
+| OpenAI Codex (terminal, editor, ChatGPT desktop) | Copy the folders under `skills/` into `~/.agents/skills/` | `/skills`, or `$vamo-api-access`, `$vamo-search`, and so on |
+| ChatGPT | Where Skills is enabled for the workspace, upload the zips from a release | Type `@` and pick a skill |
 | Any agent with a skills directory | Copy the folders under `skills/` into that directory | By name, or let the agent pick from the description |
 | Any agent at all | Tell it: *"Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-api-access/SKILL.md and follow it"* | One skill per message |
 

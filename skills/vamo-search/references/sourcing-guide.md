@@ -1,14 +1,6 @@
----
-name: vamo-sourcing-agent
-description: Use when sourcing software engineers by calling the Vamo Developer API directly and the job is to go from a role to a qualified, contactable shortlist with a personalized outreach angle per person. Also use when a sourcing run returns celebrity maintainers, thin profiles, keyword-matched noise, or candidates with nothing specific to write about. Triggers "source engineers for this role", "build a shortlist", "find more like our best engineer", "who should we email about this job", "write the outreach angle", "qualify these candidates", "rank and cut this list".
-metadata:
-  version: "1.1.1"
-  updated: "2026-10-09"
----
-
 # Sourcing Engineers by Evidence: A Field Guide for Agents
 
-Written for an agent that calls the API directly. Companion skills in this repo: `vamo-api-access` covers setup, access and errors, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-search` covers how to read results. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
+Reference for the `vamo-search` skill: the long-form method for taking a role from a search to a qualified list of people. `vamo-search` covers the calls and how to read results, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-api-access` covers setup. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
 
 A working manual for an agent that sources software engineers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
 
@@ -28,7 +20,7 @@ This is a reference, not an essay. Graze it. The value is in the volume of worke
 8. Reading a developer: what the signals mean
 9. The bridge: outreach that gets replies
 10. Reusable playbooks
-11. The use-case library: 50 domains, worked (in `references/domain-library.md`)
+11. The use-case library: 50 domains, worked (in `domain-library.md`)
 12. Full reasoning traces
 13. Quick reference
 
@@ -97,7 +89,7 @@ Everything else in the API fences the population that `q` ranks. Lead with `q`. 
 
 Great sourcing is a narrowing funnel, and the size of every stage is proportional to how many finished candidates you need. Want 25? Start by recalling several hundred. Want 100? Start with thousands. Drop-off ratios between stages are roughly constant, so you scale the top to hit the bottom.
 
-**The golden rule: widen the recall before you lower the bar. A bad shortlist damages a sender's reputation.** If a stage leaves you thin, go back to the top and widen the recall. Never lower the bar downstream to fill a quota.
+**The golden rule: widen the recall before you lower the bar. A bad list damages a sender's reputation.** If a stage leaves you thin, go back to the top and widen the recall. Never lower the bar downstream to fill a quota.
 
 | Stage                   | Size (× target) | What happens                                          | API                                       |
 | ----------------------- | --------------- | ----------------------------------------------------- | ----------------------------------------- |
@@ -180,7 +172,7 @@ The band is the heart of good sourcing. **`minCracked=70&maxCracked=88`** is the
 | `requireLocation=true` | Only people with a resolved location. The `location` object itself rides `details.contact.location` at `depth=enriched`. |
 | `garden=summary \| full` | With `depth=deep`. `summary` (the default) is a compact activity read: `activeWeeks`, `last90Days`, `lastActiveDay`. `full` is the day-by-day heatmap. |
 | `sortBy=crackedScore` (etc.) | Order the whole corpus by one fact. Pair with `maxCracked` so the top is gettable. |
-| `depth=core \| enriched \| deep` | `core` = GitHub profile; `enriched` = adds LinkedIn identity (title, company, seniority); `deep` = adds the yearly activity garden. Start wide at `core`, escalate on the shortlist. |
+| `depth=core \| enriched \| deep` | `core` = GitHub profile; `enriched` = adds LinkedIn identity (title, company, seniority); `deep` = adds the yearly activity garden. Start wide at `core`, escalate on the final list. |
 | `facets=ai.match_rationale, ai.person_summary, ai.repo_summaries` | On-demand AI add-ons. `ai.match_rationale` = plain-language "why this person fits this role," the fastest qualify-and-pitch. Resolve async: first read `pending`, call again for the value. The value is `{ matched, reasons }`; check `matched` before reading `reasons`. |
 | `cursor`, `exclude`, `limit` | Page forward, skip ids you hold, size the page. |
 
@@ -214,7 +206,7 @@ vamo "/v1/developers/search?q=distributed+transaction+coordinator,+two-phase+com
 vamo "/v1/developers/search?q=gossip+membership+protocol,+failure+detection,+anti-entropy&depth=core&limit=50"
 ```
 
-None of these is `q=distributed+systems+engineer`. Each names a concrete, checkable artifact a strong person in this space would have built. That is the technique. The full library in `references/domain-library.md` gives phrasing sets for 50 domains.
+None of these is `q=distributed+systems+engineer`. Each names a concrete, checkable artifact a strong person in this space would have built. That is the technique. The full library in `domain-library.md` gives phrasing sets for 50 domains.
 
 **Read the repo, not the repo name.** A repository called `raft` might be someone's homework. A repository called `notes` might be a production consensus library. Rank on what the code and README describe, which is exactly what `q` matches on, and confirm at qualify time.
 
@@ -289,7 +281,7 @@ Search order compares rows inside one query. Across queries and lanes you rank o
 
 Then diversify before you cut, so the list is many conversations and not one:
 
-- A cap per repository and a cap per employer. A shortlist drawn from one team is one conversation.
+- A cap per repository and a cap per employer. A list drawn from one team is one conversation.
 - A cap per primary language unless the role is single-language.
 - For a remote role, a cap per country.
 - Keep the top of the list to target, and hold the next group as a documented reserve.
@@ -358,7 +350,7 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 ## 10. Reusable playbooks
 
-**A. Job description → qualified shortlist.** Parse the JD into must-haves and a domain. Run the 7-stage funnel (section 3). Output a table: name, repo, repo stars, why they match, LinkedIn, GitHub, email, title, company, tenure, country, seniority evidence, band, cracked score, evidence mode, cold-email angle, flags. Plus a short brief with the parsed requirements, the honest funnel counts, and the exact queries run.
+**A. Job description → qualified list.** Parse the JD into must-haves and a domain. Run the 7-stage funnel (section 3). Output a table: name, repo, repo stars, why they match, LinkedIn, GitHub, email, title, company, tenure, country, seniority evidence, band, cracked score, evidence mode, cold-email angle, flags. Plus a short brief with the parsed requirements, the honest funnel counts, and the exact queries run.
 
 **B. "Find more like our best engineer."** Seed `similar?login=<star employee or dream hire>`, widen with a `q` that captures what makes them great, and read the seed's deep-research report to name what to look for. The similar set is the spine; the semantic query catches who the graph misses.
 
@@ -384,7 +376,7 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 ## 11. The use-case library: 50 domains, worked
 
-Read `references/domain-library.md` when you are writing `q` phrasings for a role. It holds 50 worked domains across systems and infrastructure, AI and machine learning, domain-driven and mission work, product and craft, data, and interest and archetype lenses. Each entry gives the weekend-builder read, phrasings to run as separate searches, ways to widen, the evidence that surfaces a real one, and a qualify tell plus a bridge angle.
+Read `domain-library.md` when you are writing `q` phrasings for a role. It holds 50 worked domains across systems and infrastructure, AI and machine learning, domain-driven and mission work, product and craft, data, and interest and archetype lenses. Each entry gives the weekend-builder read, phrasings to run as separate searches, ways to widen, the evidence that surfaces a real one, and a qualify tell plus a bridge angle.
 
 **Do the fan-out in your head before you touch Vamo.** If someone genuinely loved this problem, what would they have built, and how would they describe it? Write three to six of those descriptions as separate `q` phrasings, name a seed person or a canonical repo or an org, and only then run the searches.
 
@@ -418,7 +410,7 @@ vamo "/v1/developers/search?orgs=<a-voice-oss-org>&depth=core&limit=25"
 
 **Qualify (the 8 questions).** Cut a Staff-at-big-tech (Q1, Q2). Cut a profile that is one starter-kit fork (Q3). For each keeper, confirm the repo README is genuinely about audio latency, not a thin wrapper (Q6). Confirm seniority from title plus tenure at `depth=enriched` (Q7). For each, write the one-sentence bridge (Q8); if I cannot, cut.
 
-**Arm the shortlist.** `depth=deep` and `facets=ai.match_rationale` on the top ~20. Get emails for those.
+**Arm the final list.** `depth=deep` and `facets=ai.match_rationale` on the top ~20. Get emails for those.
 
 **Bridge, per person.** "Your `barge-in` handling in `<repo>` cancels TTS on interrupt inside 80ms, which is the exact responsiveness bar we are building to." Vary the shape across the list.
 
@@ -446,7 +438,7 @@ vamo "/v1/developers/search?q=payment+processing&techs=go&depth=enriched&limit=5
 
 **The gettability band.** `minCracked=70&maxCracked=88` for senior IC. Floor cuts noise, ceiling cuts celebrities. Never `sortBy=crackedScore` without a ceiling.
 
-**Depth ladder.** `core` to recall wide → `enriched` for identity on the shortlist → `deep` for the garden on finalists. `facets=ai.match_rationale` to qualify and draft in one.
+**Depth ladder.** `core` to recall wide → `enriched` for identity on the final list → `deep` for the garden on finalists. `facets=ai.match_rationale` to qualify and draft in one.
 
 **Contact and research.** `hasEmail` to gate → `emails?logins=` for the finalists' addresses. `similar?login=` for look-alikes. Deep-research repos once and reuse the saved report.
 

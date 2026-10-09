@@ -4,6 +4,15 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (third release)
+
+- **vamo-search 2.0.0**. Absorbs `vamo-sourcing-agent`, which is removed. The field guide is now
+  `references/sourcing-guide.md` and the query library `references/domain-library.md`. With the
+  plugin installed, `/vamo:vamo-sourcing-agent` becomes `/vamo:vamo-search`.
+- **vamo-api-access 1.1.1, role-decomposition 1.2.2**. Cross-references updated. Platform notes
+  add OpenAI Codex and ChatGPT.
+- `skills.json` drops `category`. The set is one flat list.
+
 ## 2026-10-09 (second release)
 
 - **vamo-api-access 1.1.0**. Renamed from `vamo-api`. Platform-agnostic: storage is described by
