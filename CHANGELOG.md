@@ -14,7 +14,7 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   showing it. The lookup order starts with a setup code and is the same on every system. Saving a
   key you created yourself moved to `references/platforms.md`. A project's instructions are no
   longer listed as a place to keep a key, because they hand the key to the model in every
-  conversation.
+  conversation. The `description` in the header is reworded so that every YAML parser reads it.
 
 ## 2026-10-09 (fifth release)
 
