@@ -1,8 +1,8 @@
 ---
 name: vamo-enrich
-description: Use when the people are already known and the job is to learn more about them with the Vamo Developer API: a candidate about to be interviewed, a list exported from another sourcing tool or an applicant tracking system, GitHub usernames that need location, LinkedIn, contact details or a strength read, or one developer who needs a full research report. Also use when writing a personalized message grounded in what a developer built, or a one-page summary of a candidate for a hiring team. Triggers "is this candidate strong", "enrich this list", "look up these GitHub profiles", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on", "personalize this outreach".
+description: Use when the people are already known and the job is to learn more about them with the Vamo Developer API, for example a candidate about to be interviewed, a list exported from another sourcing tool or an applicant tracking system, GitHub usernames that need location, LinkedIn, contact details or a strength read, or one developer who needs a full research report. Also use when writing a personalized message grounded in what a developer built, or a one-page summary of a candidate for a hiring team. Triggers "is this candidate strong", "enrich this list", "look up these GitHub profiles", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on", "personalize this outreach".
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-10-09"
 ---
 

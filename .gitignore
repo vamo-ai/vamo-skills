@@ -3,3 +3,4 @@ dist/
 vamo-access/
 vamo.env
 .env
+__pycache__/
