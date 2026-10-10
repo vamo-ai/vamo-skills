@@ -148,7 +148,7 @@ Agents run in two kinds of environment, and the right place differs.
 | The agent runs | Examples | Where access lives |
 | --- | --- | --- |
 | On your own machine, with a lasting filesystem | Terminal and editor coding agents | A private file in your home directory, or the operating system keychain |
-| In a sandbox that starts empty each session | Chat assistants with a code sandbox, hosted and cloud agents | The platform's private, lasting store for your account: a personal skill, a private project, or an environment secret |
+| In a sandbox that starts empty each session | Chat assistants with a code sandbox, hosted and cloud agents | The platform's private, lasting store for your account: an environment secret or a personal skill |
 
 A sandbox that starts empty is why an agent asks for access again in every new session. Saving a
 file "in the workspace" there lasts only for that conversation.
@@ -216,7 +216,10 @@ Use whatever the platform offers for private, lasting, per-account data. In orde
 
    Compress the folder with the folder itself at the top level of the zip, upload it as a
    personal skill, then delete the zip and the folder from your computer.
-3. **A private project's instructions**, used only for Vamo work and shared with nobody.
+
+Where a platform has neither, it has no safe place for a key. Use an agent on your own machine
+instead. Never put a key in a project's instructions, a system prompt or a chat message. Each of
+those hands the key to the model in every conversation.
 
 Whichever you use, it is yours alone. Never share the zip, and never add `vamo-access` to a
 shared or public skills repository.
@@ -349,7 +352,7 @@ sixty seconds and let one call finish before deciding to retry.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| The agent asks for access in every new session | The sandbox starts empty each session | An environment secret, the `vamo-access` skill, or a private project |
+| The agent asks for access in every new session | The sandbox starts empty each session | An environment secret or the `vamo-access` skill |
 | The agent asks you to paste a key | It found no stored access | On your own machine, give it a setup line from **Connect a tool** instead |
 | The setup code is refused | It was used, ten minutes passed, or a newer code cancelled it | Press the button in **Connect a tool** again and paste the new line |
 | `curl` behaves differently in PowerShell | In Windows PowerShell, `curl` is another command | Call `curl.exe`, or use the PowerShell forms in `references/platforms.md` |

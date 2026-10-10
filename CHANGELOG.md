@@ -12,7 +12,9 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   macOS, Linux and Windows. Windows is covered throughout: the file lives at
   `%USERPROFILE%\.config\vamo\env`, limited to your account, and PowerShell loads it without
   showing it. The lookup order starts with a setup code and is the same on every system. Saving a
-  key you created yourself moved to `references/platforms.md`.
+  key you created yourself moved to `references/platforms.md`. A project's instructions are no
+  longer listed as a place to keep a key, because they hand the key to the model in every
+  conversation.
 
 ## 2026-10-09 (fifth release)
 
