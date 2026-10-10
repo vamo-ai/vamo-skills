@@ -16,6 +16,16 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   longer listed as a place to keep a key, because they hand the key to the model in every
   conversation. The `description` in the header is reworded so that every YAML parser reads it.
 
+## 2026-10-09 (automation)
+
+- Pull requests are validated by `scripts/validate.py`: the manifest against the folders, each
+  skill header, the plugin manifests, the contents policy, and a higher version plus a changelog
+  line for every skill that changed.
+- A merge to `main` that changes a skill publishes a release with one zip per skill.
+- **vamo-api-access 1.1.3, vamo-search 2.1.2, vamo-enrich 1.0.1, vamo-workflows 1.0.1**. Each
+  `description` is reworded so the header reads the same in every YAML parser. What an agent
+  should do is unchanged.
+
 ## 2026-10-09 (fifth release)
 
 - **role-decomposition 1.3.0**. Top tier is a different thing from famous: no score ceiling still

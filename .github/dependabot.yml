@@ -1,0 +1,7 @@
+# The workflows pin each action to a commit. This raises the pin when the action releases.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

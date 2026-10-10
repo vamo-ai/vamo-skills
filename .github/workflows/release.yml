@@ -1,0 +1,124 @@
+# Publishes one zip per skill as a GitHub release when a skill changes on main, then asks the
+# Vamo website to refresh its copy if a token for that is configured.
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - "skills.json"
+
+permissions:
+  contents: read
+
+# one release at a time, in push order
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    # a fork that syncs main publishes nothing
+    if: github.repository == 'vamo-ai/vamo-skills'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # the whole history and its tags, so the last release is there to compare with
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Validate skills
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # The version and changelog rules run against the last release this commit builds on.
+          # A skill that reached main without a higher version holds every release until it has
+          # one, whichever push comes next. With no release to compare with, they run against
+          # the commit main was at before this push, which is all zeros for a branch that was
+          # just created.
+          if released=$(git describe --tags --abbrev=0 --match 'skills-*' "$GITHUB_SHA" 2>/dev/null); then
+            python3 scripts/validate.py --base "$released"
+          elif [ -n "${BEFORE//0/}" ]; then
+            python3 scripts/validate.py --base "$BEFORE"
+          else
+            python3 scripts/validate.py
+          fi
+
+      - name: Build zips
+        run: bash scripts/package.sh
+
+      - name: Write release notes
+        run: |
+          {
+            echo "One zip per skill, each with the skill folder at its top level."
+            echo
+            jq -r '.skills | to_entries[] | "- **\(.key) \(.value.version)**. \(.value.summary)"' skills.json
+            echo
+            echo "What changed in each version is in [CHANGELOG.md](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/CHANGELOG.md)."
+          } > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The tag comes from the commit and the run, so running this job again gives the
+          # same tag. The "-r" keeps it apart from the releases made by hand before this
+          # workflow, which are named skills-<date>.<n>. A release that already has the tag
+          # counts as done only when it is published and was cut from this commit. Anything
+          # else stops the job.
+          tag="skills-$(git show -s --format=%cs "$GITHUB_SHA")-r${GITHUB_RUN_NUMBER}"
+          if target=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" \
+            --json isDraft,targetCommitish \
+            --jq 'select(.isDraft | not) | .targetCommitish' 2>/dev/null); then
+            if [ "$target" = "$GITHUB_SHA" ]; then
+              echo "Release $tag is already published."
+              exit 0
+            fi
+            echo "::error::A release named $tag exists and is not the published release of $GITHUB_SHA. Nothing was published."
+            exit 1
+          fi
+          gh release create "$tag" dist/*.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$tag" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+
+  # A separate job, so the token for the website never shares a runner with the repository's
+  # scripts or with write access to it. It runs after the release exists and cannot undo it.
+  refresh:
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    env:
+      # "true" when the secret is configured. The step below tests this flag, because a step
+      # condition cannot read secrets, and only that step receives the value.
+      REFRESH_CONFIGURED: ${{ secrets.SKILLS_REFRESH_TOKEN != '' }}
+    steps:
+      - name: Ask the website to refresh its copy
+        if: env.REFRESH_CONFIGURED == 'true'
+        continue-on-error: true
+        env:
+          REFRESH_URL: https://vamotalent.ai/skills/refresh
+          SKILLS_REFRESH_TOKEN: ${{ secrets.SKILLS_REFRESH_TOKEN }}
+        run: |
+          # The header goes to curl on stdin, so the token is in no command line. Redirects are
+          # not followed, so it goes to this host only. The response body is discarded.
+          status=$(printf 'Authorization: Bearer %s\n' "$SKILLS_REFRESH_TOKEN" \
+            | curl --silent --show-error --proto '=https' --max-time 30 --retry 2 \
+                --request POST --header @- --output /dev/null --write-out '%{http_code}' \
+                "$REFRESH_URL") || status="no response"
+          case "$status" in
+            2??) echo "The website accepted the refresh (HTTP $status)." ;;
+            *) echo "::warning::The website refresh did not go through ($status). The release is published and the site keeps its current copy." ;;
+          esac

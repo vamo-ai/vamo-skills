@@ -1,8 +1,8 @@
 ---
 name: vamo-workflows
-description: Use when wiring the Vamo Developer API into something that runs more than once: your own sourcing or hiring agent, a recurring search, a pipeline that enriches people before a message goes out, or a hand-off between Vamo and other tools such as an applicant tracking system, an email sender or a spreadsheet. Also use when designing the data that moves between those steps. Triggers "build a sourcing agent", "automate this search", "run this every week", "pipe Vamo data into our sequences", "sync with our ATS", "connect Vamo to our workflow", "what should the agent loop look like".
+description: Use when wiring the Vamo Developer API into something that runs more than once, for example your own sourcing or hiring agent, a recurring search, a pipeline that enriches people before a message goes out, or a hand-off between Vamo and other tools such as an applicant tracking system, an email sender or a spreadsheet. Also use when designing the data that moves between those steps. Triggers "build a sourcing agent", "automate this search", "run this every week", "pipe Vamo data into our sequences", "sync with our ATS", "connect Vamo to our workflow", "what should the agent loop look like".
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-10-09"
 ---
 

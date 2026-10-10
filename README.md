@@ -13,9 +13,9 @@ step. An agent reads one and behaves better.
 | Skill | Version | What it's for |
 |---|---|---|
 | [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.2.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it with a setup code, storing it so it persists on macOS, Linux and Windows, opening the network path, verifying, reading errors. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 2.1.1 | **Discover.** Find engineers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
-| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.0.0 | **Enrich.** Start from people you already have: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
-| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.0.0 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 2.1.2 | **Discover.** Find engineers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
+| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.0.1 | **Enrich.** Start from people you already have: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
+| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.0.1 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
 | [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.3.0 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
 | [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus. |
 
@@ -137,10 +137,36 @@ is a wording fix. A major version means the earlier behavior is now wrong.
 4. Assert only what you verified. Cite the spec, the route tree, or the measurement.
 5. Teach method and point at the spec for routes and parameters. If the spec is missing
    something an agent needs, open a change against the spec as well.
-6. On every change, raise the version in the header and in `skills.json`, add a changelog
-   line, and run `bash scripts/package.sh` to build the zips for the release. `skills.json` also carries each
-   skill's display `title`, `category` and `files`; the packaging script fails if `files` and
-   the folder disagree.
+6. On every change, raise the version in the header and in `skills.json` and add a changelog
+   line. `skills.json` also carries each skill's display `title`, `summary` and `files`.
+
+Every pull request is validated. Run the same checks first, on a branch that is up to date with
+`main`:
+
+```bash
+git fetch origin
+python3 scripts/validate.py --base origin/main
+```
+
+- `skills.json` and the folders under `skills/` list the same skills and the same markdown
+  files.
+- Each header is valid YAML and has a `name` equal to its folder, a `description` of at most
+  1024 characters, and a `metadata.version` equal to the one in `skills.json`. A value with
+  `: ` or ` #` in it goes in quotes.
+- Every file under `skills/` is a regular file of UTF-8 text, so the contents policy can read
+  all of it. An image, a PDF or a symbolic link does not pass. Link to a picture, or describe
+  it in words.
+- The plugin manifests parse and name the same plugin as `skills.json`.
+- The contents policy holds: no em dashes, nothing that looks like a key in any file, and none
+  of the words listed at the top of the script, in route and field names too.
+- A skill that changed has a higher version, and `CHANGELOG.md` changed with it. This is the
+  check that needs `--base`.
+- `bash scripts/package.sh` builds one zip per skill.
+
+A merge to `main` that changes a skill publishes a
+[release](https://github.com/vamo-ai/vamo-skills/releases) with those zips attached, tagged
+`skills-<date>-r<run>`. The release runs the version check against the last release, so a skill
+that reached `main` without a higher version holds the next release until it has one.
 
 ## Contents policy
 

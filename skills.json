@@ -17,7 +17,7 @@
     },
     "vamo-search": {
       "title": "Search",
-      "version": "2.1.1",
+      "version": "2.1.2",
       "updated": "2026-10-09",
       "path": "skills/vamo-search",
       "summary": "Find engineers by what they built. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
@@ -30,7 +30,7 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have: a strength read before an interview, location and LinkedIn for a list, contact details, a personalized opening line, a full research report.",
@@ -40,7 +40,7 @@
     },
     "vamo-workflows": {
       "title": "Workflows",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "updated": "2026-10-09",
       "path": "skills/vamo-workflows",
       "summary": "Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet.",
