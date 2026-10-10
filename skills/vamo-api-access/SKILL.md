@@ -1,8 +1,8 @@
 ---
 name: vamo-api-access
-description: Use when an agent needs access to the Vamo Developer API over HTTP: first-time setup, or a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
+description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup or for a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.1.2"
+  version: "1.1.3"
   updated: "2026-10-09"
 ---
 
