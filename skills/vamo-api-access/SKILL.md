@@ -1,8 +1,8 @@
 ---
 name: vamo-api-access
-description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup or for a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
+description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup, for a setup code to trade for a key, or for a call that fails before it returns results. Covers getting API access (a one-time setup code that starts with vamo_xc_, or a key a person created), storing it so the next session still has it on macOS, Linux and Windows, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "here is my Vamo setup code", "connect a tool", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.1.3"
+  version: "1.2.0"
   updated: "2026-10-09"
 ---
 
@@ -18,7 +18,7 @@ session and fix the first one that fails.
 | Check | Test | If it fails |
 | --- | --- | --- |
 | The network reaches Vamo | `GET https://api.vamotalent.ai/openapi.json` returns JSON. No key needed | [Open network access](#open-network-access) |
-| Access is available | `VAMO_API_KEY` is set, or a saved access file is found | [Get access](#get-access), then [Store it](#store-access-so-it-persists) |
+| Access is available | The person's message carries a setup code, `VAMO_API_KEY` is set, or a saved access file is found | [Get access](#get-access), then [Store it](#store-access-so-it-persists) |
 | Access works | One small search returns results | [Read the error](#read-the-error) |
 
 Do not fall back to a different data source when a check fails. A general GitHub search answers a
@@ -62,28 +62,78 @@ Use it to learn the shape, and check each parameter against the spec before rely
 
 ## Get access
 
-A person does this once, in a browser.
+Access is an API key that starts with `vamo_sk_`. It reaches the agent in one of two ways, and the
+right one depends on where the agent runs.
+
+| The agent runs | How access arrives |
+| --- | --- |
+| On your own machine, with a lasting filesystem | A **setup code**. The Vamo app gives one line to paste, and the agent trades the code in it for a key and stores the key by itself. Nobody copies a key |
+| In a sandbox that starts empty each session | A key a person creates in the Vamo app and places in the platform's private store |
+
+Both come with a plan that includes API keys. On any other plan the account owner changes the plan
+or contacts Vamo.
+
+### With a setup code
+
+A person does this in a browser, once for each tool on each machine.
 
 1. Sign in at `https://app.vamotalent.ai`.
-2. Open **Settings**, then **API Keys** (under Integrations). Direct link:
+2. Open **Connect a tool** and pick the tool the agent runs in. Direct link:
+   `https://app.vamotalent.ai/settings/mcp`. Where it offers a browser sign-in for the tool, choose
+   the setup code instead. These skills call the API, and the API takes a key.
+3. Paste the line it gives into the agent. The line carries a setup code that starts with
+   `vamo_xc_`.
+
+A setup code works once and lasts ten minutes. Asking for a new one cancels the one before it. The
+agent trades it for a key with one request, which needs no key of its own:
+
+- `POST https://api.vamotalent.ai/v1/keys/exchange` with the JSON body
+  `{"code": "<the code>", "device": "<this machine's hostname>"}`.
+- A success carries `key`, `label`, `permissions`, `apiBaseUrl` and `mcpUrl`. `key` is the API
+  key, and this is the only time it is returned. `label` names the tool and the machine, which is
+  how the key is listed in the app.
+- Every failure is the same `404`: the code was used, has expired or was cancelled by a newer one.
+  Ask the person for a fresh line. Never send the same code twice.
+
+This one route is left out of `openapi.json` on purpose. This skill is where it is described.
+
+**The key goes from the response straight into the private file. It is never shown.** Run the block
+for your system in `references/setup-code.md` exactly as written. It sends the code, writes the key
+where [Store access](#store-access-so-it-persists) says it lives, and prints only the label, the
+permissions and two addresses. Never make the request in a way that prints the response, and never
+ask the person to read out or paste a key.
+
+The line usually names a hosted page with the same steps. When it does, follow that page: it sends
+the code to the API that issued it. The block here is for a line that names no page, or a page that
+cannot be read. Exchange the code once, never both ways.
+
+Use a setup code only where the home directory lasts between sessions. In a sandbox that starts
+empty the stored key is gone when the session ends.
+
+### With a key a person creates
+
+For a sandbox that starts empty. A person does this once, in a browser.
+
+1. Sign in at `https://app.vamotalent.ai`.
+2. Open **Settings**, then **API keys** (under Developer). Direct link:
    `https://app.vamotalent.ai/settings/api-keys`.
 3. Choose **Create key**. Give it a name that says who or what uses it, such as "Sam's laptop".
 4. Under **Permissions**, set **Search** to **Read**. That is enough to search, enrich, find
    similar developers, get summaries and get email addresses.
-5. Choose **Create key** and copy the secret. It starts with `vamo_sk_` and is shown once.
+5. Choose **Create key** and copy the secret into the platform's private store. It starts with
+   `vamo_sk_` and is shown once.
 
 Notes on permissions:
 
 - Read and Write here are levels of access to one area. Set only what the work needs. A key can
   be changed later with **Edit permissions**, and the change applies to the next request.
-- **Search: Write** adds reading saved deep-research reports and managing saved searches.
+- **Search: Write** adds reading saved deep-research reports.
 - Starting a deep-research job, and scoring people against a role, each need their own row in the
   picker. Those rows appear only on accounts that have the feature. The spec names the exact
   requirement for every operation under `x-vamo.entitlement`.
-- No **Create key** button means key creation is not enabled for the account. Contact Vamo.
 
-A lost key cannot be shown again. Create a new one and **Revoke** the old one. One key per person
-or per agent keeps a revoke from breaking anyone else.
+A lost key cannot be shown again. Get a fresh setup line, or create a new key, and **Remove** the
+old one. One key per person or per agent keeps a removal from breaking anyone else.
 
 ---
 
@@ -98,31 +148,44 @@ Agents run in two kinds of environment, and the right place differs.
 | The agent runs | Examples | Where access lives |
 | --- | --- | --- |
 | On your own machine, with a lasting filesystem | Terminal and editor coding agents | A private file in your home directory, or the operating system keychain |
-| In a sandbox that starts empty each session | Chat assistants with a code sandbox, hosted and cloud agents | The platform's private, lasting store for your account: a personal skill, a private project, or an environment secret |
+| In a sandbox that starts empty each session | Chat assistants with a code sandbox, hosted and cloud agents | The platform's private, lasting store for your account: an environment secret or a personal skill |
 
 A sandbox that starts empty is why an agent asks for access again in every new session. Saving a
 file "in the workspace" there lasts only for that conversation.
 
 ### On your own machine
 
-Run this in your own terminal window, so the value is typed there and never into a chat:
+The key lives in one private file per user. The format is the same on every system, so one reader
+works everywhere.
 
-```bash
-mkdir -p ~/.config/vamo && chmod 700 ~/.config/vamo
-printf 'Paste your Vamo API key, then press Enter: ' && read -rs K \
-  && printf 'VAMO_API_KEY=%s\n' "$K" > ~/.config/vamo/env \
-  && chmod 600 ~/.config/vamo/env && unset K && echo ' saved'
-```
+| System | File | Kept private by |
+| --- | --- | --- |
+| macOS and Linux | `~/.config/vamo/env` | Directory mode `700`, file mode `600` |
+| Windows | `%USERPROFILE%\.config\vamo\env` | Inheritance removed and access granted to your account only, with `icacls` |
 
-Any agent on that machine then loads it at the start of a session:
+The file holds one line, `VAMO_API_KEY=...`, ending in a single newline with no byte order mark.
+A setup code exchange writes it for you. To save a key you created yourself, type it into your own
+terminal, never into a chat: `references/platforms.md` has the block for each system.
+
+Any agent on that machine loads it at the start of a session. Each form is an assignment, so
+nothing is printed.
+
+macOS and Linux:
 
 ```bash
 set -a; . ~/.config/vamo/env; set +a
 ```
 
+Windows, in PowerShell:
+
+```powershell
+$line = Get-Content (Join-Path $env:USERPROFILE '.config\vamo\env') | Where-Object { $_ -like 'VAMO_API_KEY=*' } | Select-Object -First 1
+$env:VAMO_API_KEY = "$line" -replace '^VAMO_API_KEY=', ''
+```
+
 An operating system keychain or a secrets manager works the same way: store the value once and
-have the agent read it into `VAMO_API_KEY`. Inside a project, a `.env` file is fine as long as
-`.env` is listed in `.gitignore` before the value goes in.
+have the agent read it into `VAMO_API_KEY`. Keep the key out of project `.env` files, shell
+profiles and repositories.
 
 ### In a sandbox that starts empty
 
@@ -153,7 +216,10 @@ Use whatever the platform offers for private, lasting, per-account data. In orde
 
    Compress the folder with the folder itself at the top level of the zip, upload it as a
    personal skill, then delete the zip and the folder from your computer.
-3. **A private project's instructions**, used only for Vamo work and shared with nobody.
+
+Where a platform has neither, it has no safe place for a key. Use an agent on your own machine
+instead. Never put a key in a project's instructions, a system prompt or a chat message. Each of
+those hands the key to the model in every conversation.
 
 Whichever you use, it is yours alone. Never share the zip, and never add `vamo-access` to a
 shared or public skills repository.
@@ -162,13 +228,21 @@ shared or public skills repository.
 
 ### Rules for the agent
 
-- Look before asking: the `VAMO_API_KEY` environment variable, then `~/.config/vamo/env`, then a
-  `vamo.env` in an installed `vamo-access` skill, then `.env` in the working directory.
-  `VAMO_KEY` is an accepted older name.
+- Look before asking, in this order on every system:
+  1. A setup code in the person's message. Exchange it, then load the file. The key it returns
+     replaces whatever was stored or set before.
+  2. The `VAMO_API_KEY` environment variable. `VAMO_KEY` is an accepted older name.
+  3. The private file: `~/.config/vamo/env`, or `%USERPROFILE%\.config\vamo\env` on Windows.
+  4. A `vamo.env` in an installed `vamo-access` skill.
+  5. `.env` in the working directory.
 - Send it only as a header to `api.vamotalent.ai`: `Authorization: Bearer $VAMO_API_KEY`. Never
   put it in a URL, a filename, a log line or a reply.
-- When nothing is found, work out which kind of environment you are in and give the person the
-  matching steps above. Asking them to paste the value into the chat is the last resort.
+- Never print it. Read a file into a variable, never onto the screen, and confirm access is
+  present by its length.
+- When nothing is found, work out which kind of environment you are in. On the person's own
+  machine, ask for a setup line: "Open Connect a tool in the Vamo app, pick this tool, and paste the
+  setup line it gives you here. If it offers a browser sign-in, choose the setup code instead." In
+  a sandbox that starts empty, give the storage steps above. Never ask for the key itself.
 - When a person pastes it into the chat anyway, use it for the task, then offer to prepare the
   `vamo-access` folder or the env file so the next session has it. Saving access to a private
   place at the owner's request is the intended setup.
@@ -205,7 +279,7 @@ Other hosts, only if you use them:
 
 | Host | Used for |
 | --- | --- |
-| `app.vamotalent.ai` | Creating API keys, in a browser. The agent never calls it |
+| `app.vamotalent.ai` | Connect a tool and API keys, in a browser. The agent never calls it |
 | `vamotalent.ai` | Reading these skills and the setup prompts as hosted pages |
 | `mcp.vamotalent.ai` | The Vamo MCP server, when connected as a tool |
 
@@ -245,6 +319,8 @@ curl -s -m 60 -G https://api.vamotalent.ai/v1/developers/search \
   | jq -r '.results[0].login // .'
 ```
 
+On Windows, `references/platforms.md` has the same three checks in PowerShell.
+
 Report the outcome of each check in a sentence. When all three pass, say so and ask what the
 person is looking for.
 
@@ -257,7 +333,8 @@ Every error body has a stable `code` and a `message`. Many carry more: `reason`,
 
 | Status and `code` | What it means | What to do |
 | --- | --- | --- |
-| `401 unauthorized` | No key reached the API, or the key is wrong or revoked | Check the header is `Authorization: Bearer <key>` with no quotes, line breaks or spaces inside the key. Create a new key if this one was revoked |
+| `401 unauthorized` | No key reached the API, or the key is wrong or revoked | Check the header is `Authorization: Bearer <key>` with no quotes, line breaks or spaces inside the key. Get a fresh setup line, or create a new key, if this one was revoked |
+| `404` from `/v1/keys/exchange` | The setup code was used, has expired or was cancelled by a newer one | Ask the person for a fresh line from **Connect a tool**. Never send the same code again |
 | `403 forbidden` with `entitlement` | The key lacks that permission | Name the entitlement to the key's owner. They add it under **Edit permissions**. It applies to the next request |
 | `403 forbidden` with `reason: FEATURE_NOT_ENABLED` | The account does not have that feature | Tell the person which feature. Vamo enables it per account |
 | `402 payment_required` | The account's plan or balance does not cover the call | Relay `reason` and any `remedy` to the account owner. Stop retrying |
@@ -275,7 +352,10 @@ sixty seconds and let one call finish before deciding to retry.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| The agent asks for access in every new session | The sandbox starts empty each session | An environment secret, the `vamo-access` skill, or a private project |
+| The agent asks for access in every new session | The sandbox starts empty each session | An environment secret or the `vamo-access` skill |
+| The agent asks you to paste a key | It found no stored access | On your own machine, give it a setup line from **Connect a tool** instead |
+| The setup code is refused | It was used, ten minutes passed, or a newer code cancelled it | Press the button in **Connect a tool** again and paste the new line |
+| `curl` behaves differently in PowerShell | In Windows PowerShell, `curl` is another command | Call `curl.exe`, or use the PowerShell forms in `references/platforms.md` |
 | "I won't write that to a file" | The agent is being careful with a pasted secret | Tell it the access is yours and you want it saved privately, then follow the storage steps |
 | "Network only allows package registries" | Outbound requests are limited | Allow `api.vamotalent.ai`, new session |
 | The network setting cannot be found | An admin controls it | Send the admin the one-line request |

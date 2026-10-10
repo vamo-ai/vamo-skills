@@ -4,6 +4,20 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-09 (sixth release)
+
+- **vamo-api-access 1.2.0**. On your own machine, access now arrives as a setup code: one line from
+  **Connect a tool** in the app, which the agent trades for a key and stores by itself. Nobody
+  copies a key, and an agent never asks for one. `references/setup-code.md` has the exchange for
+  macOS, Linux and Windows. Windows is covered throughout: the file lives at
+  `%USERPROFILE%\.config\vamo\env`, limited to your account, and PowerShell loads it without
+  showing it. The lookup order starts with a setup code and is the same on every system. Saving a
+  key you created yourself moved to `references/platforms.md`. A project's instructions are no
+  longer listed as a place to keep a key, because they hand the key to the model in every
+  conversation. The `description` in the header is reworded so that every YAML parser reads it.
+  The steps for a key a person creates follow the app: API keys sit under Developer in Settings, a
+  key is taken away with **Remove**, and Search: Write is reading saved deep-research reports.
+
 ## 2026-10-09 (automation)
 
 - Pull requests are validated by `scripts/validate.py`: the manifest against the folders, each
