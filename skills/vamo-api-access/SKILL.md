@@ -115,7 +115,7 @@ empty the stored key is gone when the session ends.
 For a sandbox that starts empty. A person does this once, in a browser.
 
 1. Sign in at `https://app.vamotalent.ai`.
-2. Open **Settings**, then **API Keys** (under Integrations). Direct link:
+2. Open **Settings**, then **API keys** (under Developer). Direct link:
    `https://app.vamotalent.ai/settings/api-keys`.
 3. Choose **Create key**. Give it a name that says who or what uses it, such as "Sam's laptop".
 4. Under **Permissions**, set **Search** to **Read**. That is enough to search, enrich, find
@@ -127,13 +127,13 @@ Notes on permissions:
 
 - Read and Write here are levels of access to one area. Set only what the work needs. A key can
   be changed later with **Edit permissions**, and the change applies to the next request.
-- **Search: Write** adds reading saved deep-research reports and managing saved searches.
+- **Search: Write** adds reading saved deep-research reports.
 - Starting a deep-research job, and scoring people against a role, each need their own row in the
   picker. Those rows appear only on accounts that have the feature. The spec names the exact
   requirement for every operation under `x-vamo.entitlement`.
 
-A lost key cannot be shown again. Get a fresh setup line, or create a new key, and **Revoke** the
-old one. One key per person or per agent keeps a revoke from breaking anyone else.
+A lost key cannot be shown again. Get a fresh setup line, or create a new key, and **Remove** the
+old one. One key per person or per agent keeps a removal from breaking anyone else.
 
 ---
 

@@ -15,6 +15,8 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   key you created yourself moved to `references/platforms.md`. A project's instructions are no
   longer listed as a place to keep a key, because they hand the key to the model in every
   conversation. The `description` in the header is reworded so that every YAML parser reads it.
+  The steps for a key a person creates follow the app: API keys sit under Developer in Settings, a
+  key is taken away with **Remove**, and Search: Write is reading saved deep-research reports.
 
 ## 2026-10-09 (automation)
 
