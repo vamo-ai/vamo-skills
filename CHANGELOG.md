@@ -6,6 +6,23 @@ patch version. A change that makes earlier behavior wrong raises the major versi
 
 ## 2026-10-13
 
+- **vamo-api-access 1.4.0, vamo-enrich 1.1.0, vamo-workflows 1.1.0, vamo-troubleshooting 1.1.0,
+  role-decomposition 1.4.0**. Search and lookup move to the v2 developers API: a search is one
+  JSON body to `POST /v2/developers/search` (facts as filters with name resolution, the work as
+  one phrase, `repos`, `sort`, `cursor`, `exclude`), lookups go to `POST /v2/developers` (logins,
+  LinkedIn profiles or ids), and similar, enrich, emails, summaries and deep research use their
+  `/v2` routes. `GET /v2/developers/fields`, `POST /v2/developers/search/validate` and
+  `POST /v2/developers/resolve` replace reading parameters from the spec. When a `/v2/developers`
+  route answers `404` or `503` on the production host, each skill falls back to the v1 route of
+  the same name and says so in one line.
+  - `vamo-api-access`: verification runs one v2 search, with the v1 form as the fallback. The curl
+    walkthrough is rewritten for v2 bodies.
+  - `vamo-enrich`: a row with only a LinkedIn URL can now be looked up.
+  - `vamo-workflows`: stored searches are validated before each run; the record carries devRank.
+  - `vamo-troubleshooting`: the v2 `400` body (`error`, `hint`) and the `404` / `503` fallback.
+  - `role-decomposition`: every binding, band and planned call is written as v2 filters
+    (`devrank`, `location_ids`, `former_company_ids`, `past_company_ids`, `school_ids`,
+    `graduation_year`, `title_level`), with the worked example to match.
 - **vamo-search 3.0.0**. Searches with one request to the v2 developers API
   (`POST /v2/developers/search`, `/similar`, `/aggregate`): facts are filters, the work is one
   short phrase in a vector lane, repositories and look-alike seeds are part of the same body.

@@ -1,9 +1,9 @@
 ---
 name: role-decomposition
-description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software engineers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
+description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software developers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
 metadata:
-  version: "1.3.1"
-  updated: "2026-10-12"
+  version: "1.4.0"
+  updated: "2026-10-13"
 ---
 
 # Role Decomposition
@@ -13,9 +13,15 @@ Sort every statement into its kind, turn the kind-of-work statements into **lane
 everything else to an exact filter and an exact field you will read. The output is one spec that a
 person can redline and an agent can run.
 
-Written against the Vamo Developer API (`https://api.vamotalent.ai`, spec at `/openapi.json`, which
-wins over this file when they disagree). The sorting and lane method holds for any search that
-ranks people by what they built.
+Written against the Vamo v2 developers API (`https://api.vamotalent.ai`, `POST /v2/developers/search`
+with one JSON body; the fields and their operators are listed live at `GET /v2/developers/fields`,
+which wins over this file when they disagree). The sorting and lane method holds for any search
+that ranks people by what they built.
+
+On the production host, `/v2/developers/*` can answer `404` or `503` until the v2 engine is
+switched on there. Then probe on the v1 route of the same name (`GET /v1/developers/search` and
+its query parameters, in the spec at `/openapi.json`), and say in one line that the probes ran on
+v1. The spec you write stays the same: its filters name what to bind, whichever route runs it.
 
 This skill stops at the spec and its lane grades. `vamo-search` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
@@ -28,11 +34,11 @@ funnel, qualifies people and writes the outreach angle. `vamo-search` covers how
 
 Each of these produces a list that looks fine and is wrong.
 
-1. **The whole brief in one `q`.** `q` is matched against what people built. A school, an employer,
-   a city, a years-of-experience number or an adjective inside `q` filters nothing and pulls the
-   ranking toward repos that happen to contain the word. Every non-work criterion leaves `q` and
-   gets its own lever.
-2. **Describing the person.** "Senior compiler engineer" matches no README. "A TypeScript type
+1. **The whole brief in one phrase.** The phrase in `rank_by` (`["v", "ANN", ["Embed", "..."]]`) is
+   matched against what people built. A school, an employer, a city, a years-of-experience number
+   or an adjective inside it filters nothing and pulls the ranking toward repos that happen to
+   contain the word. Every non-work criterion leaves the phrase and becomes its own filter.
+2. **Describing the person.** "Senior compiler developer" matches no README. "A TypeScript type
    checker written in Rust" matches the people who wrote one. Queries describe artifacts.
 3. **A preference promoted to a gate.** Most developers have no school or employer on file. Gating
    on a field removes everyone the data is silent about, including the strongest builders. Silence
@@ -70,9 +76,10 @@ Questions worth asking when the notes leave them open:
 When nobody is available to answer, write the spec anyway. Mark each assumption as assumed and put
 the question under `open_questions`.
 
-A contacted list that arrives as names or emails needs resolving to GitHub logins before it can
-go in `exclude` (`/v1/developers/enrich?logins=` returns the `id`). Rows you cannot resolve stay on
-a manual scrub list that is checked before any outreach.
+A contacted list needs resolving to developer ids before it can go in `exclude`.
+`POST /v2/developers` with `{"logins": [...], "linkedin": [...]}` returns the `id` for GitHub
+usernames and LinkedIn URLs, 25 per call. Rows with only a name or an email, and rows you cannot
+resolve, stay on a manual scrub list that is checked before any outreach.
 
 ---
 
@@ -86,7 +93,7 @@ the top of the spec, because it is the part a client can check fastest.
 | **Lane** | A kind of work the person has done | Queries and seeds (Step 4) |
 | **Gate** | Binary. The client rejects anyone who fails it | A binding filter plus a field you confirm (Step 6) |
 | **Rank** | A preference | An ordering signal. Unknown counts as zero and the person stays |
-| **Exclude** | People and companies that must stay out | `excludeCurrentCompanies`, `exclude`, a confirm on every survivor |
+| **Exclude** | People and companies that must stay out | `["Not", ["current_company_ids", ...]]`, `exclude`, a confirm on every survivor |
 | **Screen** | A trait no search can read | A proxy you can observe, or a named item for a person to assess |
 
 Two more kinds of statement set up the run and sit beside the bins:
@@ -117,11 +124,13 @@ Things that look like one criterion and are two:
 
 - **Location and work authorization.** A country filter confirms where someone is. Authorization
   is a Screen item for the first call.
-- **A duration.** "Hasn't written code in two years" becomes `pushedAfter=<date>` at recall and a
-  garden confirm afterward.
+- **A duration.** "Hasn't written code in two years" becomes
+  `["last_active_at", "Gte", "<date>T00:00:00Z"]` at recall and a garden confirm afterward.
+  Activity is partial data: the filter drops people with none on file, so run it as a Rank (`"sort":
+  "recent"`) unless the client made it a Gate.
 - **A list of admired employers.** The list is a Rank. The reason the client gave for the list
-  ("engineer-led, grew fast") is worth more: it lets you extend the list with `peerCompanies` and
-  recognise a company the client did not think to name.
+  ("developer-led, grew fast") is worth more: it lets you extend the list with peer companies
+  yourself and recognise a company the client did not think to name.
 
 **Statements that contradict each other go to `open_questions`.** A named school outside the
 country Gate, a seniority ask the comp band cannot reach, a remote-friendly line beside an office
@@ -140,14 +149,16 @@ which kind this is before sorting anything else, because it changes the band and
 | Part-time expert, advisor, reviewer | Floor only | Depth is the point, so principal and staff titles are targets. Location becomes a segment |
 
 **The client's stated bar overrides the table.** When the client says they want the very best and
-are glad to see principals, directors and staff engineers, set a high floor (`minCracked=85`, or
-`tier=elite`) and no score ceiling, whatever the engagement. Record their words beside the band.
+are glad to see principals, directors and staff developers, set a high devRank floor
+(`["devrank", "Gte", 85]`) and no score ceiling, whatever the engagement. Record their words
+beside the band.
 
-**Top tier is a different thing from famous.** A principal engineer with a few hundred followers
+**Top tier is a different thing from famous.** A principal developer with a few hundred followers
 and a household name in the field can carry the same score. The second gets a steady stream of
-inbound whatever the role. Keep `hideHighProfile=true` on, and after enrich set aside anyone with
-a very large public following (`details.githubProfile.core.followers`). Write those names to a
-separate file with the reason, so the client can see who was left off and overrule it.
+inbound whatever the role. Keep a reach ceiling on (`["followers", "Lte", <ceiling>]`, set from
+the benchmarks), and after enrich set aside anyone with a very large public following
+(`details.githubProfile.core.followers`). Write those names to a separate file with the reason,
+so the client can see who was left off and overrule it.
 
 For part-time and contract work add two Screen items for the first call: whether the person's
 employer permits outside work, and whether their employer is close enough to the client's business
@@ -195,7 +206,7 @@ Draw lanes from six sources:
 2. **Artifacts named in the notes.** "A database, a query planner, a text editor" is three lanes
    handed to you.
 3. **Projects the client respects.** People with deep, long-running contributions to those
-   projects are a lane of their own, seeded with `repos` and `orgs`.
+   projects are a lane of their own, seeded with `repos` and `{"repos_of": "<org>"}`.
 4. **Adjacent crafts.** The same hard problem inside a different product. A sync-engine role
    reaches collaborative editors, multiplayer netcode and offline-first mobile apps.
 5. **The care axis.** What someone who loves this problem builds unpaid. This lane finds people a
@@ -217,10 +228,10 @@ Each lane is a card:
     - reactive signals runtime with glitch-free propagation, written from scratch
     - differential dataflow engine that updates query results from input deltas
     - build system that reruns only the steps whose inputs changed, with early cutoff
-  seed_repos: [<owner/name>]            # canonical projects, for the `repos` lever
-  seed_orgs: []                         # for `orgs`
-  seed_people: []                       # logins for /v1/developers/similar
-  levers: { lang: "rust" }              # only what is specific to this lane
+  seed_repos: [<owner/name>]            # canonical projects, for "repos" and {"like": [...]}
+  seed_orgs: []                         # for ["contributed_repo_ids", "ContainsAny", {"repos_of": "<org>"}]
+  seed_people: []                       # logins for POST /v2/developers/similar
+  filters: [["person_languages", "ContainsAny", ["rust:strong", "rust:primary"]]]   # only what is specific to this lane
   evidence: owner                       # owner, contributor, research or teaching (see below)
   pitch: the engine team's recalculation core
   priority: 1                           # 1 center of the role, 2 adjacent, 3 long shot
@@ -231,7 +242,7 @@ Each lane is a card:
 
 | Evidence | The work lives in | Confirm with |
 | --- | --- | --- |
-| `owner` | Tools people publish under their own name | `match.repos[].role`, stars, the README |
+| `owner` | Tools people publish under their own name | `evidence.matches[].repo_role`, stars, the README |
 | `contributor` | A few canonical projects owned by organizations | `repos[].commits`, months of contribution, a repo deep-research report |
 | `research` | Paper repositories | Authorship and what the person implemented. Stars follow the paper |
 | `teaching` | From-scratch or annotated implementations | Working code, measured results, clear explanation |
@@ -243,7 +254,8 @@ their best people read as contributors. Grading that lane on owner matches would
 now means the outreach for a compiler person and for a sync person starts from different
 sentences.
 
-Five to eight queries per lane. Query rules:
+Five to eight queries per lane. Each query is one phrase, sent as
+`"rank_by": ["v", "ANN", ["Embed", "<query>"]]`. Query rules:
 
 - **Describe an artifact.** Name the thing and what makes it hard.
 - **One idea per query.** Five narrow queries beat one wide one.
@@ -273,14 +285,15 @@ Benchmarks and admired repos tell you what "strong" means for this client, in nu
 **People.** Pull them once:
 
 ```
-GET /v1/developers/enrich?logins=<benchmark logins>&depth=deep&facets=tags.repos
+POST /v2/developers
+{"logins": ["<benchmark logins>"], "depth": "deep", "facets": ["tags.repos"]}
 ```
 
 Record for each:
 
 | Reading | Field |
 | --- | --- |
-| Reputation | `details.score.cracked.crackedScore`, `details.score.cracked.tier` |
+| Reputation | devRank: `details.score.cracked.crackedScore` on a looked-up row, `index.profile.devrank` on a search row (the same score) |
 | Reach | `details.githubProfile.core.followers`, `core.totalStars` |
 | Their best work | `details.githubProfile.repos[]`: `stars`, `owned`, `commits` |
 | Rhythm | `details.github.gardenSummary`: `activeWeeks`, `last90Days`, `lastActiveDay` |
@@ -288,20 +301,21 @@ Record for each:
 
 That is the signature. From it set:
 
-- **The band.** `minCracked` and `maxCracked` bracketing the benchmarks. With no benchmarks, a
-  senior individual-contributor search starts at `minCracked=70&maxCracked=88`. For any other
-  level, run the first probe with no band, read the scores of the rows you would keep, and bracket
-  those.
+- **The band.** `["devrank", "Gte", <floor>]` and `["devrank", "Lte", <ceiling>]` bracketing the
+  benchmarks, with `["devrank", "NotEq", null]` because `Lte` keeps people with no score. With no
+  benchmarks, a senior individual-contributor search starts at 70 to 88. For any other level, run
+  the first probe with no band, read the scores of the rows you would keep, and bracket those.
 - **A ceiling for reach.** When the client names someone "too famous to get", seed with their
-  project (`repos`) and their login (`/v1/developers/similar`), set `maxCracked` below them and
-  add `hideHighProfile=true`. When the person is described and unnamed, ask who it is and seed the
-  lane with the canonical repos of the thing described.
+  project (`repos`) and their login (`POST /v2/developers/similar`), set the devRank ceiling below
+  them and add a followers ceiling. When the person is described and unnamed, ask who it is and
+  seed the lane with the canonical repos of the thing described.
 - **An activity floor**, when the client wants people building now.
-- **Tag vocabulary.** `subjects` and `techs` are hard filters on tags. Use values you have seen on
-  a real row, and leave both out of the first probe until you have.
-- **Filter spellings.** Company, school and language values match as text. Send one small probe
-  per value (`limit=3`) and confirm on the returned rows before building a funnel on it. Short or
-  ambiguous company names need this most.
+- **Tag vocabulary.** `person_tech` filters on technology tags. Use values you have seen on a real
+  row or in `GET /v2/developers/fields`, and leave it out of the first probe until you have.
+- **Name spellings.** Places, companies and schools resolve by name. `POST /v2/developers/resolve`
+  with `{"place": [...], "company": [...], "school": [...]}` shows how each name reads, and an
+  unknown name is a 400 that lists the closest known ones. Check every name once before building a
+  funnel on it. Short or ambiguous company names need this most.
 
 **Repos.** Each comment the client attached to an example repo names a signal. Translate it into
 something you can read on a candidate:
@@ -325,40 +339,43 @@ you read to confirm.
 
 | Criterion | Filter at recall | Reach | Confirm by reading |
 | --- | --- | --- | --- |
-| Kind of work | `q`, `skills`, `repos`, `subjects`, `techs`, `orgs` | everyone | `match.repos[]`: `fullName`, `stars` |
-| Language | `lang` | everyone, unknowns stay in | `match.repos[].language`, `core.languages` |
-| Owns the work | none | | `match.repos[].role`, `repos[].owned`, `repos[].commits` |
-| Reputation band | `minCracked`, `maxCracked`, `tier`, `hideHighProfile`, `minStars`, `maxStars` | everyone | `details.score.cracked.crackedScore` |
-| Building now | `pushedAfter` | everyone | `gardenSummary` at `depth=deep` |
-| Country or city | `country`, `city`, with `requireLocation=true` | everyone | `details.contact.location`: `country`, `city`, `raw`, `source` |
-| State or region | `state` | linked profiles | `details.contact.location.state` |
-| Works at X now | `employer` | everyone | `core.organization`, `core.currentRole` |
-| Works at X now, by profile | `company`, `titles` | linked profiles | `details.identity.experience[]` where `current` |
-| Used to work at X | `pastCompanies` | linked profiles | `experience[]` entry for X with `current` false |
-| Off-limits employer | `excludeCurrentCompanies` | everyone | `core.organization` and current `experience[]` on every survivor |
-| School | `schools` | linked profiles | `details.identity.education[].school` |
-| Graduation year | none | | `education[].startDate`, `endDate` |
-| Seniority | `experienceTier`, `yoeMin`, `yoeMax` | linked profiles | `experience[].title`, `current`, `startDate` |
-| Employer type | `companySize`, `industries`, `peerCompanies` | linked profiles | `experience[]` |
-| Reachable | `requireEmail`, `requireLinkedin` | everyone | `hasEmail`, `hasLinkedin` on the row |
+| Kind of work | the phrase (`rank_by` Embed), a keyword lane (`all_repo_text` BM25), `repos`, `{"like": [...]}`, `contributed_repo_ids` with `{"repos_of": "<org>"}`, `person_tech` | everyone | `evidence.matches[]`: `full_name`, `stars`, `similarity` |
+| Language | `["person_languages", "ContainsAny", ["rust:strong", "rust:primary"]]` | people with language data | `match.repos[].language`, `core.languages` |
+| Owns the work | `"repos": {..., "role": "owner"}` for a seeded project, otherwise none | | `evidence.matches[].repo_role`, `repos[].owned`, `repos[].commits` |
+| Reputation band | `devrank` `Gte` and `Lte` with `NotEq null`, `followers` `Lte`, `owned_stars_max` | everyone with a score | devRank on the row |
+| Building now | `last_active_at` `Gte`, or `"sort": "recent"` | partial: people with activity on file | `gardenSummary` at `depth=deep` |
+| Country, state or city | `["location_ids", "ContainsAny", {"place": [...]}]` (a city means its metro; `"scope": "city"` for the city alone) | people with a resolved location | `details.contact.location`: `country`, `city`, `raw`, `source`; `places_resolved` |
+| Works at X now | `current_company_ids` with `{"company": [...]}` | linked profiles | `index.recent_roles`, `details.identity.experience[]` where `current` |
+| Worked at X, now or before | `former_company_ids` | linked profiles | `experience[]` entry for X |
+| Left X | `past_company_ids` | linked profiles | `experience[]` entry for X with `current` false |
+| Off-limits employer | `["Not", ["current_company_ids", ...]]` | linked profiles; unknowns stay in | `core.organization` and current `experience[]` on every survivor |
+| School | `school_ids` with `{"school": [...]}` | linked profiles | `details.identity.education[].school` |
+| Graduation year | `graduation_year` | linked profiles, partial | `education[].startDate`, `endDate` |
+| Role family and level | `title_function`, `title_level`, `current_title` `ContainsAnyToken` | linked profiles | `index.recent_roles`, `experience[].title`, `current`, `startDate` |
+| Employer type | `company_size_tier` (partial) | linked profiles | `experience[]` |
+| Reachable | `["has_email", "Eq", true]`, `["has_linkedin", "Eq", true]` | everyone | `hasEmail`, `hasLinkedin` on the row |
 
-`details.identity.*` and `details.contact.location` arrive at `depth=enriched`.
+`details.identity.*`, `details.contact.location` and `index.recent_roles` arrive at `depth=enriched`.
+`GET /v2/developers/fields` gives each field's operators and status. A field below `live` runs on
+partial data and is named in the response's `not_live`.
 
 Behaviors that decide whether a gate holds:
 
-- **`country`, `city` and `lang` filter on evidence.** A developer with nothing on file for the
-  field passes. For a location Gate send `requireLocation=true` as well, then confirm the country
-  on every survivor. A `source` of `github` is geocoded from a free-text string, so read `raw`
-  beside it. The resolved `country` can be empty while `city` or `raw` plainly names the place:
-  read all three before calling a location unknown, and derive the country yourself when the
-  city settles it. For a language Gate, confirm on the matched repos.
+- **`ContainsAny`, `Eq` and `Gte` drop unknowns; `Lt`, `Lte` and `Not` keep them.** A place or
+  language filter returns only people with that value on file, so it binds a Gate and loses
+  the silent. An off-limits filter (`Not`) and a ceiling (`Lte`) let the silent through, so
+  confirm those on every survivor. A location `source` of `github` is geocoded from a free-text
+  string, so read `raw` beside it. The resolved `country` can be empty while `city` or `raw`
+  plainly names the place: read all three before calling a location unknown. For a language
+  Gate, confirm on the matched repos.
 - **Education lists can lead with a secondary school.** Read the university entries when
   confirming a school or a graduation year.
 - **A narrower surface changes where the binding runs.** A wrapper or tool that exposes fewer
   filters than the API still returns the fields. Apply the band, the location check and the
   exclusions by reading each row, and keep the same confirm column.
-- **`pastCompanies` matches the full employment history**, the current employer included. When a
-  company is wanted as a past employer and off limits as a current one, confirm `current` is false.
+- **`former_company_ids` matches the full employment history**, the current employer included.
+  When a company is wanted as a past employer and off limits as a current one, use
+  `past_company_ids`, and still confirm `current` is false.
 - **"Linked profiles" filters reach a subset.** They match only developers with a linked
   professional profile. Applied to the code funnel, they shrink it to that subset.
 - **Dates are free text.** `startDate` and `endDate` come as the source rendered them. Parse the
@@ -366,8 +383,8 @@ Behaviors that decide whether a gate holds:
 - **`role` is conservative.** `owner` means the repo sits under their namespace. The lead author
   of an organization's repo reads as `contributor`. `repos[].owned` and `repos[].commits` settle
   it.
-- **`exclude` has a length limit** of about eight hundred ids. Keep benchmarks, client staff and
-  the contacted list in it. Advance through a query's own pages with `cursor`.
+- **`exclude` holds up to 1000 ids.** Keep benchmarks, client staff and the contacted list in it.
+  Advance through a query's own pages with `cursor`, sending the same body.
 
 ### Every gate names what happens to unknowns
 
@@ -381,11 +398,11 @@ Behaviors that decide whether a gate holds:
 
 Run the lanes as two funnels and join them on the developer `id`.
 
-- **Code funnel.** Lane queries with the everyone-reach levers. This is where the builders are.
-- **Profile funnel.** The linked-profile levers (`schools`, `pastCompanies`, `experienceTier`)
-  paired with a lane's `lang`, `techs` or a short `q`. This finds the people a preference names.
-  Its rows can come back with `match.status` of `unattributed` and no matched repos: that is the
-  funnel's nature and says nothing about the person.
+- **Code funnel.** Lane queries with the everyone-reach filters. This is where the builders are.
+- **Profile funnel.** The linked-profile filters (`school_ids`, `former_company_ids`,
+  `title_level`) paired with a lane's language filter or a short phrase. This finds the people a
+  preference names. Its rows can come back with no matched repos in `evidence.matches`: that is
+  the funnel's nature and says nothing about the person.
 
 A person found by both carries the Rank signal as confirmed. A person found only by the code
 funnel stays in with that signal unknown.
@@ -427,11 +444,11 @@ lists:
   - name: senior-engine
     target_n: 40
     recall_n: 500                       # about 10 to 15 times target_n
-    band: { minCracked: 70, maxCracked: 88, hideHighProfile: true }
+    band: [["devrank", "Gte", 70], ["devrank", "Lte", 88], ["devrank", "NotEq", null], ["followers", "Lte", <ceiling>]]
     gates:
       - criterion: US based
         note: '"No visa sponsorship right now, so US based only"'
-        filter: country=united states&requireLocation=true
+        filter: ["location_ids", "ContainsAny", {"place": ["United States"]}]
         confirm: details.contact.location.country, with raw and source
         on_unknown: drop
       - criterion: individual contributor
@@ -445,7 +462,7 @@ lists:
         signal: match.repos[].language is Rust
       - criterion: worked at a peer product company
         note: '"People from <company A> or <company B> would be amazing"'
-        signal: profile funnel with pastCompanies, current false
+        signal: profile funnel with past_company_ids, current false
     lanes:                              # lane name: priority for this list
       incremental-computation: 1
       crdt-sync: 1
@@ -460,7 +477,7 @@ lanes:
   - <lane cards from Step 4>
 
 exclude:
-  current_companies: [<off-limits employers>]      # excludeCurrentCompanies, confirmed per survivor
+  current_companies: [<off-limits employers>]      # ["Not", ["current_company_ids", ...]], confirmed per survivor
   developer_ids: [<benchmarks>, <client staff>, <already contacted>]
   maintainers_of: [<competing projects>]
   manual_scrub: [<contacted rows with no login>]
@@ -476,14 +493,14 @@ open_questions:
   - Is the office city a Gate, or is "willing to move" enough to keep a strong person elsewhere in the country?
 
 role_text: >
-  <three to six sentences describing the work, for POST /v1/fit-rank at qualification time>
+  <three to six sentences describing the work: the "ask" on each search, and the role for POST /v1/fit-rank at qualification time>
 
 merge:
   order: gates, then confirmed rank signals (count), then lanes hit, then lane priority, then recent activity
   caps: no more than a quarter of a list from one lane, three people per employer, two per repo
 
 output_columns:
-  [id, login, list, lane, proving repo, stars, role, cracked band, location, location source,
+  [id, login, list, lane, proving repo, stars, role, devrank, location, location source,
    employer, title, rank signals confirmed, flags, found by]
 ```
 
@@ -510,14 +527,16 @@ under caps that keep one team or one lane from filling the list.
 
 Before the full run, test the lanes.
 
-1. One page per query: `depth=core`, `limit` 10 to 25, with the list's band and Gate filters.
-2. Read `countStatus`. A short page with any `shortfallReason` other than `corpus` has more behind
-   its `cursor`, so page before judging the lane.
-3. Enrich the rows you would keep at `depth=enriched`, 25 ids per call, and confirm the Gates.
-4. Pace the calls: search and enrich share a per-account rate limit, listed in the spec. Run the
-   queries in parallel groups of about eight. One long sequential run can exceed a time limit and
-   lose every result.
-5. Record which lanes returned each person as you go.
+1. Check each body once with `POST /v2/developers/search/validate`. A 400 names the field, place
+   or company to fix before anything runs.
+2. One page per query: `"depth": "core"`, `limit` 10 to 25, with the list's band and Gate filters.
+3. Read `countStatus`. A short page with `shortfallReason: coverage` has more behind its `cursor`,
+   so page before judging the lane. Only `corpus` means the index found nobody else.
+4. Look up the rows you would keep at `depth=enriched` (`POST /v2/developers` with their `ids`, 25
+   per call), and confirm the Gates.
+5. Pace the calls: search allows 10 requests per second per key. Run the queries in parallel
+   groups of about eight. One long sequential run can exceed a time limit and lose every result.
+6. Record which lanes returned each person as you go.
 
 For each lane record four numbers: people returned, rows with real evidence of the lane's kind
 (an owned tool, or for a `contributor` lane a canonical project they demonstrably built), rows
@@ -529,8 +548,8 @@ inside the band, rows that pass the Gates after enrich. Grade it:
 | Mixed | Good people among tutorials, lists and forks | Tighten the artifact wording, add a mechanism |
 | Weak | Few builders, or off-topic | Rewrite as a concrete artifact, anchor the domain, or seed with `repos` |
 
-A page of `unattributed` rows cannot be graded on matched repos. Grade it on the profiles after
-enrich.
+A page with no matched repos in `evidence.matches` cannot be graded on repos. Grade it on the
+profiles after enrich.
 
 **Plan the run from the yield.** Keepers per query is the number that matters. If twenty probe
 queries produce ten people who pass every Gate, a list of forty needs about eighty more
@@ -551,18 +570,18 @@ real rows. Send it for redline, then hand it to `vamo-search`.
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | Results match the stack and nobody is right | One query built from the job title | Lanes from artifacts (Step 4) |
-| School or employer words in `q` | Résumé criteria left in the query | Move them to Step 6 levers |
+| School or employer words in the phrase | Résumé criteria left in the query | Move them to Step 6 filters |
 | Strong builders missing from the list | A preference run as a filter on the code funnel | Two funnels, joined |
-| People outside the country on an in-country list | `country` sent alone | Add `requireLocation=true`, confirm after enrich |
+| People outside the country on an in-country list | The location was not confirmed after enrich | Read `country`, `city` and `raw` on every survivor |
 | Managers and directors on an IC list | No seniority confirm | Read the current `experience[].title` |
-| Current employees of an off-limits company in a "worked there before" pull | `pastCompanies` matches current too | Confirm `current` is false |
+| Current employees of an off-limits company in a "worked there before" pull | `former_company_ids` matches current too | Use `past_company_ids` and confirm `current` is false |
 | The client's own team in the results | Benchmarks and staff not excluded | Their ids in `exclude` |
 | Tutorials and link lists at the top | Query names a topic | Name the artifact and the mechanism |
 | A lane graded Weak on a short page | `countStatus` not read | Page with the cursor first |
 | A lane of strong contributors graded Weak | Graded on owner matches | Set the lane's `evidence` kind and grade on that |
 | Off-field projects on the first page | An ambiguous term with no domain anchor | Add the domain noun to the query |
-| Principal engineers cut from an expert bench | Full-time gettability rules applied to part-time work | Set `engagement` and drop the ceiling |
-| Household names on a top-tier list | No score ceiling was read as no reach screen | Keep `hideHighProfile` on and set aside very large followings |
+| Principal developers cut from an expert bench | Full-time gettability rules applied to part-time work | Set `engagement` and drop the ceiling |
+| Household names on a top-tier list | No score ceiling was read as no reach screen | Keep a followers ceiling on and set aside very large followings |
 | People with a city on file marked location unknown | Only `country` was read | Read `city` and `raw` as well |
 | One lane fills the whole list | No merge rule | `merge.caps` in the spec |
 | The client says "this is not what I meant" | Spec never shown before the run | Send the Step 7 file for redline first |
@@ -572,8 +591,10 @@ real rows. Send it for redline, then hand it to `vamo-search`.
 ## Drop-in prompt
 
 ```
-You are decomposing a role into a search spec for the Vamo Developer API
-(https://api.vamotalent.ai, spec at /openapi.json). Write the spec before any full run.
+You are decomposing a role into a search spec for the Vamo v2 developers API
+(https://api.vamotalent.ai, POST /v2/developers/search, fields at GET /v2/developers/fields). Write
+the spec before any full run. If a /v2/developers route answers 404 or 503, probe on the v1 route
+of the same name and say so in one line.
 
 INPUTS: job description, intake notes, benchmark people (GitHub logins), admired repos with the
 client's comments, off-limits companies and people, already-contacted list, target count.
@@ -597,31 +618,34 @@ client's comments, off-limits companies and people, already-contacted list, targ
 3. LANES. Four to nine, each named by an artifact. Sources: product subsystems, artifacts named
    in the notes, projects the client respects, adjacent crafts, what a person who loves this
    problem builds unpaid, what each benchmark built. Each lane: what it maps to, the artifact in
-   one sentence, 5-8 queries, seed repos, seed orgs, seed people, lane levers, the pitch area,
+   one sentence, 5-8 queries, seed repos, seed orgs, seed people, lane filters, the pitch area,
    priority 1-3, evidence kind (owner, contributor, research, teaching). Queries describe an
-   ARTIFACT and its mechanism, one idea each, with the domain noun beside any ambiguous term. Schools,
-   employers, cities, years and adjectives never go in q.
+   ARTIFACT and its mechanism, one idea each, with the domain noun beside any ambiguous term. Each
+   query is one phrase in rank_by [v, ANN, [Embed, "..."]]. Schools, employers, cities, years and
+   adjectives never go in the phrase.
 
-4. CALIBRATE. Enrich benchmark logins at depth=deep with facets=tags.repos. Read
-   details.score.cracked.crackedScore, core.followers, repos[] (stars, owned, commits),
-   gardenSummary, repo tags. Bracket the benchmarks with minCracked/maxCracked. No benchmarks:
-   70-88 for a senior IC, otherwise set the band from the first probe. Turn each comment on an
-   admired repo into a field you can read. Probe each company, school and language value once
-   before relying on it. Benchmarks and client staff go in exclude.
+4. CALIBRATE. Look up benchmark logins (POST /v2/developers, depth deep, facets [tags.repos]).
+   Read devRank (details.score.cracked.crackedScore), core.followers, repos[] (stars, owned,
+   commits), gardenSummary, repo tags. Bracket the benchmarks with devrank Gte/Lte plus devrank
+   NotEq null. No benchmarks: 70-88 for a senior IC, otherwise set the band from the first probe.
+   Turn each comment on an admired repo into a field you can read. Check every place, company and
+   school name with POST /v2/developers/resolve. Benchmarks and client staff go in exclude.
 
 5. BIND. For every GATE, RANK and EXCLUDE write the filter, its reach, and the field you read to
-   confirm. country/city/lang leave unknowns in: add requireLocation=true and confirm on every
-   survivor. company, pastCompanies, schools, titles, experienceTier, yoeMin/yoeMax, state reach
-   linked profiles only: run them as a second funnel and join on id. pastCompanies includes the
-   current employer: confirm current is false. Graduation year has no filter: read
-   education[].endDate. Each gate states on_unknown: drop, keep_flagged or second_list.
+   confirm. ContainsAny/Eq/Gte drop unknowns; Lt/Lte/Not keep them, so confirm ceilings and
+   exclusions on every survivor. current_company_ids, former_company_ids, past_company_ids,
+   school_ids, graduation_year, title_function, title_level and current_title reach linked
+   profiles only: run them as a second funnel and join on id. former_company_ids includes the
+   current employer: use past_company_ids for "left", and confirm current is false. Each gate
+   states on_unknown: drop, keep_flagged or second_list.
 
 6. WRITE one markdown file: sort table, then YAML with role, lists (target, recall, band, gates,
    rank, lanes with priority, tiers), lane cards, exclude, screen, open_questions, role_text,
    merge (order and caps), output_columns. Quote the note behind every line. Mark assumptions.
 
-7. PROBE. One page per query at depth=core, limit 10-25, in parallel groups of about eight. Read countStatus and page before
-   judging a short page. Enrich keepers at depth=enriched, 25 per call. Per lane record:
+7. PROBE. Validate each body (POST /v2/developers/search/validate), then one page per query at
+   depth core, limit 10-25, in parallel groups of about eight. Read countStatus and page with the
+   cursor before judging a short page. Look up keepers at depth enriched, 25 per call. Per lane record:
    returned, real evidence of the lane's kind, in band, pass gates. Track which lanes found each
    person. Grade Rich / Mixed / Weak. Plan the full
    run from keepers per query. Rewrite weak lanes as concrete artifacts and show them in the spec.

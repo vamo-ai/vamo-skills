@@ -2,7 +2,7 @@
 name: vamo-api-access
 description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup, for a setup code to trade for a key, or for a call that fails before it returns results. Covers getting API access (a one-time setup code that starts with vamo_xc_, or a key a person created), storing it so the next session still has it on macOS, Linux and Windows, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "here is my Vamo setup code", "connect a tool", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
   updated: "2026-10-13"
 ---
 
@@ -43,17 +43,31 @@ Start every new task by reading the part of the spec you need:
 curl -s https://api.vamotalent.ai/openapi.json \
   | jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | "\(.key|ascii_upcase) \($p)  \(.value.summary)"'
 
-# every parameter of one operation, with its description
-curl -s https://api.vamotalent.ai/openapi.json \
-  | jq -r '.paths["/v1/developers/search"].get.parameters[] | "\(.name): \(.description // .schema.description)"'
-
 # what one operation requires of the key
 curl -s https://api.vamotalent.ai/openapi.json \
-  | jq '.paths["/v1/developers/search"].get["x-vamo"]'
+  | jq '.paths["/v1/developers/enrich"].get["x-vamo"]'
 ```
 
 Read `info.description` once as well. It holds the authentication, rate limit and error
 conventions.
+
+Developer search and lookup live under `/v2/developers/*`. A search is one JSON body, and two
+calls describe it better than a parameter list:
+
+```bash
+# every field a search may use, with its operators and readiness
+curl -s https://api.vamotalent.ai/v2/developers/fields -H "Authorization: Bearer $VAMO_API_KEY" \
+  | jq -r '.fields[] | select(.filterable) | "\(.name) \(.ops | join(","))"'
+
+# check a body without running it: a 400 says what to change
+curl -s -X POST https://api.vamotalent.ai/v2/developers/search/validate \
+  -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" \
+  -d '{"rank_by": ["v", "ANN", ["Embed", "rust database storage engine"]], "limit": 5}'
+```
+
+On the production host, `/v2/developers/*` can answer `404` or `503` until the v2 engine is
+switched on there. Then use the v1 route of the same name (`GET /v1/developers/search`,
+`/v1/developers/enrich`, and so on) and tell the person in one line that the call ran on v1.
 
 `references/curl-trainer.md` is a worked walkthrough of the whole API with copy-paste examples.
 Use it to learn the shape, and check each parameter against the spec before relying on it.
@@ -313,6 +327,16 @@ curl -s -m 20 https://api.vamotalent.ai/openapi.json | jq -r .info.title
 [ -n "$VAMO_API_KEY" ] && echo "access loaded (${#VAMO_API_KEY} chars)" || echo "no access found"
 
 # 3. access works: prints one login
+curl -s -m 60 -X POST https://api.vamotalent.ai/v2/developers/search \
+  -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" \
+  -d '{"rank_by": ["v", "ANN", ["Embed", "rust database engine"]], "limit": 1}' \
+  | jq -r '.results[0].login // .'
+```
+
+When check 3 answers `404` or `503`, the v2 engine is not on for that host yet. Run the v1 form
+and say in one line that verification used v1:
+
+```bash
 curl -s -m 60 -G https://api.vamotalent.ai/v1/developers/search \
   -H "Authorization: Bearer $VAMO_API_KEY" \
   --data-urlencode "q=rust database engine" --data-urlencode "limit=1" \

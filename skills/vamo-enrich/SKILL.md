@@ -2,8 +2,8 @@
 name: vamo-enrich
 description: Use when the people are already known and the job is to learn more about them with the Vamo Developer API, for example a candidate about to be interviewed, a list exported from another sourcing tool or an applicant tracking system, GitHub usernames that need location, LinkedIn, contact details or a strength read, or one developer who needs a full research report. Also use when writing a personalized message grounded in what a developer built, or a one-page summary of a candidate for a hiring team. Triggers "is this candidate strong", "enrich this list", "look up these GitHub profiles", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on", "personalize this outreach".
 metadata:
-  version: "1.0.2"
-  updated: "2026-10-12"
+  version: "1.1.0"
+  updated: "2026-10-13"
 ---
 
 # Vamo Enrich
@@ -18,19 +18,28 @@ file on routes, parameters and fields.
 
 ---
 
-## Start from a GitHub username
+## Start from a GitHub username or a LinkedIn profile
 
-Every lookup is by GitHub username (`login`) or by developer `id`. A list from another tool
-usually has a GitHub URL column: take the username from the URL. Rows with no GitHub username
-are set aside and reported, since guessing one attaches the wrong person's work to a candidate.
+Every lookup is by GitHub username (`login`), LinkedIn profile, or developer `id`. A list from
+another tool usually has a GitHub URL column: take the username from the URL. A row with only a
+LinkedIn URL can be looked up by that URL. Rows with neither are set aside and reported, since
+guessing one attaches the wrong person's work to a candidate.
 
 | Call | Use it for | Limits |
 | --- | --- | --- |
-| `GET /v1/developers/enrich` | The profile at the depth you ask for | 25 logins or ids per call |
-| `GET /v1/developers/summaries` | A short written summary of the person and of their key repositories | 25 per call. First read can be `pending`: read again |
-| `GET /v1/developers/emails` | Email addresses observed for a developer | 25 per call |
-| `POST /v1/deep-research/jobs` | A full research report, saved to the account | 25 subjects per job. Poll until done |
+| `POST /v2/developers` with `{"logins": [...], "linkedin": [...], "ids": [...], "depth": "enriched"}` | The profile at the depth you ask for, by any mix of identifiers. Results come back in the order sent | 25 inputs per call |
+| `GET /v2/developers/enrich?logins=a,b&depth=enriched` (or `ids=`) | The same by query string, for logins or ids | 25 per call |
+| `GET /v2/developers/summaries` | A short written summary of the person and of their key repositories | 25 per call. First read can be `pending`: read again |
+| `GET /v2/developers/emails` | Email addresses observed for a developer | 25 per call |
+| `POST /v2/developers/similar` with `{"like_person": "<login>", "intent": "same"}` | More people like one you hold | Up to 100 per page |
+| `POST /v2/deep-research/jobs` | A full research report, saved to the account | 25 subjects per job. Poll until done |
 | `POST /v1/fit-rank` | Scoring people against a role text | 50 logins per call |
+
+On the production host, a `/v2/developers` or `/v2/deep-research` route can answer `404` or `503`
+until the v2 engine is switched on there. Then call the v1 route of the same name
+(`GET /v1/developers/enrich`, `/v1/developers/summaries`, `/v1/developers/emails`,
+`/v1/deep-research/jobs`) and tell the person in one line that the call ran on v1. A LinkedIn-only
+row has no v1 lookup: report it as `no_github_username` until v2 answers.
 
 ## What each depth adds
 
@@ -116,19 +125,21 @@ Rules for the sentence:
 
 *"Here is an export from our sourcing tool. Add location, LinkedIn and how strong they are."*
 
-1. Read the file. Find the GitHub column, extract usernames, drop duplicates.
-2. `enrich` in batches of 25 at `depth=enriched`. Run batches a few at a time.
+1. Read the file. Find the GitHub column, extract usernames, drop duplicates. For rows with no
+   GitHub column, take the LinkedIn URL.
+2. Look up in batches of 25 at `depth=enriched` with `POST /v2/developers`, sending `logins` and
+   `linkedin` together. Run batches a few at a time.
 3. Write the file back with the original columns untouched and these added:
 
    `vamo_id, cracked_tier, cracked_score, city, country, location_source, linkedin_url,
    current_title, current_company, has_email, top_repo, top_repo_stars, status`
 
-4. `status` is `matched`, `not_found`, or `no_github_username`. Every input row appears in the
-   output.
+4. `status` is `matched`, `not_found`, or `no_github_username` (a row with neither a GitHub
+   username nor a LinkedIn URL). Every input row appears in the output.
 
 ### Screen applicants or a pipeline
 
-*"Which of these applicants have real engineering work behind them?"*
+*"Which of these applicants have real development work behind them?"*
 
 - Enrich the list as above, then sort by tier and by evidence: owned repositories with real
   activity come before a high number alone.
@@ -144,10 +155,10 @@ read on each person. The other system stores it.
 
 *"Run the full report on each finalist."*
 
-1. `POST /v1/deep-research/jobs` with up to 25 logins.
-2. Poll `GET /v1/deep-research/jobs/{id}` until every subject finishes. Polling also moves the
+1. `POST /v2/deep-research/jobs` with up to 25 logins.
+2. Poll `GET /v2/deep-research/jobs/{id}` until every subject finishes. Polling also moves the
    job forward. Some subjects can finish while others report a reason they did not.
-3. Read each report at `/v1/deep-research/reports/developers/{login}`. Reports stay with the
+3. Read each report at `/v2/deep-research/reports/developers/{login}`. Reports stay with the
    account, so the team can read them again later.
 
 A research job needs the account to have deep research enabled, and it can need a linked GitHub
