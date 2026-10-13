@@ -11,10 +11,10 @@ This is a reference, not an essay. Graze it. The value is in the volume of worke
 ## Contents
 
 1. The philosophy: why evidence sourcing wins
-2. The engine: `q` is plain language
+2. The engine: the work is plain language
 3. The sourcing funnel: the shape of every run
 4. The knobs: every capability, and when to reach for it
-5. The craft of `q`: writing queries that find real builders
+5. The craft of the phrase: writing queries that find real builders
 6. The fan-out playbook: one role, many angles
 7. Qualification: the questions that turn a list into a campaign
 8. Reading a developer: what the signals mean
@@ -41,9 +41,9 @@ The second axis is the moat. Any tool can filter for "Rust." Only evidence sourc
 
 **A star is not a star.** Popularity is the easiest number in software to obtain and the least informative. A repo starred by five hundred drive-by accounts is weaker than one starred by ten engineers whose own work is respected. Vamo weighs stars by who gave them, using signals that are hard to fake: commit access to serious projects that other people independently chose, and owned work that respected builders actually engage with. So when you see modest total stars next to a strong reputation score, that often means _found early by the right people, before the crowd arrived._ That is the discovery win.
 
-**A commit is not a commit.** Volume is cheap. What matters is the character of the output and the calibre of the engineers a person builds alongside. The **cracked score** (0 to 100) is graph-derived from exactly that. It cannot be inflated by committing more, and it cannot be bought. Read it as a percentile of standing among real builders, in bands:
+**A commit is not a commit.** Volume is cheap. What matters is the character of the output and the calibre of the engineers a person builds alongside. **devRank** (0 to 100, the `devrank` field) is graph-derived from exactly that. It cannot be inflated by committing more, and it cannot be bought. Read it as a percentile of standing among real builders, in bands:
 
-| Band         | Cracked   | Read as                                                           |
+| Band         | devRank   | Read as                                                           |
 | ------------ | --------- | ----------------------------------------------------------------- |
 | Elite        | 85 to 100 | Top 1%. Often celebrity maintainers; frequently hard to get.      |
 | Expert       | 70 to 85  | Top 5%. Strong, still gettable. **The sweet spot for senior IC.** |
@@ -61,27 +61,28 @@ The second axis is the moat. Any tool can filter for "Rust." Only evidence sourc
 
 ---
 
-## 2. The engine: `q` is plain language
+## 2. The engine: the work is plain language
 
-The single most important input in the whole system is `q`. It is **plain language, a description of the work, not a keyword match.** You write prose that reads like the repositories you hope to find, and Vamo ranks people whose real code looks like that.
+The single most important input in the whole system is the phrase that describes the work. It is **plain language, a description of the work, not a keyword match.** You write prose that reads like the repositories you hope to find, and Vamo ranks people whose real code looks like that.
 
 ```
-GET /v1/developers/search?q=<plain language description of the work>&...
+POST /v2/developers/search
+{"rank_by": ["v", "ANN", ["Embed", "<plain language description of the work>"]], "filters": [...], "limit": 50}
 ```
 
 The difference this makes:
 
-| Weak (keyword)       | Strong (describes the work)                                                              |
-| -------------------- | ---------------------------------------------------------------------------------------- |
-| `q=react`            | `q=performance-focused react, virtualized lists, design systems, accessibility`          |
-| `q=golang`           | `q=high-throughput backend services in go, connection pooling, backpressure`             |
-| `q=machine+learning` | `q=training-loop engineering, mixed-precision, distributed data parallel, checkpointing` |
-| `q=devops`           | `q=kubernetes operators, custom controllers, reconciliation loops, CRDs`                 |
-| `q=security`         | `q=fuzzing harnesses, memory-safety bugs, sandbox escapes, exploit mitigation`           |
+| Weak (keyword)     | Strong (describes the work)                                                         |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| `react`            | `performance-focused react, virtualized lists, design systems, accessibility`       |
+| `golang`           | `high-throughput backend services in go, connection pooling, backpressure`          |
+| `machine learning` | `training-loop engineering, mixed-precision, distributed data parallel, checkpointing` |
+| `devops`           | `kubernetes operators, custom controllers, reconciliation loops, CRDs`              |
+| `security`         | `fuzzing harnesses, memory-safety bugs, sandbox escapes, exploit mitigation`        |
 
-The keyword version ranks anyone who mentions the word. The work-description version ranks people whose repositories are _about_ the thing. Write `q` specific and evocative. The more it reads like the README of the project you wish existed, the better it matches.
+The keyword version ranks anyone who mentions the word. The work-description version ranks people whose repositories are _about_ the thing. Write the phrase specific and evocative. The more it reads like the README of the project you wish existed, the better it matches. Keep places, employers and seniority out of it: those are filters, and in the phrase they only drift the match.
 
-Everything else in the API fences the population that `q` ranks. Lead with `q`. Add filters sparingly.
+Everything else in the request fences the population the phrase ranks. Lead with the work. Add filters for the facts.
 
 ---
 
@@ -93,10 +94,10 @@ Great sourcing is a narrowing funnel, and the size of every stage is proportiona
 
 | Stage                   | Size (× target) | What happens                                          | API                                       |
 | ----------------------- | --------------- | ----------------------------------------------------- | ----------------------------------------- |
-| 1. Broad recall         | ~10 to 15×      | 3 to 5 _different_ searches, deliberately over-recall | `search?q=<phrasing N>`                   |
+| 1. Broad recall         | ~10 to 15×      | 3 to 5 _different_ searches, deliberately over-recall | `search` with phrasing N                  |
 | 2. Hydrate              | ~10 to 15×      | pull full profiles for everyone found                 | `enrich?logins=` (batches)                |
-| 3. Contactability       | ~3 to 5×        | keep those you can actually reach                     | `requireEmail=true`, or keep `hasEmail` rows |
-| 4. De-dupe / scrub      | ~3 to 5×        | drop anyone already contacted                         | your own outreach log                     |
+| 3. Contactability       | ~3 to 5×        | keep those you can actually reach                     | `["has_email", "Eq", true]`, or keep `hasEmail` rows |
+| 4. De-dupe / scrub      | ~3 to 5×        | drop anyone already contacted                         | your own outreach log, then `exclude`     |
 | 5. Qualify              | ~1.5 to 2×      | the questions in section 7                              | read profile + `facets`                   |
 | 6. Enrich the keepers   | ~1.5 to 2×      | fill missing company / seniority                      | `depth=enriched`                          |
 | 7. Rank, diversify, cut | target          | band-score, spread across teams, write angles         | `depth=deep`, `facets=ai.match_rationale` |
@@ -110,7 +111,7 @@ Two notes that carry weight:
 
 ## 4. The knobs: every capability, and when to reach for it
 
-Base URL `api.vamotalent.ai`, auth `Authorization: Bearer $VAMO_API_KEY`.
+Base URL `api.vamotalent.ai`, auth `Authorization: Bearer $VAMO_API_KEY`. The fields, their types and the operators each takes are listed live at `GET /v2/developers/fields`.
 
 Optional shell shorthand used in examples:
 
@@ -121,106 +122,105 @@ vamoPost() { curl -s -X POST "https://api.vamotalent.ai$1" -H "Authorization: Be
 
 ### The search engine
 
-| Param    | Does                                                       | Reach for it when                                                             |
-| -------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `q`      | Plain-language ranking over real repos. The engine.        | Always. Describe the work.                                                    |
-| `skills` | Second semantic input for abilities that are not a domain. | Add a technique that is not the domain itself (`skills=streaming inference`). |
+| Body | Does | Reach for it when |
+| --- | --- | --- |
+| `"rank_by": ["v", "ANN", ["Embed", "..."]]` | Ranks people by how close their real work is to the phrase. The engine. | Almost always. Describe the work. |
+| `"rank_by": ["all_repo_text", "BM25", "..."]` | Keyword ranking over their repositories' text. | A term the phrase may not carry: a protocol, an acronym, a library name. Fuse it with the phrase lane. |
+| `"queries": [lane, lane], "fuse": ["RRF", {"weights": [1, 1]}]` | Two or three lanes in one request, fused. | Phrase plus keyword, or two angles at once. Each lane has its own `filters` and `rank_by`. |
+| `"sort": "devrank"` | Orders by reputation (also `followers`, `stars`, `recent`). | No work to match: "the strongest people at X". |
 
 ### The reputation dial (the gettability lever)
 
-| Param        | Does                                | Reach for it when                                                                                                                       |
-| ------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `minCracked` | Floor on cracked score.             | Cut noise. `minCracked=60` for solid, `70` for senior.                                                                                  |
-| `maxCracked` | **Ceiling on cracked score.**       | **Cut celebrity maintainers who will not answer.** Pair with the floor: `minCracked=70&maxCracked=88` targets the gettable expert band. |
-| `tier`       | Coarse band (`elite`…`developing`). | Quick corpus-level band pull.                                                                                                           |
-| `minStars`, `maxStars` | Band on total stars across their repos. | Loose reputation floor and ceiling. Use gently; the cracked band is the finer dial. |
-| `hideHighProfile=true` | Suppresses very high-profile accounts. | A relevance-ordered pull where famous names crowd the top. |
+| Filter | Does | Reach for it when |
+| --- | --- | --- |
+| `["devrank", "Gte", 60]` | Floor on devRank. | Cut noise. `60` for solid, `70` for senior. |
+| `["devrank", "Lte", 88]` | **Ceiling on devRank.** | **Cut celebrity maintainers who will not answer.** Pair with the floor and `["devrank", "NotEq", null]`, since `Lte` alone also keeps people with no devRank. |
+| `["owned_stars_max", "Gte", 100]` | Their best own repository's stars. | Loose popularity floor. Use gently; the devRank band is the finer dial. |
+| `["followers", "Lte", 5000]` | Ceiling on following. | A relevance-ordered pull where famous names crowd the top. |
 
-The band is the heart of good sourcing. **`minCracked=70&maxCracked=88`** is the phrase to memorize: it targets people whose work is real and whose trajectory still has room for your role.
+The band is the heart of good sourcing. **devRank 70 to 88** is the phrase to memorize: it targets people whose work is real and whose trajectory still has room for your role.
 
 ### The evidence gates
 
-| Param         | Does                                                                      | Reach for it when                                         |
-| ------------- | ------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `techs`       | Hard filter on the technologies tagged on their work, any-of.             | A technology is genuinely required. `techs=rust,go`.      |
-| `subjects`    | Hard filter on subject tags, any-of.                                      | The domain itself is mandatory. `subjects=distributed-systems`. |
-| `repos`       | Seed repositories as `owner/name`; finds people who build comparable things. | You can name the projects that define the space. Often stronger than any adjective in `q`. |
-| `lang`        | Shows evidence of a language.                                             | A language is preferred. Gentler than `techs`.            |
-| `pushedAfter` | Pushed code since a date.                                                 | Prefer people active recently. `pushedAfter=2025-01-01`.  |
-| `orgs`        | Associated with a GitHub org, including orgs they contribute to.          | Target an ecosystem's people directly. Works with no `q`. |
+| Body | Does | Reach for it when |
+| --- | --- | --- |
+| `"repos": {"names": ["<owner/name>"], "role": "contributor"}` | People who contribute to (or own: `owner`, `either`) the named repositories. | You can name the projects that define the space. Often stronger than any adjective in the phrase. |
+| `"repos": {"names": [...], "hops": 2}` | People who work alongside those contributors. | The ecosystem around a project. |
+| `"rank_by": ["v", "ANN", {"like": ["<owner/name>"]}]` | People whose work looks like the named repositories. | Comparable builders with no direct connection. |
+| `["person_languages", "ContainsAny", ["rust:strong"]]` | Writes the language (`some`, `strong`, `primary` share). | A language is required. |
+| `["last_active_at", "Gte", "<date>T00:00:00Z"]` | Active since a date. | Prefer people active recently. |
+| `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner/name>"}]` | Contributed to that repository. | One project, as a filter inside a larger body. |
 
 ### The professional overlay
 
-| Param                     | Does                             | Reach for it when                                                                                                             |
-| ------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `company`                 | Current employer.                | Target people at a specific company.                                                                                          |
-| `pastCompanies`           | Worked there before.             | "Ex-fintech," "ex-infra-company."                                                                                             |
-| `excludeCurrentCompanies` | Drop current employees of these. | Do not poach an investor's portfolio or your own team.                                                                        |
-| `country`, `city`         | Resolved country or city.        | On-site or in-country roles. For remote roles, lead with the work and confirm location at qualify time to see the full field. |
-| `employer`                | Employer inferred from GitHub signal. | Target a company's engineers across the whole population, including people with no linked professional profile. |
-| `schools`                 | Attended these schools.          | A school is a stated preference. Read the matched school in `details.identity.education` at `depth=enriched`. |
-| `titles`, `experienceTier`, `yoeMin`, `yoeMax` | Title and experience band. | Seniority has to be bounded at recall time. |
+| Filter | Does | Reach for it when |
+| --- | --- | --- |
+| `["current_company_ids", "ContainsAny", {"company": [...]}]` | Current employer. | Target people at a specific company. |
+| `["former_company_ids", "ContainsAny", {"company": [...]}]` | Worked there, now or before. | "Ex-fintech," "ex-infra-company." `past_company_ids` for people who have left. |
+| `["Not", ["current_company_ids", "ContainsAny", {"company": [...]}]]` | Drop current employees of these. | Do not poach an investor's portfolio or your own team. |
+| `["location_ids", "ContainsAny", {"place": [...]}]` | City (its metro area), region or country. | On-site or in-country roles. For remote roles, lead with the work and confirm location at qualify time to see the full field. |
+| `["school_ids", "ContainsAny", {"school": [...]}]`, `["graduation_year", "Gte", 2023]` | School and graduation. | A school is a stated preference. Confirm in `details.identity.education` at `depth=enriched`. |
+| `["title_function", "In", [...]]`, `["title_level", "In", [...]]`, `["current_title", "ContainsAnyToken", "..."]` | Role family, level, title words. | Seniority has to be bounded at recall time. |
 
-`company`, `pastCompanies`, `schools`, `titles`, `experienceTier`, `yoeMin`/`yoeMax` and `state` resolve from linked professional profiles, so they match the subset of developers who have one. Pages get small. Use them as a second funnel beside the code funnel and join the two on developer id. `role-decomposition` covers when a criterion like this should gate and when it should only rank.
+Employer, school, graduation and title fields resolve from linked professional profiles, so they match the subset of developers who have one. Pages get small. Use them as a second funnel beside the code funnel and join the two on developer id. `role-decomposition` covers when a criterion like this should gate and when it should only rank.
 
-### Contactability, sort, depth, enrichment, paging
+### Contactability, depth, enrichment, paging
 
-| Param | Does |
+| Body | Does |
 | --- | --- |
-| `requireEmail=true` | Only people with an email on file. |
-| `requireLinkedin=true` | Only people with a matched LinkedIn profile. |
-| `requireLocation=true` | Only people with a resolved location. The `location` object itself rides `details.contact.location` at `depth=enriched`. |
-| `garden=summary \| full` | With `depth=deep`. `summary` (the default) is a compact activity read: `activeWeeks`, `last90Days`, `lastActiveDay`. `full` is the day-by-day heatmap. |
-| `sortBy=crackedScore` (etc.) | Order the whole corpus by one fact. Pair with `maxCracked` so the top is gettable. |
-| `depth=core \| enriched \| deep` | `core` = GitHub profile; `enriched` = adds LinkedIn identity (title, company, seniority); `deep` = adds the yearly activity garden. Start wide at `core`, escalate on the final list. |
-| `facets=ai.match_rationale, ai.person_summary, ai.repo_summaries` | On-demand AI add-ons. `ai.match_rationale` = plain-language "why this person fits this role," the fastest qualify-and-pitch. Resolve async: first read `pending`, call again for the value. The value is `{ matched, reasons }`; check `matched` before reading `reasons`. |
+| `["has_email", "Eq", true]` | Only people with an email on file. |
+| `["has_linkedin", "Eq", true]` | Only people with a matched LinkedIn profile. |
+| `"garden": "summary" \| "full"` | With `depth=deep`. `summary` (the default) is a compact activity read: `activeWeeks`, `last90Days`, `lastActiveDay`. `full` is the day-by-day heatmap. |
+| `"depth": "core" \| "enriched" \| "deep"` | `core` = GitHub profile; `enriched` = adds LinkedIn identity (title, company, seniority, recent roles); `deep` = adds the yearly activity garden. Start wide at `core`, escalate on the final list. |
+| `"facets": ["ai.match_rationale", "ai.person_summary", "ai.repo_summaries"]` | On-demand AI add-ons. `ai.match_rationale` = plain-language "why this person fits this role," the fastest qualify-and-pitch. Resolve async: first read `pending`, call again for the value. The value is `{ matched, reasons }`; check `matched` before reading `reasons`. |
 | `cursor`, `exclude`, `limit` | Page forward, skip ids you hold, size the page. |
 
 ### The lookups and the reports
 
 | Endpoint                                                                     | Does                                                                                      |
 | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `GET /v1/developers/similar?login=`                                          | Seed one known developer, get people who build like them. The "more like this one" lever. |
-| `GET /v1/developers/enrich?logins=`                                          | Full profiles for logins you already hold.                                                |
-| `GET /v1/developers/summaries?logins=`                                       | Short AI summary by login.                                                                |
+| `POST /v2/developers/similar` `{"like_person": "<login>", "intent": "same"}` | Seed one known developer, get people who build like them. The "more like this one" lever. |
+| `GET /v2/developers/enrich?logins=`                                          | Full profiles for logins you already hold.                                                |
+| `POST /v2/developers` `{"linkedin": [...], "depth": "enriched"}`             | Look people up by LinkedIn profile, login or id.                                          |
+| `GET /v2/developers/summaries?logins=`                                       | Short AI summary by login.                                                                |
 | `POST /v1/fit-rank` `{"logins":[…],"role":"…","company":"…"}`              | Score up to 50 logins against a role. Returns `fit` (0 to 2), `gettable`, `bridgeable` and a short `bridge` reason, best fit first. A second opinion on your own qualification, and a first draft of the bridge. |
-| `GET /v1/developers/emails?logins=`                                          | Get the email addresses observed for a developer. The contact step.                                   |
-| `POST /v1/deep-research/jobs` `{"subject":"developers","logins":[…]}`        | Persist a full dossier on a person. The report is saved to the account and readable from then on.                           |
-| `POST /v1/deep-research/jobs` `{"subject":"repos","repos":[…]}`              | Persist a full dossier on a repo. Build a library of domain repos and reuse.              |
-| `GET /v1/deep-research/reports/{developers/<login> \| repos/<owner>/<name>}` | Read a finished report.                                                                   |
+| `GET /v2/developers/emails?logins=`                                          | Get the email addresses observed for a developer. The contact step.                                   |
+| `POST /v2/deep-research/jobs` `{"subject":"developers","logins":[…]}`        | Persist a full dossier on a person. The report is saved to the account and readable from then on.                           |
+| `POST /v2/deep-research/jobs` `{"subject":"repos","repos":[…]}`              | Persist a full dossier on a repo. Build a library of domain repos and reuse.              |
+| `GET /v2/deep-research/reports/{developers/<login> \| repos/<owner>/<name>}` | Read a finished report.                                                                   |
 
 ---
 
-## 5. The craft of `q`: writing queries that find real builders
+## 5. The craft of the phrase: writing queries that find real builders
 
 The best recall comes from **running several distinct phrasings of the same role as separate searches**, then merging. Different phrasings hit different corners of the space, and that spread is where recall comes from. These phrasings are not synonyms of the job title. They are descriptions of _what good work in this area looks like_, from a few angles: how a practitioner would describe it, how a researcher would, how a job post would, and the specific subsystems a strong person would have touched.
 
-**Rule of thumb: 3 to 5 distinct `q` phrasings per role, each its own search.**
+**Rule of thumb: 3 to 5 distinct phrasings per role, each its own search.**
 
 Example, for a distributed-systems role, run all of these:
 
 ```bash
-vamo "/v1/developers/search?q=raft+consensus+implementation+from+scratch&depth=core&limit=50"
-vamo "/v1/developers/search?q=lsm-tree+storage+engine,+compaction,+write+amplification&depth=core&limit=50"
-vamo "/v1/developers/search?q=distributed+transaction+coordinator,+two-phase+commit,+MVCC&depth=core&limit=50"
-vamo "/v1/developers/search?q=gossip+membership+protocol,+failure+detection,+anti-entropy&depth=core&limit=50"
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","raft consensus implementation from scratch"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","lsm-tree storage engine, compaction, write amplification"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","distributed transaction coordinator, two-phase commit, MVCC"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","gossip membership protocol, failure detection, anti-entropy"]],"filters":["is_bot","Eq",false],"limit":50}'
 ```
 
-None of these is `q=distributed+systems+engineer`. Each names a concrete, checkable artifact a strong person in this space would have built. That is the technique. The full library in `domain-library.md` gives phrasing sets for 50 domains.
+None of these is "distributed systems engineer". Each names a concrete, checkable artifact a strong person in this space would have built. That is the technique. The full library in `domain-library.md` gives phrasing sets for 50 domains.
 
-**Read the repo, not the repo name.** A repository called `raft` might be someone's homework. A repository called `notes` might be a production consensus library. Rank on what the code and README describe, which is exactly what `q` matches on, and confirm at qualify time.
+**Read the repo, not the repo name.** A repository called `raft` might be someone's homework. A repository called `notes` might be a production consensus library. Rank on what the code and README describe, which is exactly what the phrase matches on, and confirm at qualify time.
 
 ---
 
 ## 6. The fan-out playbook: one role, many angles
 
-Beyond multiple `q` phrasings, these structural angles widen a run. Run them as separate pulls, de-dupe with `exclude`, and merge.
+Beyond multiple phrasings, these structural angles widen a run. Run them as separate pulls, de-dupe with `exclude`, and merge.
 
-1. **The phrasing spread (primary).** 3 to 5 `q` phrasings, as above.
-2. **The technology gate.** `techs=` for people who own or contribute to the defining tech. Folds the contribution graph into one filter.
-3. **The ecosystem.** `orgs=<a notable project's org>` pulls the people inside a community.
-4. **The look-alike.** `similar?login=<a known great person in the space>`. Seed a dream hire or a current star, get the neighborhood.
-5. **The repo-analog.** Deep-research a canonical repo in the domain (`subject:"repos"`), read its report to sharpen your `q` phrasings and to name notable contributors, then `similar?login=` on the best of them. The repo report is saved to the account after the first run, so build a library.
+1. **The phrasing spread (primary).** 3 to 5 phrasings, as above.
+2. **The project gate.** `"repos": {"names": [...], "role": "contributor"}` for people who contribute to the defining projects.
+3. **The ecosystem.** `"repos": {"names": [...], "hops": 2}` pulls the people who work alongside a project's contributors.
+4. **The look-alike.** `similar` with `like_person` set to a known great person in the space. Seed a dream hire or a current star, get the neighborhood.
+5. **The repo-analog.** Deep-research a canonical repo in the domain (`subject:"repos"`), read its report to sharpen your phrasings and to name notable contributors, then `similar` on the best of them. The repo report is saved to the account after the first run, so build a library.
 
 Seed these from the hiring company itself. Read their product and their public repos. The canonical projects in their space, and the people who maintain them, are your seeds.
 
@@ -230,7 +230,7 @@ Seed these from the hiring company itself. Read their product and their public r
 
 Recall is generous on purpose, so qualification is where the run is won or lost. There are two failure modes, and the whole rubric exists to prevent them:
 
-- **Overqualified (the dead list).** A high cracked score feels like a win and is often a miss. Staff-and-above titles, celebrity maintainers, and big-tech-lifers do not answer early-stage cold mail. This is the most common way a list dies.
+- **Overqualified (the dead list).** A high devRank feels like a win and is often a miss. Staff-and-above titles, celebrity maintainers, and big-tech-lifers do not answer early-stage cold mail. This is the most common way a list dies.
 - **Too thin (nothing to send).** One forty-star toy repo, no company, no way to reach them. Nothing to personalize, nothing to verify, nothing to send.
 
 The target is the middle-upper band: enough proof-of-work to write a real email about, enough room in their story that the role is a step forward.
@@ -241,9 +241,9 @@ Run each keeper through eight questions. Two clear fails, or four unknowns, and 
 
 1. **Would this person reply to this company for this role?** A lateral or half-step-up move gets the best reply rate. Cut clear downgrades (Staff or Director being pitched a Senior IC seat), and cut different functions (an engineering manager, a solutions architect, or a devrel for a hands-on IC req). They may be excellent; they will not switch into a step down or a different job.
 
-2. **Overqualified?** Cut when several of these stack: Elite band plus a Staff-plus title; big-tech plus an early-stage seat with no comp story; a top repo in the many-thousands of stars (celebrity maintainer); a very large following. Target senior IC in **cracked 70 to 88**.
+2. **Overqualified?** Cut when several of these stack: Elite band plus a Staff-plus title; big-tech plus an early-stage seat with no comp story; a top repo in the many-thousands of stars (celebrity maintainer); a very large following. Target senior IC in **devRank 70 to 88**.
 
-3. **Underqualified or too thin?** Cut a best repo under ~40 stars with no LinkedIn, a cracked score under ~60 for a senior role, or a profile that is all tutorials, forks, dotfiles, and awesome-lists. Cut the total ghost with no bio, company, location, or LinkedIn.
+3. **Underqualified or too thin?** Cut a best repo under ~40 stars with no LinkedIn, a devRank under ~60 for a senior role, or a profile that is all tutorials, forks, dotfiles, and awesome-lists. Cut the total ghost with no bio, company, location, or LinkedIn.
 
 4. **Compensation fit.** Soft signal, score it, do not hard-cut on it. Someone outside a high-cost metro against a high-cost band is frequently a strong yes, when the role allows it.
 
@@ -303,7 +303,7 @@ The brief: the parsed requirements, the funnel counts at every stage with the re
 
 ## 8. Reading a developer: what the signals mean
 
-- **Cracked score and band.** Standing among real builders. Read it as a percentile in a band. Use it as a gettability dial via the `minCracked`/`maxCracked` window. Present it to a hiring team as a placement ("top 5% by the calibre of engineers they build alongside"), never as a raw number and never as a role-specific percentile.
+- **devRank and band.** Standing among real builders. Read it as a percentile in a band. Use it as a gettability dial via a `devrank` floor and ceiling (`Gte` and `Lte`, plus `NotEq null`). Present it to a hiring team as a placement ("top 5% by the calibre of engineers they build alongside"), never as a raw number and never as a role-specific percentile.
 - **Stars, in context.** A high star count from respected engineers is strong. A modest star count with a strong reputation band often means found early. Read stars through who gave them, which the reputation signals already do for you.
 - **The contribution garden (`depth=deep`).** Literal proof of ship. A steady multi-year strip on a young account is a high-slope early-career signal. A dense recent strip is momentum. Sparse-but-aligned still beats prolific-but-off-topic.
 - **Identity (`depth=enriched`).** Title, company, tenure for right-sizing seniority and background.
@@ -350,23 +350,23 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 ## 10. Reusable playbooks
 
-**A. Job description → qualified list.** Parse the JD into must-haves and a domain. Run the 7-stage funnel (section 3). Output a table: name, repo, repo stars, why they match, LinkedIn, GitHub, email, title, company, tenure, country, seniority evidence, band, cracked score, evidence mode, cold-email angle, flags. Plus a short brief with the parsed requirements, the honest funnel counts, and the exact queries run.
+**A. Job description → qualified list.** Parse the JD into must-haves and a domain. Run the 7-stage funnel (section 3). Output a table: name, repo, repo stars, why they match, LinkedIn, GitHub, email, title, company, tenure, country, seniority evidence, band, devRank, evidence mode, cold-email angle, flags. Plus a short brief with the parsed requirements, the honest funnel counts, and the exact queries run.
 
-**B. "Find more like our best engineer."** Seed `similar?login=<star employee or dream hire>`, widen with a `q` that captures what makes them great, and read the seed's deep-research report to name what to look for. The similar set is the spine; the semantic query catches who the graph misses.
+**B. "Find more like our best engineer."** Seed `similar` with `like_person` set to a star employee or dream hire, widen with a phrase that captures what makes them great, and read the seed's deep-research report to name what to look for. The similar set is the spine; the semantic query catches who the graph misses.
 
 **C. Talent map / benchmark cohort.** Rank a cohort in a space by reputation band plus subject fit. Each row: who (LinkedIn), the signals (band, stack), the iconic repos, and a language-proof repo linked. A map a hiring team can browse.
 
-**D. Poach an adjacent team.** `company=<competitor>` or `pastCompanies=<competitor>` with a `q` for the sub-area you want, `excludeCurrentCompanies` for anyone off-limits. Qualify hard on Q1 (would they move) and Q2 (not so senior they are unreachable).
+**D. Poach an adjacent team.** `current_company_ids` or `former_company_ids` with the competitor and a phrase for the sub-area you want, a `Not` on `current_company_ids` for anyone off-limits. Qualify hard on Q1 (would they move) and Q2 (not so senior they are unreachable).
 
-**E. Maintainers and contributors of a project you admire.** Deep-research the repo, read the report for notable contributors, then `enrich` and `similar?login=` on the strongest. The highest-precision way to find people who have built the exact thing.
+**E. Maintainers and contributors of a project you admire.** Deep-research the repo, read the report for notable contributors, then `enrich` and `similar` on the strongest. The highest-precision way to find people who have built the exact thing.
 
 **F. Candidate benchmark / one-pager.** Deep-research a single developer, read the placements, render a one-page pitch sheet: persona descriptor, the contribution garden as proof of ship, the two or three strongest placements. Two high signals beat one; several related strengths is a pattern.
 
-**G. Rehydrate a known list.** Have logins already? `enrich?logins=` in batches, then qualify. No search needed.
+**G. Rehydrate a known list.** Have logins already? `enrich?logins=` in batches (or `POST /v2/developers` with LinkedIn profiles), then qualify. No search needed.
 
-**H. Early-career list.** Graduation year has no filter, so it is read after enrich. Recall with artifact queries and a band set from a benchmark. Keep people whose matched repo is a real tool they own. Enrich at `depth=enriched`, confirm location, then read `details.identity.education[]`: ignore secondary schools, parse the years permissively, and keep people whose university dates fit the window. Rank by activity from the garden summary. Deliver two lists: verified graduates, and highly active builders whose education is silent, labeled as unverified. A strong school is a ranking bonus on either list. Missing education is common among the strongest builders, so a school gate removes most of them.
+**H. Early-career list.** `["graduation_year", "Gte", <year>]` finds people with a linked profile that lists a graduation; run it as one lane, and a second lane with artifact queries and a band set from a benchmark. Keep people whose matched repo is a real tool they own. Enrich at `depth=enriched`, confirm location, then read `details.identity.education[]`: ignore secondary schools, parse the years permissively, and keep people whose university dates fit the window. Rank by activity from the garden summary. Deliver two lists: verified graduates, and highly active builders whose education is silent, labeled as unverified. A strong school is a ranking bonus on either list. Missing education is common among the strongest builders, so a school gate removes most of them.
 
-**I. Deep contributors to projects the client respects.** Seed `repos` and `orgs` with the named projects and run a repo deep-research on each to read its contributors. Keep people with a long contribution record on one project: many months, substantive changes, `repos[].commits` to back it. A burst of small pull requests across many famous repos reads as farming. Leave out the primary maintainers of projects that compete directly with the client when the client knows them personally.
+**I. Deep contributors to projects the client respects.** Search `repos` with the named projects (`role: contributor`) and run a repo deep-research on each to read its contributors. Keep people with a long contribution record on one project: many months, substantive changes, `repos[].commits` to back it. A burst of small pull requests across many famous repos reads as farming. Leave out the primary maintainers of projects that compete directly with the client when the client knows them personally.
 
 **J. Two tiers of outreach.** Split the final list by how much hand work each person merits. A small top tier (top of the band, an owned tool with real users, a priority lane) gets a hand-written note. Everyone else who passes gets the standard sequence with a per-person bridge. Lead each note with the part of the company's work that matches the lane the person came from.
 
@@ -376,9 +376,9 @@ A cold email to a developer has two parts. The **pitch** (the role, the comp, th
 
 ## 11. The use-case library: 50 domains, worked
 
-Read `domain-library.md` when you are writing `q` phrasings for a role. It holds 50 worked domains across systems and infrastructure, AI and machine learning, domain-driven and mission work, product and craft, data, and interest and archetype lenses. Each entry gives the weekend-builder read, phrasings to run as separate searches, ways to widen, the evidence that surfaces a real one, and a qualify tell plus a bridge angle.
+Read `domain-library.md` when you are writing phrasings of the work for a role. It holds 50 worked domains across systems and infrastructure, AI and machine learning, domain-driven and mission work, product and craft, data, and interest and archetype lenses. Each entry gives the weekend-builder read, phrasings to run as separate searches, ways to widen, the evidence that surfaces a real one, and a qualify tell plus a bridge angle.
 
-**Do the fan-out in your head before you touch Vamo.** If someone genuinely loved this problem, what would they have built, and how would they describe it? Write three to six of those descriptions as separate `q` phrasings, name a seed person or a canonical repo or an org, and only then run the searches.
+**Do the fan-out in your head before you touch Vamo.** If someone genuinely loved this problem, what would they have built, and how would they describe it? Write three to six of those descriptions as separate phrasings, name a seed person or a canonical repo, and only then run the searches.
 
 ---
 
@@ -393,20 +393,20 @@ How an agent should actually think through a run, start to finish.
 **Recall (over-fetch ~12×).** Four phrasings, separate searches:
 
 ```bash
-vamo "/v1/developers/search?q=low-latency+voice+agents,+turn-taking,+barge-in&depth=core&limit=50"
-vamo "/v1/developers/search?q=streaming+ASR+and+TTS,+realtime+inference&depth=core&limit=50"
-vamo "/v1/developers/search?q=webrtc+audio+transport,+jitter+buffers&depth=core&limit=50"
-vamo "/v1/developers/search?q=voice+activity+detection,+endpointing&depth=core&limit=50"
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","low-latency voice agents, turn-taking, barge-in"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","streaming ASR and TTS, realtime inference"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","webrtc audio transport, jitter buffers"]],"filters":["is_bot","Eq",false],"limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","voice activity detection, endpointing"]],"filters":["is_bot","Eq",false],"limit":50}'
 ```
 
 Plus a look-alike and an ecosystem angle:
 
 ```bash
-vamo "/v1/developers/similar?login=<a-notable-realtime-voice-builder>&limit=25&depth=core"
-vamo "/v1/developers/search?orgs=<a-voice-oss-org>&depth=core&limit=25"
+vamoPost /v2/developers/similar '{"like_person":"<a-notable-realtime-voice-builder>","intent":"same","limit":25}'
+vamoPost /v2/developers/search '{"repos":{"names":["<a-voice-oss-repo>"],"role":"contributor"},"sort":"devrank","limit":25}'
 ```
 
-**Hydrate and gate.** De-dupe across angles with `exclude`. Keep `hasEmail`. Now apply the band on the merged set by re-pulling the promising phrasings with `&minCracked=70&maxCracked=88`, which drops the celebrity maintainers who will not answer a Series-A.
+**Hydrate and gate.** De-dupe across angles with `exclude`. Keep `hasEmail`. Now apply the band on the merged set by re-pulling the promising phrasings with `["devrank", "Gte", 70], ["devrank", "Lte", 88], ["devrank", "NotEq", null]` added to `filters`, which drops the celebrity maintainers who will not answer a Series-A.
 
 **Qualify (the 8 questions).** Cut a Staff-at-big-tech (Q1, Q2). Cut a profile that is one starter-kit fork (Q3). For each keeper, confirm the repo README is genuinely about audio latency, not a thin wrapper (Q6). Confirm seniority from title plus tenure at `depth=enriched` (Q7). For each, write the one-sentence bridge (Q8); if I cannot, cut.
 
@@ -421,9 +421,9 @@ vamo "/v1/developers/search?orgs=<a-voice-oss-org>&depth=core&limit=25"
 **Recall.** Compose the professional overlay with the work:
 
 ```bash
-vamo "/v1/developers/search?q=double-entry+ledgers,+idempotent+payment+APIs,+reconciliation&lang=go&pastCompanies=<company>,<company>&country=united+states&depth=enriched&limit=50"
-vamo "/v1/developers/search?q=payments+infrastructure,+money+movement,+PCI&minCracked=65&maxCracked=88&depth=enriched&limit=50"
-vamo "/v1/developers/search?q=payment+processing&techs=go&depth=enriched&limit=50"
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","double-entry ledgers, idempotent payment APIs, reconciliation"]],"filters":["And",[["former_company_ids","ContainsAny",{"company":["<company>","<company>"]}],["location_ids","ContainsAny",{"place":["United States"]}],["is_bot","Eq",false]]],"depth":"enriched","limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","payments infrastructure, money movement, PCI"]],"filters":["And",[["devrank","Gte",65],["devrank","Lte",88],["devrank","NotEq",null],["is_bot","Eq",false]]],"depth":"enriched","limit":50}'
+vamoPost /v2/developers/search '{"rank_by":["v","ANN",["Embed","payment processing"]],"filters":["And",[["person_languages","ContainsAny",["go:strong","go:primary"]],["is_bot","Eq",false]]],"depth":"enriched","limit":50}'
 ```
 
 **Qualify.** Q6 in professional mode: tenure at a company whose product is payments counts as evidence even without a public ledger repo. Q7: title plus company plus tenure from `details.identity`. Q1: keep laterals and half-steps-up, cut anyone the role would be a downgrade for.
@@ -434,13 +434,13 @@ vamo "/v1/developers/search?q=payment+processing&techs=go&depth=enriched&limit=5
 
 ## 13. Quick reference
 
-**The engine.** `q` is plain language. Describe the work. Run 3 to 5 distinct phrasings as separate searches.
+**The engine.** The phrase is plain language. Describe the work; facts go in `filters`. Run 3 to 5 distinct phrasings as separate searches.
 
-**The gettability band.** `minCracked=70&maxCracked=88` for senior IC. Floor cuts noise, ceiling cuts celebrities. Never `sortBy=crackedScore` without a ceiling.
+**The gettability band.** devRank 70 to 88 for senior IC (`Gte 70`, `Lte 88`, `NotEq null`). Floor cuts noise, ceiling cuts celebrities. Never `sort: devrank` without a ceiling.
 
 **Depth ladder.** `core` to recall wide → `enriched` for identity on the final list → `deep` for the garden on finalists. `facets=ai.match_rationale` to qualify and draft in one.
 
-**Contact and research.** `hasEmail` to gate → `emails?logins=` for the finalists' addresses. `similar?login=` for look-alikes. Deep-research repos once and reuse the saved report.
+**Contact and research.** `hasEmail` to gate → `emails?logins=` for the finalists' addresses. `similar` for look-alikes. Deep-research repos once and reuse the saved report.
 
 **The funnel.** Recall ~10 to 15× → hydrate → contactable ~3 to 5× → scrub already-contacted → qualify ~1.5 to 2× → enrich keepers → rank and cut to target. A bad list damages a sender's reputation. Widen the top, never lower the bar.
 
@@ -453,7 +453,7 @@ vamo "/v1/developers/search?q=payment+processing&techs=go&depth=enriched&limit=5
 **The five habits of a great sourcing agent.**
 
 1. Start from a hypothesis about the person, not the JD's keywords.
-2. Write rich `q`; fan out to several phrasings and angles; over-recall.
+2. Write a rich phrase of the work; fan out to several phrasings and angles; over-recall.
 3. Target the gettable band; qualify against the eight questions.
 4. Read evidence (repos, garden, band, match rationale) before you decide.
 5. Write a real bridge per person; if the evidence is too thin to bridge, do not send.

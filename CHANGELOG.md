@@ -4,6 +4,16 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-13
+
+- **vamo-search 3.0.0**. Searches with one request to the v2 developers API
+  (`POST /v2/developers/search`, `/similar`, `/aggregate`): facts are filters, the work is one
+  short phrase in a vector lane, repositories and look-alike seeds are part of the same body.
+  The request shape, the filters and the response fields are in the skill itself, so an agent
+  needs no other reading to search. Enrich, emails, summaries, lookup and deep research move to
+  their `/v2` paths. The discovery recipes and the sourcing guide are rewritten for the new
+  request; the domain library maps its short notes to it.
+
 ## 2026-10-09 (automation)
 
 - Pull requests are validated by `scripts/validate.py`: the manifest against the folders, each
