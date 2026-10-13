@@ -2,8 +2,8 @@
 name: vamo-enrich
 description: Use when the people are already known and the job is to learn more about them with the Vamo Developer API, for example a candidate about to be interviewed, a list exported from another sourcing tool or an applicant tracking system, GitHub usernames that need location, LinkedIn, contact details or a strength read, or one developer who needs a full research report. Also use when writing a personalized message grounded in what a developer built, or a one-page summary of a candidate for a hiring team. Triggers "is this candidate strong", "enrich this list", "look up these GitHub profiles", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on", "personalize this outreach".
 metadata:
-  version: "1.0.1"
-  updated: "2026-10-09"
+  version: "1.0.2"
+  updated: "2026-10-12"
 ---
 
 # Vamo Enrich
@@ -151,7 +151,7 @@ read on each person. The other system stores it.
    account, so the team can read them again later.
 
 A research job needs the account to have deep research enabled, and it can need a linked GitHub
-connection. The error body says which. `vamo-api-access` covers the error fields.
+connection. The error body says which. `vamo-troubleshooting` covers the error fields.
 
 ---
 
