@@ -31,7 +31,7 @@ vamoPost() { curl -s -X POST "https://api.vamotalent.ai$1" -H "Authorization: Be
 ```
 
 The helpers are shell shorthand. A plain `curl -s -X POST "..." -H "Authorization: Bearer $VAMO_API_KEY"`
-with a JSON body works the same anywhere.
+with a JSON body works the same anywhere. On Windows, `platforms.md` has the same two helpers for PowerShell.
 
 ## 2. Run a first search
 

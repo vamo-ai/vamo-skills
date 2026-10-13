@@ -6,7 +6,7 @@ patch version. A change that makes earlier behavior wrong raises the major versi
 
 ## 2026-10-13
 
-- **vamo-api-access 1.3.0, vamo-enrich 1.1.0, vamo-workflows 1.1.0, vamo-troubleshooting 1.1.0,
+- **vamo-api-access 1.4.0, vamo-enrich 1.1.0, vamo-workflows 1.1.0, vamo-troubleshooting 1.1.0,
   role-decomposition 1.4.0**. Search and lookup move to the v2 developers API: a search is one
   JSON body to `POST /v2/developers/search` (facts as filters with name resolution, the work as
   one phrase, `repos`, `sort`, `cursor`, `exclude`), lookups go to `POST /v2/developers` (logins,
@@ -23,6 +23,29 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   - `role-decomposition`: every binding, band and planned call is written as v2 filters
     (`devrank`, `location_ids`, `former_company_ids`, `past_company_ids`, `school_ids`,
     `graduation_year`, `title_level`), with the worked example to match.
+- **vamo-search 3.0.0**. Searches with one request to the v2 developers API
+  (`POST /v2/developers/search`, `/similar`, `/aggregate`): facts are filters, the work is one
+  short phrase in a vector lane, repositories and look-alike seeds are part of the same body.
+  The request shape, the filters and the response fields are in the skill itself, so an agent
+  needs no other reading to search. Enrich, emails, summaries, lookup and deep research move to
+  their `/v2` paths. The discovery recipes and the sourcing guide are rewritten for the new
+  request; the domain library maps its short notes to it.
+  A `404` or `503` on a `/v2` route falls back to the v1 route of the same name, `repos_of`
+  takes an org or person login (a single repository is the `repos` clause), and the prose says
+  developers.
+- **vamo-api-access 1.3.0**. On your own machine, access now arrives as a setup code: one line from
+  **Connect a tool** in the app, which the agent trades for a key and stores by itself. Nobody
+  copies a key, and an agent never asks for one. `references/setup-code.md` has the exchange for
+  macOS, Linux and Windows. Windows is covered throughout: the file lives at
+  `%USERPROFILE%\.config\vamo\env`, limited to your account, and PowerShell loads it without
+  showing it. The lookup order starts with a setup code and is the same on every system. Saving a
+  key you created yourself moved to `references/platforms.md`. A project's instructions are no
+  longer listed as a place to keep a key, because they hand the key to the model in every
+  conversation. The `description` in the header is reworded so that every YAML parser reads it.
+  The steps for a key a person creates follow the app: API keys sit under Developer in Settings, a
+  key is taken away with **Remove**, and Search: Write is reading saved deep-research reports.
+  The error table stays in `vamo-troubleshooting`; the access skill keeps one line for an expired
+  or used setup code.
 
 ## 2026-10-12
 

@@ -1,12 +1,14 @@
 # Discovery recipes
 
 Reference for the `vamo-search` skill. Each recipe starts from what the person already has in
-hand and gives the calls, what to read on the results, and what to hand back. Parameter names are
-from the API's description at `https://api.vamotalent.ai/openapi.json`. Read the operation there
-before relying on one, and the spec wins when this file disagrees.
+hand and gives the request, what to read on the results, and what to hand back. Bodies go to
+`POST /v2/developers/search` unless another route is named. Field names are from
+`GET /v2/developers/fields`, and the API wins when this file disagrees.
 
-Two rules hold in every recipe. Describe work in `q`, and put every other requirement in its own
-filter. Confirm a hard requirement by reading the field on each person after `enrich`.
+Two rules hold in every recipe. Describe the work in one short phrase, and put every other
+requirement in its own filter. Confirm a hard requirement by reading the field on each person.
+`PEOPLE` below stands for `["is_bot", "Eq", false], ["is_org_account", "Eq", false]`, which
+every `And` list carries.
 
 ## What do you have?
 
@@ -28,34 +30,48 @@ filter. Confirm a hard requirement by reading the field on each person after `en
 
 *"Find developers building real-time voice agents." "Who is working on robot learning?"*
 
-- Write three to five `q` phrasings that each describe an artifact in the niche, one idea each,
-  and run each as its own search. `references/domain-library.md` has phrasing sets for fifty
-  domains.
-- Add `techs` or `subjects` only with tag values you have seen on a real row.
-- For something trending, add `pushedAfter` set a few months back, so the people are building
-  it now.
+```json
+{"rank_by": ["v", "ANN", ["Embed", "real-time voice agents, turn-taking and barge-in"]],
+ "filters": ["And", [PEOPLE]], "limit": 50}
+```
+
+- Write three to five phrasings that each describe an artifact in the niche, one idea each, and
+  run each as its own search. `domain-library.md` has phrasing sets for fifty domains.
+- A term the phrase may not carry (a protocol, an acronym): add a keyword lane and fuse,
+  `"queries": [{"filters": [...], "rank_by": ["v", "ANN", ["Embed", "..."]]}, {"filters": [...], "rank_by": ["all_repo_text", "BM25", "<term>"]}], "fuse": ["RRF", {"weights": [1, 1]}]`.
+- For something trending, add `["last_active_at", "Gte", "<date a few months back>T00:00:00Z"]`.
 - Hand back: person, the matched repository, what it does in one sentence.
 
 ## 2. People who code under another title
 
-*"Designers who ship code." "Product managers with real GitHub work." "Solutions engineers and
-forward-deployed engineers."*
+*"Designers who ship code." "Product managers with real GitHub work." "Forward-deployed
+engineers."*
 
-- Run `titles` with the titles you want, paired with a `q` that describes what such a person
-  builds: a component library, internal tools, customer integrations, demo apps.
-- `titles` reads linked professional profiles, so it reaches the people who have one. Run a
-  second pass without `titles`, on `q` alone, and read the title after `enrich` at
-  `depth=enriched`.
+```json
+{"filters": ["And", [["title_function", "In", ["design"]], PEOPLE]],
+ "rank_by": ["v", "ANN", ["Embed", "component library and design system in React"]],
+ "limit": 50, "depth": "enriched"}
+```
+
+- `title_function` values include design, product, devrel, solutions, forward_deployed,
+  customer_eng, founder. Pair the family with a phrase for what such a person builds.
+- Title filters read linked professional profiles. Run a second pass on the phrase alone and read
+  the title on the card.
 - Hand back: person, title and employer, the repository that shows they build.
 
 ## 3. The strongest people at one organization
 
-*"Who are the strongest engineers in this GitHub organization?"*
+*"Who are the strongest engineers at this company?"*
 
-- `orgs=<organization>` with `sortBy=crackedScore`. No `q` is needed.
-- For a company with no single GitHub organization, use `employer=<company>` the same way.
-- Read `details.score.cracked` and the top repositories. Check current employment on the
-  profile, since an organization association can outlast a job.
+```json
+{"filters": ["And", [["current_company_ids", "ContainsAny", {"company": ["<Company>"]}], PEOPLE]],
+ "sort": "devrank", "limit": 50, "depth": "enriched"}
+```
+
+- For the company's open-source people, add a second lane ranked the same way with
+  `["contributed_repo_ids", "ContainsAny", {"repos_of": "<org login>"}]` (every repository the
+  company's GitHub org owns), and fuse. Keep the employer filter on both lanes.
+- Read `index.recent_roles` to check they are still there.
 - Hand back: a ranked list with band, what each person works on, and whether they still appear
   to be there.
 
@@ -63,51 +79,59 @@ forward-deployed engineers."*
 
 *"Engineers at these competitors." "People who used to work at these companies."*
 
-- Now: `company` (linked profiles) and `employer` (everyone, inferred from GitHub activity). Run
-  both and join on `id`.
-- Before: `pastCompanies`. It matches the full employment history, the current employer
-  included, so confirm on `details.identity.experience` that the role has ended.
-- Always send `excludeCurrentCompanies` with the hiring company and anyone off limits.
-- Add a `q` for the area of work you want from those companies.
+- Worked there, now or before: `["former_company_ids", "ContainsAny", {"company": ["<A>", "<B>"]}]`.
+- Now: `current_company_ids`. Left: `past_company_ids`.
+- Exclude the hiring company and anyone off limits:
+  `["Not", ["current_company_ids", "ContainsAny", {"company": ["<Hiring company>"]}]]`.
+- Add a phrase for the area of work you want from those companies, and `"depth": "enriched"` so
+  the card carries title and recent roles.
 
 ## 5. People from a school
 
 *"Strong builders who went to these universities."*
 
-- `schools=<school>` with a `q` or `lang` for the kind of work. Add `experienceTier=early` for
-  recent graduates.
-- It reads linked professional profiles, so it finds a subset. Many strong builders list no
-  school. Treat school as a way to find some people and to rank others, and confirm the entry
-  under `details.identity.education`, reading past any secondary school listed first.
+```json
+{"filters": ["And", [["school_ids", "ContainsAny", {"school": ["<University>"]}], ["graduation_year", "Gte", 2023], PEOPLE]],
+ "rank_by": ["v", "ANN", ["Embed", "<the kind of work>"]], "limit": 50, "depth": "enriched"}
+```
+
+- School and graduation year read linked professional profiles, so they find a subset. Many
+  strong builders list no school. Use school to find some people and to rank others, and confirm
+  the entry under `details.identity.education`.
 
 ## 6. People around a repository
 
 *"People who build things like this project." "Who are the real contributors here?"*
 
-- `repos=<owner/name>` finds people who build comparable things. Seed one repository at a time.
-  Several seeds at once let one dominate.
-- For the contributors themselves, start a deep-research job on the repository and read its
-  report: contributors weighted toward recent work, and where its audience places.
-- Run `/v1/developers/similar` on the two or three strongest people the report names.
+- Contributors: `"repos": {"names": ["<owner/name>"], "role": "contributor"}`.
+- People who worked alongside them: `"repos": {"names": ["<owner/name>"], "hops": 2}`.
+- People who build comparable things: `"rank_by": ["v", "ANN", {"like": ["<owner/name>"]}]`. The
+  repo's own contributors rank first; read past them.
+- For a full read of who builds it and who validates it, start a deep-research job on the
+  repository (`{"subject": "repos", "repos": ["<owner/name>"]}`) and read its report.
+- Run `/v2/developers/similar` on the two or three strongest people found.
 
 ## 7. People in a place
 
 *"Rust engineers in Austin."*
 
-- `city` or `country` with `requireLocation=true`. Without `requireLocation`, people with no
-  location on file pass the filter.
-- After `enrich` at `depth=enriched`, read `details.contact.location`: `city`, `country`, `raw`
-  and `source`. The resolved country can be empty while the city or the raw text names the place.
-- Hand back the location and where it came from beside each person.
+```json
+{"filters": ["And", [["location_ids", "ContainsAny", {"place": ["Austin"]}], ["person_languages", "ContainsAny", ["rust:strong", "rust:primary"]], PEOPLE]],
+ "sort": "devrank", "limit": 50}
+```
+
+- A city means its metro area; `places_resolved` says how it was read. Add `"scope": "city"` for
+  the city itself. A region or a country works the same way (`{"place": ["Bay Area"]}`).
+- Hand back the location beside each person.
 
 ## 8. People like your own team
 
-*"This is our GitHub organization. Find everyone in it, then find people like them."*
+*"This is our company. Find everyone on the team, then find people like them."*
 
-1. `orgs=<your organization>` to list the team. Keep their ids.
-2. `/v1/developers/similar` on each of the strongest four to six.
-3. Add a `q` built from what the team's best repositories do, to catch people the graph misses.
-4. Put the team's ids and your organization in `exclude` and `excludeCurrentCompanies`.
+1. Recipe 3 with your own company, to list the team. Keep their ids.
+2. `/v2/developers/similar` on each of the strongest four to six.
+3. Add a phrase built from what the team's best repositories do, to catch people the graph misses.
+4. Put the team's ids in `exclude` and your company in a `Not` filter.
 
 A person returned from several seeds is close to the center of what the team does. Rank on it.
 
@@ -115,18 +139,23 @@ A person returned from several seeds is close to the center of what the team doe
 
 *"Find more like this engineer."*
 
-- `/v1/developers/similar?login=<login>`. Each result carries a `whySimilar` line.
-- Read what the seed built, then write two `q` phrasings from it and run those as well. The
-  similar set finds neighbors. The queries find people with the same craft and no connection.
+```json
+{"like_person": "<login>", "intent": "same", "limit": 25}
+```
+
+- `POST /v2/developers/similar`. `intent` is `same` (the same kind of work), `overall` or
+  `network`. Add `filters` to keep it to a place or a company.
+- Read what the seed built, then write two phrasings from it and run those as well. Similar finds
+  neighbors. The phrasings find people with the same craft and no connection.
 - If the seed is very well known, results skew to other well-known people. Add a reputation
-  ceiling with `maxCracked`, or `hideHighProfile=true`, when the goal is people who will answer.
+  ceiling (recipe 12) when the goal is people who will answer.
 
 ## 10. A job description
 
 *"Here is the role. Find fifty people who fit."*
 
-- Use the `role-decomposition` skill first. It turns the description into lanes, gates and
-  rank signals. Then run each lane here.
+- Use the `role-decomposition` skill first. It turns the description into lanes, gates and rank
+  signals. Then run each lane here.
 - Recall ten to fifteen times the number of people wanted, and cut on evidence you read.
 - `POST /v1/fit-rank` scores the logins you hold against the role text, as a second opinion on
   your own ordering.
@@ -135,20 +164,25 @@ A person returned from several seeds is close to the center of what the team doe
 
 *"Which cities have the most people building this?" "Where should we open the role?"*
 
-- Fix one set of queries and one reputation band. Run the identical set once per place with
-  `city` or `country` and `requireLocation=true`, with the same `limit` and page count each time.
-- For each place record: how many people came back in the band, how many own a matched
-  repository, and three example people.
-- Report it as a comparison between the places you tested. It is a sample under one set of
-  queries. Say which queries and which places, and do not present any count as a total.
+```json
+{"filters": ["And", [["title_function", "In", ["ml_eng", "ai_research"]], PEOPLE]],
+ "aggregate_by": {"people": ["Count"]}, "group_by": ["title_level"], "limit": 20}
+```
+
+- `POST /v2/developers/aggregate` counts people by a field under any filters. Run the same
+  filters once per place to compare places.
+- Report it as a comparison between the places you tested, under one set of filters. Say which
+  filters and which places, and do not present any count as a total.
 
 ## 12. A credibility bar
 
 *"Only people with serious open-source work." "Only the top tier."*
 
-- Reputation: `minCracked`, or `tier`. Add `maxCracked` when the role needs people who are
-  reachable as well as strong.
-- Popularity of their own work: `minStars` on the total across their repositories.
-- Ownership: read `match.repos[].role` and the repository itself. A star count on a project
-  they contributed one fix to says little about them.
-- Activity: `pushedAfter` for recency, and the garden summary at `depth=deep` for rhythm.
+- Reputation band: `["devrank", "Gte", 70], ["devrank", "Lte", 88], ["devrank", "NotEq", null]`.
+  The ceiling sets aside people famous enough that they rarely answer; drop it for top tier.
+- Popularity of their own work: `["owned_stars_max", "Gte", 100]`. Work they contributed to:
+  `["contributed_stars_max", "Gte", 1000]`.
+- Ownership: read the matched repo's `role`. A star count on a project they contributed one fix
+  to says little about them.
+- Activity: `["last_active_at", "Gte", "<date>T00:00:00Z"]`, and the garden summary at
+  `depth=deep` for rhythm.
