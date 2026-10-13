@@ -1,12 +1,22 @@
 # The use-case library: 50 domains, worked
 
-Reference for the `vamo-search` skill. Parameters used here (`q`, `orgs`, `techs`, `lang`, `pastCompanies`, `minCracked`, `maxCracked`, `depth`, `similar?login=`) are described in section 4 of `sourcing-guide.md`.
+Reference for the `vamo-search` skill. Each _Phrasings_ entry is the text of a vector lane, one search each: `"rank_by": ["v", "ANN", ["Embed", "<phrasing>"]]` on `POST /v2/developers/search`. The _Widen with_ lines use short notes, which map to the request as below (section 4 of `sourcing-guide.md` has every lever):
+
+| Note | In the request |
+| --- | --- |
+| `q=<text>` | another phrasing: `["Embed", "<text>"]` |
+| `orgs=<org>` | `"repos": {"names": ["<the org's main repositories>"], "role": "either"}` |
+| `techs=a,b` | a language: `["person_languages", "ContainsAny", ["a:strong", "b:strong"]]`; a framework or tool: a keyword lane `["all_repo_text", "BM25", "a b"]` fused with the phrase |
+| `lang=x` | `["person_languages", "ContainsAny", ["x:some", "x:strong", "x:primary"]]` |
+| `pastCompanies=<company>` | `["former_company_ids", "ContainsAny", {"company": ["<company>"]}]` |
+| `minCracked=N`, `maxCracked=M` | `["devrank", "Gte", N]`, `["devrank", "Lte", M]` with `["devrank", "NotEq", null]` |
+| `similar?login=<login>` | `POST /v2/developers/similar` with `{"like_person": "<login>", "intent": "same"}` |
 
 This library is where most of the daily value lives. Each entry is built around one idea: **what does this developer build on the weekend, when nobody is paying them?** That is the tell of what they care about, and what they care about is what makes them great at your role and likely to reply to it.
 
-**Do the fan-out in your head before you touch Vamo.** The strongest recall comes from thinking like the person first: if someone genuinely loved this problem, what would they have built, and how would they describe it? Write three to six of those descriptions as separate `q` phrasings, name a seed person or a canonical repo or an org, and only then run the searches. The query is the last step, not the first. A minute of "what would a real one have made" beats ten queries of guesswork.
+**Do the fan-out in your head before you touch Vamo.** The strongest recall comes from thinking like the person first: if someone genuinely loved this problem, what would they have built, and how would they describe it? Write three to six of those descriptions as separate phrasings, name a seed person or a canonical repo or an org, and only then run the searches. The query is the last step, not the first. A minute of "what would a real one have made" beats ten queries of guesswork.
 
-**What surfaces a real one.** Vamo reads real work: the repositories a person keeps returning to, what the README actually explains (the hard part they solved, not just usage), the stack they reach for without being asked, whether their work is respected by builders whose own work is serious, and whether the activity is recent and sustained. So a good `q` describes the _work and the artifact_, and a good qualify step reads the repo and the trajectory, not a label. The entries below each note the evidence that answers them.
+**What surfaces a real one.** Vamo reads real work: the repositories a person keeps returning to, what the README actually explains (the hard part they solved, not just usage), the stack they reach for without being asked, whether their work is respected by builders whose own work is serious, and whether the activity is recent and sustained. So a good phrasing describes the _work and the artifact_, and a good qualify step reads the repo and the trajectory, not a label. The entries below each note the evidence that answers them.
 
 Org, repository and company values are placeholders: fill them with the projects and employers that define the space for your role. Each entry gives: the weekend-builder read, phrasings to run as separate searches, ways to widen, the evidence that surfaces a real one, and a qualify tell plus a bridge angle. Default to the gettable band `minCracked=70&maxCracked=88` on senior roles, and `depth=core` for recall.
 

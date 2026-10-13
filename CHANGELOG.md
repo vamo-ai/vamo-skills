@@ -6,6 +6,16 @@ patch version. A change that makes earlier behavior wrong raises the major versi
 
 ## 2026-10-13
 
+- **vamo-search 3.0.0**. Searches with one request to the v2 developers API
+  (`POST /v2/developers/search`, `/similar`, `/aggregate`): facts are filters, the work is one
+  short phrase in a vector lane, repositories and look-alike seeds are part of the same body.
+  The request shape, the filters and the response fields are in the skill itself, so an agent
+  needs no other reading to search. Enrich, emails, summaries, lookup and deep research move to
+  their `/v2` paths. The discovery recipes and the sourcing guide are rewritten for the new
+  request; the domain library maps its short notes to it.
+  A `404` or `503` on a `/v2` route falls back to the v1 route of the same name, `repos_of`
+  takes an org or person login (a single repository is the `repos` clause), and the prose says
+  developers.
 - **vamo-api-access 1.3.0**. On your own machine, access now arrives as a setup code: one line from
   **Connect a tool** in the app, which the agent trades for a key and stores by itself. Nobody
   copies a key, and an agent never asks for one. `references/setup-code.md` has the exchange for

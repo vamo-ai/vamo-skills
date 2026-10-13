@@ -17,10 +17,10 @@
     },
     "vamo-search": {
       "title": "Search",
-      "version": "2.1.3",
-      "updated": "2026-10-12",
+      "version": "3.0.0",
+      "updated": "2026-10-13",
       "path": "skills/vamo-search",
-      "summary": "Find engineers by what they built. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
+      "summary": "Find engineers by what they built, with one request to the v2 developers API. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
       "files": [
         "SKILL.md",
         "references/discovery-recipes.md",

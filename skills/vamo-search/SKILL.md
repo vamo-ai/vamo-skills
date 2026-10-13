@@ -1,36 +1,34 @@
 ---
 name: vamo-search
-description: Use when searching for software engineers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
+description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "2.1.3"
-  updated: "2026-10-12"
+  version: "3.0.0"
+  updated: "2026-10-13"
 ---
 
 # Vamo Search
 
-How an agent uses the Vamo developer search API and reads its results correctly.
+How an agent uses the Vamo developer search API (v2) and reads its results correctly.
 
-Vamo is a developer talent search engine over GitHub proof-of-work. You describe who you want in
-plain language. It returns real people with the repos that prove the claim.
+Vamo is a developer talent search engine over GitHub proof-of-work joined to professional
+history. You send one JSON body: facts as filters, the work as a short phrase. It returns real
+people with the repos and roles that prove the claim.
 
 Base URL `https://api.vamotalent.ai`. Machine-readable spec:
-`https://api.vamotalent.ai/openapi.json`. Every operation carries an `x-vamo` block with its
-access level and rate limit. **When this skill and the spec disagree, the spec wins.**
+`https://api.vamotalent.ai/openapi.json`. The fields a search may use, with their operators,
+are listed live at `GET /v2/developers/fields`. **When this skill and the API disagree, the API
+wins.**
 
-`vamo-api-access` covers setup and access, with a curl walkthrough of every route.
-`vamo-troubleshooting` covers errors and a connection that stops working.
-`role-decomposition` turns a role into a search spec.
+Everything below is enough to search with one request and no other reading. `vamo-api-access`
+covers setup and access. `vamo-troubleshooting` covers errors and a connection that stops
+working. `role-decomposition` turns a role into a search spec. Three reference files go deeper:
 
-Three reference files go deeper:
-
-- `references/discovery-recipes.md`: twelve starting points and the calls for each. A
-  technology, a title, a company, a school, a repository, a place, your own team, one person, a
-  job description, a talent map, a credibility bar. **Start here when someone asks to find
-  people.**
+- `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
+  here when someone asks to find people.**
 - `references/sourcing-guide.md`: the full method for a whole role. Sizing the funnel, the eight
   qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
   and worked reasoning traces.
-- `references/domain-library.md`: query phrasings for fifty domains.
+- `references/domain-library.md`: phrasings of the work for fifty domains.
 
 ---
 
@@ -38,10 +36,10 @@ Three reference files go deeper:
 
 ```
 Authorization: Bearer vamo_sk_...
+Content-Type: application/json
 ```
 
-Search routes share one rate limit of **30 requests per minute per account**. Parallel agents on
-one account share it, so a fan-out of thirty queries needs throttling.
+Search routes allow 10 requests per second per key. Parallel agents on one key share it.
 
 ---
 
@@ -49,55 +47,105 @@ one account share it, so a fan-out of thirty queries needs throttling.
 
 | You want | Call |
 | --- | --- |
-| People matching a description of work | `GET /v1/developers/search` |
-| More depth on rows you already hold | `GET /v1/developers/enrich` (ids or logins, 25 per call) |
-| More people like one person | `GET /v1/developers/similar` |
-| Email addresses | `GET /v1/developers/emails` |
-| A short written summary per person | `GET /v1/developers/summaries` |
-| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
-| A full report on a person or a repository | `POST /v1/deep-research/jobs`, then read the report |
+| People matching facts and a description of work | `POST /v2/developers/search` |
+| More people like one person | `POST /v2/developers/similar` |
+| Counts by a field (sizing a market, where talent is) | `POST /v2/developers/aggregate` |
+| More depth on people you already hold | `GET /v2/developers/enrich?logins=a,b&depth=enriched` (or `ids=`, 25 per call) |
+| Look up by LinkedIn profile, login or id | `POST /v2/developers` with `{"linkedin": [...], "logins": [...], "ids": [...], "depth": "enriched"}` |
+| Email addresses | `GET /v2/developers/emails?logins=a,b` |
 
-Deep research and fit-rank work on people you already hold. They find nobody new. Use `enrich` to
-deepen a row. Re-running the search for more depth returns a different page.
+If a `/v2/developers` route answers `404` or `503`, v2 is not live in this environment yet: make
+the same request on the v1 route of the same name (`GET /v1/developers/search` with `q` and
+filters, `/v1/developers/similar`, `/v1/developers/enrich`, `POST /v1/developers`) and tell the
+person in one line that you used v1.
+| A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
+| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
+| A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
+| The fields and their operators | `GET /v2/developers/fields` |
+
+Deep research and fit-rank work on people you already hold. They find nobody new. Use `enrich`
+to deepen a row. Re-running the search for more depth returns a different page.
 
 ---
 
-## The lever model
+## The request
 
-`q` carries the intent. Every other parameter narrows it. Either `q` or one narrowing parameter is
-required.
+```json
+{"filters": [...], "rank_by": [...], "repos": {...}, "sort": "devrank", "limit": 20, "depth": "core"}
+```
 
-Levers fall into two families, and the family decides how much of the population a filter can
-see.
+At least one of `filters`, `rank_by` or `repos` is required. `limit` is people, 1 to 100.
 
-**GitHub-native levers reach everyone in the index:**
-`lang`, `skills`, `repos`, `subjects`, `techs`, `orgs`, `employer`, `minCracked`, `maxCracked`,
-`tier`, `minStars`, `maxStars`, `minFollowers`, `minRepos`, `maxRepos`, `pushedAfter`,
-`pushedBefore`, `hideHighProfile`, `country`, `city`, `excludeCurrentCompanies`.
+- **Facts are filters.** Place, employer, school, title, seniority, languages, graduation year,
+  reputation. A filter is `[field, Operator, value]`; combine with `["And", [...]]`,
+  `["Or", [...]]`, exclude with `["Not", f]`.
+- **The work is one short phrase** in a vector lane:
+  `"rank_by": ["v", "ANN", ["Embed", "low-latency audio streaming"]]`. Never put a place, an
+  employer or a seniority word in it.
+- **Jargon the phrase may not carry** (a protocol name, an acronym): a keyword lane
+  `["all_repo_text", "BM25", "gto"]`, fused with the phrase lane (below).
+- **No work to match, and you want the strongest people:** `"sort": "devrank"` (also
+  `followers`, `stars`, `recent`).
+- **People only:** always add `["is_bot", "Eq", false]` and `["is_org_account", "Eq", false]`.
 
-**Professional levers reach developers with a linked professional profile:**
-`company`, `pastCompanies`, `schools`, `titles`, `industries`, `peerCompanies`, `companySize`,
-`experienceTier`, `yoeMin`, `yoeMax`, `openToWork`, `state`.
+Filters. Names resolve to ids for you; an unknown name is a 400 that lists the closest known
+names.
 
-Rules that are easy to miss:
+| Want | Filter |
+| --- | --- |
+| A place. A city means its metro area | `["location_ids", "ContainsAny", {"place": ["Denver"]}]`; the city itself: `{"place": ["Denver"], "scope": "city"}` |
+| Worked at a company, now or before | `["former_company_ids", "ContainsAny", {"company": ["<Company>"]}]` |
+| Works there now | `["current_company_ids", "ContainsAny", {"company": ["<Company>"]}]` |
+| Left it | `["past_company_ids", "ContainsAny", {"company": ["<Company>"]}]` |
+| School | `["school_ids", "ContainsAny", {"school": ["<University>"]}]` |
+| Graduation year | `["graduation_year", "Gte", 2023]` |
+| Role family | `["title_function", "In", ["software_eng", "infra", "ml_eng"]]` |
+| Title level | `["title_level", "In", ["senior", "staff", "principal"]]` |
+| Title words | `["current_title", "ContainsAnyToken", "founding"]` |
+| Writes a language | `["person_languages", "ContainsAny", ["rust:strong", "rust:primary"]]` (levels `some`, `strong`, `primary`) |
+| Reputation band | `["devrank", "Gte", 70]` and `["devrank", "Lte", 88]` |
+| Popularity of their own work | `["owned_stars_max", "Gte", 100]` (their best repo) |
+| Contributed to the repos an org or person owns | `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner login>"}]` (one repository: the `repos` clause) |
 
-- **A professional lever shrinks the page to linked profiles.** Strong builders with no linked
-  profile drop out. Run these as their own pass and join on developer id.
-- **`lang`, `country` and `city` filter on evidence.** A developer with no data on file for that
-  field stays in. Add `requireLocation=true` when location is a hard requirement, then confirm
-  `details.contact.location` at `depth=enriched`.
-- **`subjects` and `techs` are hard filters on tags. `skills` and `q` are soft aims.** Put a
-  must-have in the hard filter and a nice-to-have in `skills`.
-- **`repos` is the lever most agents forget.** Seeding with the two or three projects that define a space finds a population no adjective in
-  `q` describes.
-- **`employer` and `company` are different signals.** `employer` is inferred from GitHub
-  activity and reaches everyone. `company` reads the linked profile.
-- **`requireEmail`, `requireLinkedin` and `requireLocation` only filter.** Each row already
-  carries `hasEmail`, `hasLinkedin` and `hasLocation`. Addresses come from `/v1/developers/emails`.
-- **`exclude` is how "fifty more" works.** Pass the ids you already hold on every call.
-- **A `cursor` belongs to the query that produced it.** Pass it back unchanged.
-- **`sortBy` binds when the query routes to the GitHub user index.** Check the order of the first
-  page before relying on a sort.
+`title_function` values: software_eng, product_eng, infra, eng_mgmt, ml_eng, ai_research,
+research, data_eng, data_sci, data_analyst, security, qa, devrel, forward_deployed, solutions,
+customer_eng, it_ops, hardware, product, design, program_mgmt, founder, exec, mgmt_other,
+academia, student, nontech. `title_level` values: intern, junior, mid, senior, staff, principal,
+distinguished, exec. Any other field: `GET /v2/developers/fields`.
+
+Repositories:
+
+| Want | Body |
+| --- | --- |
+| Contributed to, or owns, a repo | `"repos": {"names": ["<owner/name>"], "role": "contributor"}` (`owner`, `either`) |
+| Worked alongside the people on a repo | `"repos": {"names": ["<owner/name>"], "hops": 2}` |
+| Built things like a repo | `"rank_by": ["v", "ANN", {"like": ["<owner/name>"]}]` |
+
+Two or three angles in one request: `"queries": [{lane}, {lane}]` with
+`"fuse": ["RRF", {"weights": [1, 1]}]`. Each lane carries its own `filters` and `rank_by`. At most
+three lanes.
+
+More like one person: `POST /v2/developers/similar` with
+`{"like_person": "<login>", "intent": "same", "limit": 20}`; `intent` is `same` (the same kind of
+work), `overall` or `network`. Add `filters` to keep it to a place or a company.
+
+---
+
+## The rules that are easy to miss
+
+- **`Lt` and `Lte` keep people with no value.** `["devrank", "Lte", 88]` also returns people with
+  no devRank. Add `["devrank", "NotEq", null]` when the field is a hard requirement. `Not` keeps
+  unknowns too.
+- **Professional facts reach people with a linked professional profile.** Employer, title,
+  school and graduation filters drop strong builders with no linked profile. Run a second pass
+  on the work alone and join on `id`.
+- **A city is its metro.** "Denver" includes Boulder. `places_resolved` in the response says how
+  each place was read. Add `"scope": "city"` only when the ask means the city itself.
+- **"Ex-X" means worked there, now or before.** `former_company_ids` covers both. Use
+  `past_company_ids` only for people who have left.
+- **`exclude` is how "fifty more" works**, and `cursor` is how the next page works. Pass the ids
+  you hold in `exclude`, or the previous page's `cursor` with the same body.
+- **A `cursor` belongs to the query that produced it.** Another body with that cursor is a 400.
 
 ---
 
@@ -105,36 +153,28 @@ Rules that are easy to miss:
 
 | Field | What it tells you |
 | --- | --- |
-| Row order | The ranking. Best match first. There is no per-row score to sort or threshold on. |
-| `match.repos[]` | Why this person matched: `fullName`, `stars`, `language`, `role`. Your citation. |
-| `match.repos[].role` | `owner` means the repo sits under their namespace. The lead author of an organization's repo reads as `contributor`. |
-| `match.repos[].stars` | Count at retrieval time. `0` can also mean the source returned no count. |
-| `match.status` | `unattributed` means this page carries no repo attribution. It makes no claim about match strength. |
+| Row order | The ranking. Best match first. |
+| `evidence.matches[]` | Why this person matched: the repo (`full_name`), the role (`company`, `title`, years) or the profile, with `similarity` for a phrase lane. Your citation. |
+| `match.repos[]` | The matched repositories: `fullName`, `stars`, `language`, `role`. |
+| `index.profile` | The card the search ran on: login, name, location, devrank, followers, languages; at `enriched` also title, company, school, graduation year, LinkedIn. |
+| `index.recent_roles` | Newest first (at `enriched` or `deep`). Trust these over a headline. |
+| `index.top_repos` | Their strongest repositories. |
 | `id` | GitHub's numeric user id as a string. Stable across renames. Dedupe on it. |
 | `countStatus` | `exact`, or `short` with `requested`, `returned` and `shortfallReason`. |
-| `cursor` | Continuation token. `null` means no continuation for this query. |
-| `cached` | The page came from a cached result set and may omit newer envelope fields. |
-| `details.*` | Namespaces appear only when resolved. An absent namespace is unknown. |
-
-### Short pages say why
+| `cursor` | The next page. `null` means no more for this query. |
+| `places_resolved`, `ids_resolved` | How each place and name was read. |
+| `details.*` | The v1 developer namespaces at the depth asked. An absent namespace is unknown. |
 
 | `shortfallReason` | Meaning | Next move |
 | --- | --- | --- |
-| `corpus` | Nobody else in the index matches | Stop paging this query. Widen it. |
-| `filter_attrition` | Matches existed and your filters removed them from this page | Page on with the cursor |
+| `corpus` | Nobody else matches | Stop paging this query. Widen it. |
 | `coverage` | People matched and could not be returned | Page on |
-| `capability` | A lane was unavailable to this credential | Retry with the cursor |
-| `call_budget` | The request hit its own ceiling with more upstream | Retry with the cursor |
-| `lane_window` | One lane ran out of window | Page on, or rephrase |
 
 Report a target as met only when the rows you hold meet it.
 
-### Unknown is its own answer
-
-A missing `details` namespace, a null location, an empty education list: each means the data is
-silent. Check the neighbours before settling on unknown: a location with an empty `country` often
-has a `city` or a `raw` string that names the place. Carry it as unknown through your ranking. Drop on unknown only when the requirement is a
-hard gate and the person asking has said so.
+A missing value, a null location, an empty education list: each means the data is silent. Carry
+it as unknown through your ranking. Drop on unknown only when the requirement is a hard gate and
+the person asking has said so.
 
 ---
 
@@ -142,11 +182,12 @@ hard gate and the person asking has said so.
 
 | Depth | Adds |
 | --- | --- |
-| `core` | Profile, top repositories, the `match` block, cracked score |
-| `enriched` | LinkedIn identity, experience, education, socials, resolved location |
+| `core` | Profile, top repositories, the match and evidence, reputation |
+| `enriched` | Title, company, school and recent roles on the card, LinkedIn identity, experience, education, socials, resolved location |
 | `deep` | The contribution garden, as `gardenSummary` by default or the full heatmap with `garden=full` |
 
-Search wide at `core`, decide who matters, then `enrich` the survivors at the depth you need.
+Search wide at `core`, decide who matters, then `enrich` the survivors at the depth you need. Ask
+for `enriched` on the search itself when the answer is about employer, title or school.
 `facets` adds `ai.person_summary`, `ai.repo_summaries`, `ai.match_rationale` and `tags.repos` on
 top of any depth. AI facets resolve in the background: the first read is `pending`, a second read
 returns the value.
@@ -159,16 +200,17 @@ A role description is a topic. The `fanout-search` skill covers the general meth
 
 1. **Decompose the role into lanes**, each named by an artifact a strong person would have built.
    `role-decomposition` does this from intake notes.
-2. **Write several `q` phrasings per lane**, one idea each, and run each as its own search.
-3. **Vary the lever as well as the words.** A `repos`-seeded query, an `orgs` query and a `q`
-   query for the same concept return substantially different people.
-4. **Seed the known items.** Name the five to fifteen repositories that define the space and put
-   them in `repos`. Keyword-style search under-retrieves canonical projects because everyone
-   else's description of them outranks the thing itself.
-5. **Walk the graph.** Call `/v1/developers/similar` on every strong hit.
-6. **Page with `exclude`** carrying everything you hold.
+2. **Write several phrasings of the work per lane**, one idea each, and run each as its own
+   search, or two or three as fused lanes in one request.
+3. **Vary the lever as well as the words.** A `repos` search, a `like` lane and a phrase lane for
+   the same concept return substantially different people.
+4. **Seed the known items.** Name the repositories that define the space and search on them with
+   `repos` or `like`. Phrase search under-retrieves canonical projects because everyone else's
+   description of them outranks the thing itself.
+5. **Walk the graph.** Call `/v2/developers/similar` on every strong hit.
+6. **Page with `cursor`, or `exclude`** carrying everything you hold.
 7. **Dedupe on `id`.** People rename their logins.
-8. **Cut on evidence you read**: the matched repos, the role, the band, the gates. Row order is
+8. **Cut on evidence you read**: the matched repos and roles, the band, the gates. Row order is
    relative to one query and does not compare across queries.
 
 ---
@@ -177,17 +219,16 @@ A role description is a topic. The `fanout-search` skill covers the general meth
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| A location or language filter seems ignored | Evidence-based filter left unknowns in | Add `requireLocation=true`, confirm on the row |
-| Pages shrink to a handful | A professional lever restricted the pool to linked profiles | Run it as a separate pass, join on `id` |
-| Same people on every page | `exclude` not sent | Pass every id you hold |
-| Great engineers missing | One query, no seeds, no graph walk | Fan out, seed `repos`, walk `similar` |
-| Thin page reported as complete | `countStatus` not read | Read `shortfallReason`, page on unless it is `corpus` |
-| Tutorials and lists at the top | `q` names a topic | Describe an artifact and its mechanism |
-| A sort did nothing | The query routed to a lane the sort does not bind on | Drop `q`, or sort the rows you hold yourself |
+| A 400 naming a field | The field is unknown or disabled, or the operator does not apply | Use the closest name in the hint, or check `GET /v2/developers/fields` |
+| A 400 naming a place or company | The name did not resolve | Use the closest name in the hint |
+| Pages shrink to a handful | A professional filter restricted the pool to linked profiles | Run it as a separate pass, join on `id` |
+| Same people on every page | Neither `cursor` nor `exclude` sent | Send one of them |
+| Great developers missing | One query, no seeds, no graph walk | Fan out, seed `repos`, walk `similar` |
+| Tutorials and lists at the top | The phrase names a topic | Describe an artifact and its mechanism |
+| Place or employer words in the phrase | The vector drifts | Move them into `filters` |
+| Celebrity maintainers on top | No ceiling on reputation | Add `["devrank", "Lte", 88]` with `["devrank", "NotEq", null]` |
 | `ai.*` value missing | Facet still `pending` | Read the same request again |
-| Two people merged or split | Deduped on login | Dedupe on `id` |
-| A long run returned nothing | Many sequential calls hit a time limit | Run queries in parallel groups of about eight |
-| Unrelated projects on page one | A short or ambiguous term in `q` | Put the domain noun beside it |
+| A 504 | A cold start | Send the same request once more |
 
 ---
 
@@ -195,8 +236,8 @@ A role description is a topic. The `fanout-search` skill covers the general meth
 
 When handing results to a person:
 
-- **Cite the evidence.** Every claim about a developer traces to `match.repos` or a field you
-  read. Say what they built and how it works.
+- **Cite the evidence.** Every claim about a developer traces to `evidence.matches`, `match.repos`
+  or a field you read. Say what they built and how it works.
 - **Say what you filtered and what you confirmed.** A filter you sent and a field you verified
   are different claims. Name which one backs each requirement.
 - **Carry unknowns visibly.** Mark an unverified location or seniority as unverified.
@@ -208,32 +249,30 @@ When handing results to a person:
 ## Drop-in prompt
 
 ```
-You are sourcing engineers with the Vamo API (https://api.vamotalent.ai, bearer vamo_sk_ key,
-30 search requests per minute per ACCOUNT). Spec: https://api.vamotalent.ai/openapi.json. The
-spec wins over memory.
+You are sourcing developers with the Vamo API (https://api.vamotalent.ai, bearer vamo_sk_ key,
+10 search requests per second per key). Fields: GET /v2/developers/fields. The API wins over
+memory.
 
-1. PICK THE DOOR. New people: GET /v1/developers/search. Depth on people you hold:
-   /v1/developers/enrich. More like one person: /v1/developers/similar. Addresses:
-   /v1/developers/emails. Rank logins against a role: POST /v1/fit-rank.
+1. PICK THE DOOR. New people: POST /v2/developers/search. More like one person:
+   POST /v2/developers/similar. Counts: POST /v2/developers/aggregate. Depth on people you
+   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. A 404 or 503 on a
+   /v2 route means v2 is not live here: use the v1 route of the same name and say so once.
 
-2. FAN OUT. The role description is a topic. Split it into lanes named by artifacts. Write
-   several one-idea q phrasings per lane. Seed `repos` with the canonical projects of the space.
-   Vary the lever as well as the wording. Call similar on every strong hit. Page with `exclude`.
+2. WRITE ONE BODY. Facts are filters ([field, Op, value], And/Or/Not; names resolve:
+   {"place": [...]}, {"company": [...]}, {"school": [...]}). The work is one short phrase:
+   rank_by [v, ANN, [Embed, "..."]]. No work to match: sort devrank. Repos: "repos" or
+   {"like": [...]}. Always is_bot false and is_org_account false.
 
-3. KNOW THE TWO FAMILIES. GitHub-native levers (lang, skills, repos, subjects, techs, orgs,
-   employer, minCracked/maxCracked, pushedAfter, hideHighProfile, country, city) reach everyone.
-   Professional levers (company, pastCompanies, schools, titles, experienceTier, yoeMin/yoeMax,
-   state) reach linked profiles only: run them as a separate pass and join on id.
-   lang/country/city leave unknowns in: add requireLocation=true and confirm on the row.
+3. FAN OUT. Split the role into lanes named by artifacts. Several phrasings per lane. Seed the
+   canonical repos of the space. Call similar on every strong hit. Page with cursor or exclude.
 
-4. READ RESULTS CORRECTLY. Row order is the ranking; there is no score field. match.repos is
-   the evidence; role owner means the repo is under their namespace. match.status unattributed
-   says nothing about strength. Read countStatus.shortfallReason before claiming a target:
-   only `corpus` means exhausted. Dedupe on id. An absent details namespace is unknown.
+4. READ RESULTS CORRECTLY. Row order is the ranking. evidence.matches says why each person
+   matched. Read countStatus before claiming a target: only `corpus` means exhausted. Dedupe on
+   id. An absent value is unknown. Lt/Lte and Not keep unknowns.
 
-5. GO DEEP LAST. Search at depth=core. Enrich only the survivors. Request ai.* facets twice:
-   pending first, value second.
+5. GO DEEP LAST. Search at depth core, or enriched when the ask is about employer, title or
+   school. Enrich only the survivors. Request ai.* facets twice: pending first, value second.
 
-6. REPORT. Cite match.repos for every person. Separate what you filtered from what you
+6. REPORT. Cite the evidence for every person. Separate what you filtered from what you
    confirmed. Mark unknowns. Declare pages not fetched, thin lanes and cuts.
 ```
