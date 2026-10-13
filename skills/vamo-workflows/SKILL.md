@@ -2,8 +2,8 @@
 name: vamo-workflows
 description: Use when wiring the Vamo Developer API into something that runs more than once, for example your own sourcing or hiring agent, a recurring search, a pipeline that enriches people before a message goes out, or a hand-off between Vamo and other tools such as an applicant tracking system, an email sender or a spreadsheet. Also use when designing the data that moves between those steps. Triggers "build a sourcing agent", "automate this search", "run this every week", "pipe Vamo data into our sequences", "sync with our ATS", "connect Vamo to our workflow", "what should the agent loop look like".
 metadata:
-  version: "1.0.1"
-  updated: "2026-10-09"
+  version: "1.1.0"
+  updated: "2026-10-13"
 ---
 
 # Vamo Workflows
@@ -16,7 +16,13 @@ Vamo's part in any workflow is the same: who the people are and the evidence for
 mail, storing candidates and scheduling belong to other tools. `vamo-api-access` covers setup,
 `vamo-search` finds people, `vamo-enrich` fills in people you hold, and `role-decomposition`
 turns a role into a search spec. The API's own description at
-`https://api.vamotalent.ai/openapi.json` wins over this file on routes and fields.
+`https://api.vamotalent.ai/openapi.json`, and the live field list at `GET /v2/developers/fields`,
+win over this file on routes and fields.
+
+Searches go to `POST /v2/developers/search` as one JSON body, and lookups to
+`POST /v2/developers`. On the production host those routes can answer `404` or `503` until the v2
+engine is switched on there. A workflow then runs the v1 route of the same name, and the run report
+says in one line that it ran on v1.
 
 ---
 
@@ -25,11 +31,14 @@ turns a role into a search spec. The API's own description at
 - **The developer `id` is the key.** It is stable across renames. Store it with every record and
   join on it. Usernames change.
 - **Keep a seen list.** Store the ids already returned, contacted or rejected, and send them in
-  `exclude`. A second run should return new people.
-- **Save the spec, not the results.** Keep the queries, filters and band that produced a list.
-  The list goes stale. The spec can be run again.
-- **Batch and pace.** Lookups take up to 25 people per call. Run searches in parallel groups of
-  about eight. Search and lookup share a rate limit per account, listed in the spec.
+  `exclude` (up to 1000 per search). A second run should return new people.
+- **Save the spec, not the results.** Keep the search bodies that produced a list, exactly as
+  sent. The list goes stale. The bodies can be run again.
+- **Validate before you schedule.** Send each stored body to `POST /v2/developers/search/validate`
+  when you save it and before each run. A field can be renamed or disabled between runs, and the
+  `hint` says what to change.
+- **Batch and pace.** Lookups take up to 25 people per call. Search allows 10 requests per second
+  per key, so run searches in parallel groups of about eight. A `429` carries `Retry-After`.
 - **Wait for background values.** Summary and rationale facets resolve in the background. Read
   once, then read again for anything still `pending`.
 - **Allow time.** A search can take ten to twenty seconds. Use a timeout of at least sixty.
@@ -54,7 +63,7 @@ Agree on one shape and every step can be replaced without touching the others.
   "found_by": ["<lane or source>"],
   "proving_repo": { "full_name": "<owner/name>", "stars": 0, "role": "owner" },
   "what_they_built": "<one plain sentence>",
-  "cracked": { "tier": "<tier>", "score": 0 },
+  "devrank": null,
   "location": { "city": null, "country": null, "raw": null, "source": null },
   "current": { "title": null, "company": null },
   "links": { "github": "<url>", "linkedin": null },
@@ -86,8 +95,10 @@ the instruction to report a thin lane instead of lowering the bar to fill a quot
 ### A search that runs every week
 
 1. Store the spec and the seen list.
-2. Each run: the same lanes, with `pushedAfter` set to the last run date to favor people active
-   since then, and `exclude` carrying the seen list.
+2. Each run: the same stored bodies, with `exclude` carrying the seen list. To favor people
+   active since the last run, add `"sort": "recent"`, or the filter
+   `["last_active_at", "Gte", "<last run date>T00:00:00Z"]`. Activity is partial data, so the
+   filter leaves out people with no activity on file. Prefer the sort unless recency is a gate.
 3. Deliver only the new people, and add them to the seen list.
 
 When a run comes back empty, say so. A quiet week is information.
@@ -112,7 +123,8 @@ supplies the part that differs per person.
 ### Screening what is already in your tracking system
 
 1. Export the candidates, or read them through the tracking system's connector.
-2. Enrich by GitHub username (`vamo-enrich`), add tier, evidence and location.
+2. Enrich by GitHub username or LinkedIn profile (`vamo-enrich`), add devRank, evidence and
+   location.
 3. Write the result back as fields on each candidate, or as a file in the system's import
    format.
 
@@ -153,6 +165,7 @@ When two sources disagree about a person, show both and say which field came fro
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | The weekly run returns the same people | No seen list | Store ids and send them in `exclude` |
+| A stored search starts failing with a 400 | A field it names was renamed or disabled | Validate stored bodies before each run and apply the `hint` |
 | Two records for one person | Joined on username | Join on `id` |
 | A run stops halfway with nothing saved | One long sequential pass | Parallel groups, and write results as each group returns |
 | Generic messages went out | Rows without a personal sentence were kept | Drop the row when there is no sentence |
