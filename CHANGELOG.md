@@ -4,6 +4,19 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-12
+
+- **vamo-troubleshooting 1.0.0** (new). An agent diagnoses its own Vamo connection: which route
+  it is on (the MCP tools, or the API over HTTP), three checks in order, every API error with
+  what to tell the person, the MCP cases (not connected, the fixed account sentence, an expired
+  page), what to pass on to Vamo, and the rules. It never prints a key, and it asks before it
+  installs or changes anything.
+- **vamo-api-access 1.2.0**. The error table moved to `vamo-troubleshooting`. **Read the error**
+  is now one line that points there. Setup, storage, the network path and verification are
+  unchanged.
+- **vamo-search 2.1.3, vamo-enrich 1.0.2, role-decomposition 1.3.1**. Cross-references point at
+  `vamo-troubleshooting` for errors.
+
 ## 2026-10-09 (automation)
 
 - Pull requests are validated by `scripts/validate.py`: the manifest against the folders, each

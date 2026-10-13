@@ -2,8 +2,8 @@
 name: vamo-search
 description: Use when searching for software engineers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "2.1.2"
-  updated: "2026-10-09"
+  version: "2.1.3"
+  updated: "2026-10-12"
 ---
 
 # Vamo Search
@@ -17,7 +17,8 @@ Base URL `https://api.vamotalent.ai`. Machine-readable spec:
 `https://api.vamotalent.ai/openapi.json`. Every operation carries an `x-vamo` block with its
 access level and rate limit. **When this skill and the spec disagree, the spec wins.**
 
-`vamo-api-access` covers setup, access and errors, with a curl walkthrough of every route.
+`vamo-api-access` covers setup and access, with a curl walkthrough of every route.
+`vamo-troubleshooting` covers errors and a connection that stops working.
 `role-decomposition` turns a role into a search spec.
 
 Three reference files go deeper:

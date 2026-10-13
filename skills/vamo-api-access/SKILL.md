@@ -1,16 +1,16 @@
 ---
 name: vamo-api-access
-description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup or for a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
+description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup or for a call that fails before it returns results. Covers getting API access, storing it so the next session still has it, opening network access to the API host and verifying the connection. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries" and a blocked or timed-out request to api.vamotalent.ai. Triggers "set up Vamo", "connect to the Vamo API", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.1.3"
-  updated: "2026-10-09"
+  version: "1.2.0"
+  updated: "2026-10-12"
 ---
 
 # Vamo API access
 
 Vamo searches GitHub developers by what they have built. This skill gets a direct HTTP
-connection working and keeps it working in any agent: API access, a safe place to keep it, a
-network path to the API, and what to do when a call fails.
+connection working and keeps it working in any agent: API access, a safe place to keep it and a
+network path to the API.
 
 Three things have to be true before any search runs. Check them in this order at the start of a
 session and fix the first one that fails.
@@ -252,22 +252,7 @@ person is looking for.
 
 ## Read the error
 
-Every error body has a stable `code` and a `message`. Many carry more: `reason`, `entitlement`,
-`remedy`, `retryAfterSeconds`. Read the whole body. The extra fields say which case it is.
-
-| Status and `code` | What it means | What to do |
-| --- | --- | --- |
-| `401 unauthorized` | No key reached the API, or the key is wrong or revoked | Check the header is `Authorization: Bearer <key>` with no quotes, line breaks or spaces inside the key. Create a new key if this one was revoked |
-| `403 forbidden` with `entitlement` | The key lacks that permission | Name the entitlement to the key's owner. They add it under **Edit permissions**. It applies to the next request |
-| `403 forbidden` with `reason: FEATURE_NOT_ENABLED` | The account does not have that feature | Tell the person which feature. Vamo enables it per account |
-| `402 payment_required` | The account's plan or balance does not cover the call | Relay `reason` and any `remedy` to the account owner. Stop retrying |
-| `429 too_many_requests` | A rate limit or usage limit was reached | Wait `retryAfterSeconds` or the `Retry-After` header, then continue. Run fewer calls in parallel |
-| `409 conflict` on deep research | The account needs a linked GitHub connection for research jobs | The person links GitHub in the app, or contacts Vamo |
-| `400` naming a parameter | The parameter or value is not in the spec | Re-read that operation in the spec. Check this skill is current |
-| A network error before any status | The request never left the sandbox | [Open network access](#open-network-access) |
-
-Slow is not broken. A search can take ten to twenty seconds. Set the request timeout to at least
-sixty seconds and let one call finish before deciding to retry.
+Error responses, and what to tell the person for each, are in the `vamo-troubleshooting` skill.
 
 ---
 
