@@ -20,8 +20,8 @@ are listed live at `GET /v2/developers/fields`. **When this skill and the API di
 wins.**
 
 Everything below is enough to search with one request and no other reading. `vamo-api-access`
-covers setup and errors. `role-decomposition` turns a role into a search spec. Three reference
-files go deeper:
+covers setup and access. `vamo-troubleshooting` covers errors and a connection that stops
+working. `role-decomposition` turns a role into a search spec. Three reference files go deeper:
 
 - `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
   here when someone asks to find people.**

@@ -4,10 +4,10 @@
   "skills": {
     "vamo-api-access": {
       "title": "API access",
-      "version": "1.1.3",
-      "updated": "2026-10-09",
+      "version": "1.2.0",
+      "updated": "2026-10-12",
       "path": "skills/vamo-api-access",
-      "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification, errors. Includes the curl walkthrough and platform notes.",
+      "summary": "Access to the Vamo Developer API from any agent: getting it, storing it so it persists, network path, verification. Includes the curl walkthrough and platform notes.",
       "files": [
         "SKILL.md",
         "references/curl-trainer.md",
@@ -29,8 +29,8 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.0.1",
-      "updated": "2026-10-09",
+      "version": "1.0.2",
+      "updated": "2026-10-12",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have: a strength read before an interview, location and LinkedIn for a list, contact details, a personalized opening line, a full research report.",
       "files": [
@@ -47,10 +47,20 @@
         "SKILL.md"
       ]
     },
+    "vamo-troubleshooting": {
+      "title": "Troubleshooting",
+      "version": "1.0.0",
+      "updated": "2026-10-12",
+      "path": "skills/vamo-troubleshooting",
+      "summary": "When Vamo stops working, your agent finds out why: which route it is on, three checks in order, what each error means, and what to send Vamo if it cannot fix it.",
+      "files": [
+        "SKILL.md"
+      ]
+    },
     "role-decomposition": {
       "title": "Role decomposition",
-      "version": "1.3.0",
-      "updated": "2026-10-09",
+      "version": "1.3.1",
+      "updated": "2026-10-12",
       "path": "skills/role-decomposition",
       "summary": "Turning a job description and intake notes into a search spec.",
       "files": [
