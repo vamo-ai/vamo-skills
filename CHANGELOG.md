@@ -16,6 +16,19 @@ patch version. A change that makes earlier behavior wrong raises the major versi
   A `404` or `503` on a `/v2` route falls back to the v1 route of the same name, `repos_of`
   takes an org or person login (a single repository is the `repos` clause), and the prose says
   developers.
+- **vamo-api-access 1.3.0**. On your own machine, access now arrives as a setup code: one line from
+  **Connect a tool** in the app, which the agent trades for a key and stores by itself. Nobody
+  copies a key, and an agent never asks for one. `references/setup-code.md` has the exchange for
+  macOS, Linux and Windows. Windows is covered throughout: the file lives at
+  `%USERPROFILE%\.config\vamo\env`, limited to your account, and PowerShell loads it without
+  showing it. The lookup order starts with a setup code and is the same on every system. Saving a
+  key you created yourself moved to `references/platforms.md`. A project's instructions are no
+  longer listed as a place to keep a key, because they hand the key to the model in every
+  conversation. The `description` in the header is reworded so that every YAML parser reads it.
+  The steps for a key a person creates follow the app: API keys sit under Developer in Settings, a
+  key is taken away with **Remove**, and Search: Write is reading saved deep-research reports.
+  The error table stays in `vamo-troubleshooting`; the access skill keeps one line for an expired
+  or used setup code.
 
 ## 2026-10-12
 

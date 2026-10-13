@@ -18,19 +18,100 @@ ls ~/.config/vamo 2>/dev/null || echo "nothing saved here"
 curl -s -m 20 -o /dev/null -w '%{http_code}\n' https://api.vamotalent.ai/openapi.json
 ```
 
+The same two questions on Windows, in PowerShell:
+
+```powershell
+Test-Path (Join-Path $env:USERPROFILE '.config\vamo')
+(Invoke-WebRequest -UseBasicParsing -Uri https://api.vamotalent.ai/openapi.json -TimeoutSec 20).StatusCode
+```
+
 A home directory that keeps files between sessions is a machine of your own. One that comes back
 empty is a sandbox. `200` means the network path is open. Anything else, or no answer, means the
 host needs allowing.
 
 ## Any terminal or editor coding agent on your own machine
 
-- **Access:** `~/.config/vamo/env` holding `VAMO_API_KEY=...`, file mode `600`, loaded at the
-  start of a session. An operating system keychain or a secrets manager is equally good.
+- **Access:** a setup code from **Connect a tool** in the Vamo app, traded for a key with the
+  block in `setup-code.md`. The key lands in `~/.config/vamo/env` holding `VAMO_API_KEY=...`, file
+  mode `600`, and is loaded at the start of a session. On Windows the file is
+  `%USERPROFILE%\.config\vamo\env`. An operating system keychain or a secrets manager is equally
+  good.
 - **Network:** usually open. If the agent runs commands inside a network sandbox, add
   `api.vamotalent.ai` to that sandbox's allowed hosts in the agent's settings.
 - **Skills:** copy each skill folder into the directory your agent reads skills from. Agents
   that have no skills directory can be pointed at the hosted markdown page for a skill and told
   to follow it.
+
+## Windows
+
+Checked 2026-10-09 against Microsoft's documentation for `icacls` and for the file and web
+commands. Everything here is PowerShell, written for Windows PowerShell 5.1 and PowerShell 7.
+
+- **Where access lives:** `%USERPROFILE%\.config\vamo\env`, one line, `VAMO_API_KEY=...`. It is
+  the same format as on macOS and Linux: a single newline at the end and no byte order mark. A
+  bash shell on Windows whose home directory is your user profile reads it as `~/.config/vamo/env`.
+- **Who can read it:** your account only. The setup code block removes inherited permissions from
+  the folder and the file and grants your account alone, with `icacls`. To check, run
+  `icacls (Join-Path $env:USERPROFILE '.config\vamo\env')`: it lists one account.
+- **Loading it, without showing it:**
+
+  ```powershell
+  $line = Get-Content (Join-Path $env:USERPROFILE '.config\vamo\env') | Where-Object { $_ -like 'VAMO_API_KEY=*' } | Select-Object -First 1
+  $env:VAMO_API_KEY = "$line" -replace '^VAMO_API_KEY=', ''
+  ```
+
+- **`curl`:** in Windows PowerShell, `curl` is a different command. Call `curl.exe` to get the one
+  the examples use, or use `Invoke-RestMethod`, which reads the JSON for you.
+- **Two helpers**, the same as the ones in `curl-trainer.md`:
+
+  ```powershell
+  function vamo($path) { Invoke-RestMethod -Uri "https://api.vamotalent.ai$path" -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60 }
+  function vamoPost($path, $json) { Invoke-RestMethod -Method Post -Uri "https://api.vamotalent.ai$path" -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -ContentType 'application/json' -Body $json -TimeoutSec 60 }
+  ```
+
+- **The three checks** from the skill:
+
+  ```powershell
+  # 1. network: prints the API title
+  (Invoke-RestMethod -Uri https://api.vamotalent.ai/openapi.json -TimeoutSec 20).info.title
+
+  # 2. access present: prints the length, never the value
+  if ($env:VAMO_API_KEY) { "access loaded ($($env:VAMO_API_KEY.Length) chars)" } else { 'no access found' }
+
+  # 3. access works: prints one login
+  (Invoke-RestMethod -Uri 'https://api.vamotalent.ai/v1/developers/search?q=rust+database+engine&limit=1' -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60).results[0].login
+  ```
+
+## Saving a key you created yourself
+
+A setup code is the usual way in on your own machine, and it needs none of this. If you hold a key
+you created in the app, type it into your own terminal window, never into a chat.
+
+macOS and Linux:
+
+```bash
+mkdir -p ~/.config/vamo && chmod 700 ~/.config/vamo
+printf 'Paste your Vamo API key, then press Enter: ' && read -rs K \
+  && printf 'VAMO_API_KEY=%s\n' "$K" > ~/.config/vamo/env \
+  && chmod 600 ~/.config/vamo/env && unset K && echo ' saved'
+```
+
+Windows, in PowerShell:
+
+```powershell
+& {
+  $ErrorActionPreference = 'Stop'
+  $dir = Join-Path $env:USERPROFILE '.config\vamo'
+  $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+  New-Item -ItemType Directory -Force -Path $dir | Out-Null
+  icacls $dir /inheritance:r /grant:r "*${sid}:(OI)(CI)F" | Out-Null
+  $secure = Read-Host -AsSecureString 'Paste your Vamo API key, then press Enter'
+  $key = (New-Object System.Net.NetworkCredential('', $secure)).Password
+  [IO.File]::WriteAllText((Join-Path $dir 'env'), "VAMO_API_KEY=$key`n")
+  icacls (Join-Path $dir 'env') /inheritance:r /grant:r "*${sid}:F" | Out-Null
+  'saved'
+}
+```
 
 ## Hosted and cloud coding agents
 
