@@ -1,8 +1,8 @@
-# Sourcing Engineers by Evidence: A Field Guide for Agents
+# Sourcing Developers by Evidence: A Field Guide for Agents
 
 Reference for the `vamo-search` skill: the long-form method for taking a role from a search to a qualified list of people. `vamo-search` covers the calls and how to read results, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-api-access` covers setup. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
 
-A working manual for an agent that sources software engineers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
+A working manual for an agent that sources software developers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
 
 This is a reference, not an essay. Graze it. The value is in the volume of worked examples: query phrasings, qualification patterns, outreach bridges, full reasoning traces. Copy the shapes.
 
@@ -39,15 +39,15 @@ The second axis is the moat. Any tool can filter for "Rust." Only evidence sourc
 
 **Two ideas the system is built on. Internalize them; they change how you read every result.**
 
-**A star is not a star.** Popularity is the easiest number in software to obtain and the least informative. A repo starred by five hundred drive-by accounts is weaker than one starred by ten engineers whose own work is respected. Vamo weighs stars by who gave them, using signals that are hard to fake: commit access to serious projects that other people independently chose, and owned work that respected builders actually engage with. So when you see modest total stars next to a strong reputation score, that often means _found early by the right people, before the crowd arrived._ That is the discovery win.
+**A star is not a star.** Popularity is the easiest number in software to obtain and the least informative. A repo starred by five hundred drive-by accounts is weaker than one starred by ten developers whose own work is respected. Vamo weighs stars by who gave them, using signals that are hard to fake: commit access to serious projects that other people independently chose, and owned work that respected builders actually engage with. So when you see modest total stars next to a strong reputation score, that often means _found early by the right people, before the crowd arrived._ That is the discovery win.
 
-**A commit is not a commit.** Volume is cheap. What matters is the character of the output and the calibre of the engineers a person builds alongside. **devRank** (0 to 100, the `devrank` field) is graph-derived from exactly that. It cannot be inflated by committing more, and it cannot be bought. Read it as a percentile of standing among real builders, in bands:
+**A commit is not a commit.** Volume is cheap. What matters is the character of the output and the calibre of the developers a person builds alongside. **devRank** (0 to 100, the `devrank` field) is graph-derived from exactly that. It cannot be inflated by committing more, and it cannot be bought. Read it as a percentile of standing among real builders, in bands:
 
 | Band         | devRank   | Read as                                                           |
 | ------------ | --------- | ----------------------------------------------------------------- |
 | Elite        | 85 to 100 | Top 1%. Often celebrity maintainers; frequently hard to get.      |
 | Expert       | 70 to 85  | Top 5%. Strong, still gettable. **The sweet spot for senior IC.** |
-| Advanced     | 60 to 70  | Top 10%. Solid working engineers.                                 |
+| Advanced     | 60 to 70  | Top 10%. Solid working developers.                                 |
 | Intermediate | 35 to 60  | Broad middle.                                                     |
 | Developing   | under 35  | Early, or thin public footprint.                                  |
 
@@ -149,7 +149,7 @@ The band is the heart of good sourcing. **devRank 70 to 88** is the phrase to me
 | `"rank_by": ["v", "ANN", {"like": ["<owner/name>"]}]` | People whose work looks like the named repositories. | Comparable builders with no direct connection. |
 | `["person_languages", "ContainsAny", ["rust:strong"]]` | Writes the language (`some`, `strong`, `primary` share). | A language is required. |
 | `["last_active_at", "Gte", "<date>T00:00:00Z"]` | Active since a date. | Prefer people active recently. |
-| `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner/name>"}]` | Contributed to that repository. | One project, as a filter inside a larger body. |
+| `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner login>"}]` | Contributed to any repository that org or person owns. | One org's projects, as a filter inside a larger body. For a single repository use the `repos` clause. |
 
 ### The professional overlay
 
@@ -235,7 +235,7 @@ Recall is generous on purpose, so qualification is where the run is won or lost.
 
 The target is the middle-upper band: enough proof-of-work to write a real email about, enough room in their story that the role is a step forward.
 
-**These two failure modes describe a full-time hire. For part-time expert, advisory or review work the first one inverts: depth is the point, senior titles are the target, and Q1 and Q2 become "would this person take on outside work of this kind" (see playbook K). Depth still does not mean fame: set aside people with a very large public following on any list, since they are a different outreach problem from a senior engineer.
+**These two failure modes describe a full-time hire. For part-time expert, advisory or review work the first one inverts: depth is the point, senior titles are the target, and Q1 and Q2 become "would this person take on outside work of this kind" (see playbook K). Depth still does not mean fame: set aside people with a very large public following on any list, since they are a different outreach problem from a senior developer.
 
 Run each keeper through eight questions. Two clear fails, or four unknowns, and you cut.**
 

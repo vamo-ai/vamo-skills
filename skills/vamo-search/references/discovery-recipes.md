@@ -69,8 +69,8 @@ engineers."*
 ```
 
 - For the company's open-source people, add a second lane ranked the same way with
-  `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner/name>"}]` on one of its main
-  repositories, and fuse. Keep the employer filter on both lanes.
+  `["contributed_repo_ids", "ContainsAny", {"repos_of": "<org login>"}]` (every repository the
+  company's GitHub org owns), and fuse. Keep the employer filter on both lanes.
 - Read `index.recent_roles` to check they are still there.
 - Hand back: a ranked list with band, what each person works on, and whether they still appear
   to be there.

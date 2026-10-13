@@ -1,6 +1,6 @@
 ---
 name: vamo-search
-description: Use when searching for software engineers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong engineers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
+description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
   version: "3.0.0"
   updated: "2026-10-13"
@@ -53,6 +53,11 @@ Search routes allow 10 requests per second per key. Parallel agents on one key s
 | More depth on people you already hold | `GET /v2/developers/enrich?logins=a,b&depth=enriched` (or `ids=`, 25 per call) |
 | Look up by LinkedIn profile, login or id | `POST /v2/developers` with `{"linkedin": [...], "logins": [...], "ids": [...], "depth": "enriched"}` |
 | Email addresses | `GET /v2/developers/emails?logins=a,b` |
+
+If a `/v2/developers` route answers `404` or `503`, v2 is not live in this environment yet: make
+the same request on the v1 route of the same name (`GET /v1/developers/search` with `q` and
+filters, `/v1/developers/similar`, `/v1/developers/enrich`, `POST /v1/developers`) and tell the
+person in one line that you used v1.
 | A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
 | People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
@@ -100,7 +105,7 @@ names.
 | Writes a language | `["person_languages", "ContainsAny", ["rust:strong", "rust:primary"]]` (levels `some`, `strong`, `primary`) |
 | Reputation band | `["devrank", "Gte", 70]` and `["devrank", "Lte", 88]` |
 | Popularity of their own work | `["owned_stars_max", "Gte", 100]` (their best repo) |
-| Contributed to a project's repos | `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner/name>"}]` |
+| Contributed to the repos an org or person owns | `["contributed_repo_ids", "ContainsAny", {"repos_of": "<owner login>"}]` (one repository: the `repos` clause) |
 
 `title_function` values: software_eng, product_eng, infra, eng_mgmt, ml_eng, ai_research,
 research, data_eng, data_sci, data_analyst, security, qa, devrel, forward_deployed, solutions,
@@ -218,7 +223,7 @@ A role description is a topic. The `fanout-search` skill covers the general meth
 | A 400 naming a place or company | The name did not resolve | Use the closest name in the hint |
 | Pages shrink to a handful | A professional filter restricted the pool to linked profiles | Run it as a separate pass, join on `id` |
 | Same people on every page | Neither `cursor` nor `exclude` sent | Send one of them |
-| Great engineers missing | One query, no seeds, no graph walk | Fan out, seed `repos`, walk `similar` |
+| Great developers missing | One query, no seeds, no graph walk | Fan out, seed `repos`, walk `similar` |
 | Tutorials and lists at the top | The phrase names a topic | Describe an artifact and its mechanism |
 | Place or employer words in the phrase | The vector drifts | Move them into `filters` |
 | Celebrity maintainers on top | No ceiling on reputation | Add `["devrank", "Lte", 88]` with `["devrank", "NotEq", null]` |
@@ -244,13 +249,14 @@ When handing results to a person:
 ## Drop-in prompt
 
 ```
-You are sourcing engineers with the Vamo API (https://api.vamotalent.ai, bearer vamo_sk_ key,
+You are sourcing developers with the Vamo API (https://api.vamotalent.ai, bearer vamo_sk_ key,
 10 search requests per second per key). Fields: GET /v2/developers/fields. The API wins over
 memory.
 
 1. PICK THE DOOR. New people: POST /v2/developers/search. More like one person:
    POST /v2/developers/similar. Counts: POST /v2/developers/aggregate. Depth on people you
-   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails.
+   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. A 404 or 503 on a
+   /v2 route means v2 is not live here: use the v1 route of the same name and say so once.
 
 2. WRITE ONE BODY. Facts are filters ([field, Op, value], And/Or/Not; names resolve:
    {"place": [...]}, {"company": [...]}, {"school": [...]}). The work is one short phrase:
