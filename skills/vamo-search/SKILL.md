@@ -2,8 +2,8 @@
 name: vamo-search
 description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "3.0.0"
-  updated: "2026-10-13"
+  version: "3.1.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo Search
@@ -19,8 +19,8 @@ Base URL `https://api.vamotalent.ai`. Machine-readable spec:
 are listed live at `GET /v2/developers/fields`. **When this skill and the API disagree, the API
 wins.**
 
-Everything below is enough to search with one request and no other reading. `vamo-api-access`
-covers setup and access. `vamo-troubleshooting` covers errors and a connection that stops
+Everything below is enough to search with one request and no other reading. `vamo-setup`
+gets a person connected. `vamo-api-access` covers direct access over HTTP. `vamo-troubleshooting` covers errors and a connection that stops
 working. `role-decomposition` turns a role into a search spec. Three reference files go deeper:
 
 - `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
@@ -29,6 +29,11 @@ working. `role-decomposition` turns a role into a search spec. Three reference f
   qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
   and worked reasoning traces.
 - `references/domain-library.md`: phrasings of the work for fifty domains.
+
+**With the Vamo MCP tools.** If your tool list has Vamo tools, use them to make the calls.
+They hold the credential, so skip **Auth** below. The method in this skill still applies:
+describe the work, put facts in filters, and say why each person matched. Follow the tools'
+own descriptions for the exact shape of a request.
 
 ---
 

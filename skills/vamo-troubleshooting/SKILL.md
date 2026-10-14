@@ -2,8 +2,8 @@
 name: vamo-troubleshooting
 description: Use when Vamo is set up and something fails, or when a person asks whether Vamo is connected, and the agent should find the cause by itself. Covers working out which route is in use (the Vamo MCP tools, or the Developer API over HTTP with a key), three checks in order, what every API error means and what to tell the person, the MCP cases (tools missing or signed out, "This Vamo account cannot run that right now", an expired read_more page), and what to pass on to Vamo when it cannot be fixed. Works in any agent. Symptoms include 400, 401, 402, 403, 404, 409, 422, 429 and 5xx responses, unauthorized, forbidden, too_many_requests, Vamo tools that do not show up, a search that worked before and fails now, and a setup code that was refused. Triggers "check my Vamo connection", "is Vamo connected", "Vamo isn't working", "Vamo stopped working", "why did that Vamo call fail", "what does this Vamo error mean", "debug Vamo".
 metadata:
-  version: "1.1.0"
-  updated: "2026-10-13"
+  version: "1.1.1"
+  updated: "2026-10-14"
 ---
 
 # Vamo troubleshooting
@@ -31,6 +31,8 @@ An agent reaches Vamo in one of two ways. Each fails differently, so name yours 
 | --- | --- | --- |
 | Vamo MCP tools | Your tool list has `search_docs`, `search_execute` and `read_more` | The AI tool. It signed in through a browser, or it sends an API key in a header. You never see either |
 | Developer API over HTTP | You make the requests yourself, to `api.vamotalent.ai` | You hold an API key, usually in `VAMO_API_KEY` |
+
+When neither route is set up, this is a first-time setup: use the `vamo-setup` skill.
 
 A skill that calls Vamo uses the HTTP route. So does a key that arrived through a setup code.
 

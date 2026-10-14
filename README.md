@@ -12,11 +12,12 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.4.0 | **Start here.** Access to the Vamo Developer API from any agent: getting it with a setup code, storing it so it persists on macOS, Linux and Windows, opening the network path, verifying, reading errors. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.0.0 | **Discover.** Find developers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
+| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.0 | **Start here.** Guided setup in the AI tool you already use: your agent works out the tool and what it allows, connects Vamo the way that keeps working, adds the skills, and runs a first search as a short tutorial. |
+| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.5.0 | **Advanced.** Direct access to the Vamo Developer API from any agent: getting it with a setup code, storing it so it persists on macOS, Linux and Windows, opening the network path, verifying, reading errors. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.1.0 | **Discover.** Find developers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
 | [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.1.0 | **Enrich.** Start from people you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
 | [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.1.0 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
-| [`vamo-troubleshooting`](skills/vamo-troubleshooting/SKILL.md) | 1.1.0 | **Fix.** When a call fails or Vamo stops working: which route the agent is on, three checks in order, what every error means and what to tell the person, the MCP cases, and what to pass on to Vamo. |
+| [`vamo-troubleshooting`](skills/vamo-troubleshooting/SKILL.md) | 1.1.1 | **Fix.** When a call fails or Vamo stops working: which route the agent is on, three checks in order, what every error means and what to tell the person, the MCP cases, and what to pass on to Vamo. |
 | [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.4.0 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
 | [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus. |
 
@@ -56,9 +57,12 @@ Both encode failures that are silent, the kind where the output looks fine and i
 ## Install
 
 The skills are plain markdown in the standard `skills/<name>/SKILL.md` layout, so they work in
-any agent that reads skills, and in any agent that can read a file and follow it. Pick the row
-that matches your agent. Start with `vamo-api-access` in every case: it stores your API access
-and opens the network path.
+any agent that reads skills, and in any agent that can read a file and follow it. The easiest start is to paste this into your agent and let it guide you:
+
+> Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-setup/SKILL.md and follow it to set up Vamo.
+
+It works out which tool it is in, connects Vamo the way that keeps working, and installs the
+rest. To install by hand, pick the row that matches your agent.
 
 | Your agent | Install | Use |
 | --- | --- | --- |

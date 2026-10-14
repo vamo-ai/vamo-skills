@@ -4,6 +4,22 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-14
+
+- **vamo-setup 1.0.0** (new). Guided setup in the AI tool a person already uses. The agent works
+  out which tool it is in (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT,
+  Gemini or another agent) and what it can reach by checking, then picks the route that keeps
+  working: the Vamo MCP server with browser sign-in by default, the MCP server with a one-time
+  setup code where sign-in is not offered, and direct API access only for people writing their own
+  code. It adds the skills, verifies with one search, and runs the first search as a short
+  tutorial pitched at the person's technical depth. `references/tools.md` has the steps per tool;
+  `references/first-search.md` has the tutorial.
+- **vamo-api-access 1.5.0**. Says it is the advanced route and points first-time setup to
+  `vamo-setup`.
+- **vamo-search 3.1.0**. With the Vamo MCP tools connected, the agent makes its calls through them
+  and keeps the method.
+- **vamo-troubleshooting 1.1.1**. A machine with neither route set up is sent to `vamo-setup`.
+
 ## 2026-10-13
 
 - **vamo-api-access 1.4.0, vamo-enrich 1.1.0, vamo-workflows 1.1.0, vamo-troubleshooting 1.1.0,

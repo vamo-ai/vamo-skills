@@ -2,8 +2,8 @@
 name: vamo-api-access
 description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup, for a setup code to trade for a key, or for a call that fails before it returns results. Covers getting API access (a one-time setup code that starts with vamo_xc_, or a key a person created), storing it so the next session still has it on macOS, Linux and Windows, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "here is my Vamo setup code", "connect a tool", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.4.0"
-  updated: "2026-10-13"
+  version: "1.5.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo API access
@@ -11,6 +11,12 @@ metadata:
 Vamo searches GitHub developers by what they have built. This skill gets a direct HTTP
 connection working and keeps it working in any agent: API access, a safe place to keep it and a
 network path to the API.
+
+**This is the advanced route.** Most people connect Vamo to their AI tool as an MCP server,
+with the `vamo-setup` skill, and never handle a key. Use this skill when the person is writing
+their own code, scripts or scheduled jobs, when a skill needs to call the API over HTTP, or when
+`vamo-setup` sends you here. Say so to the person in one line, so they know it is the technical
+setup.
 
 Three things have to be true before any search runs. Check them in this order at the start of a
 session and fix the first one that fails.
