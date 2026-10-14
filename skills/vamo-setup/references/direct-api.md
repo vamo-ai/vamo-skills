@@ -45,7 +45,7 @@ curl -s https://api.vamotalent.ai/openapi.json \
 
 # what one operation requires of the key
 curl -s https://api.vamotalent.ai/openapi.json \
-  | jq '.paths["/v1/developers/enrich"].get["x-vamo"]'
+  | jq '.paths["/v2/developers/search"].post["x-vamo"]'
 ```
 
 Read `info.description` once as well. It holds the authentication, rate limit and error
@@ -64,10 +64,6 @@ curl -s -X POST https://api.vamotalent.ai/v2/developers/search/validate \
   -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" \
   -d '{"rank_by": ["v", "ANN", ["Embed", "rust database storage engine"]], "limit": 5}'
 ```
-
-On the production host, `/v2/developers/*` can answer `404` or `503` until the v2 engine is
-switched on there. Then use the v1 route of the same name (`GET /v1/developers/search`,
-`/v1/developers/enrich`, and so on) and tell the person in one line that the call ran on v1.
 
 `curl-trainer.md` is a worked walkthrough of the whole API with copy-paste examples.
 Use it to learn the shape, and check each parameter against the spec before relying on it.
@@ -330,16 +326,6 @@ curl -s -m 20 https://api.vamotalent.ai/openapi.json | jq -r .info.title
 curl -s -m 60 -X POST https://api.vamotalent.ai/v2/developers/search \
   -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" \
   -d '{"rank_by": ["v", "ANN", ["Embed", "rust database engine"]], "limit": 1}' \
-  | jq -r '.results[0].login // .'
-```
-
-When check 3 answers `404` or `503`, the v2 engine is not on for that host yet. Run the v1 form
-and say in one line that verification used v1:
-
-```bash
-curl -s -m 60 -G https://api.vamotalent.ai/v1/developers/search \
-  -H "Authorization: Bearer $VAMO_API_KEY" \
-  --data-urlencode "q=rust database engine" --data-urlencode "limit=1" \
   | jq -r '.results[0].login // .'
 ```
 

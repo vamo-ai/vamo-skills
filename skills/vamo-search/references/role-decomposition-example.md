@@ -471,10 +471,6 @@ that Rank item marked unknown.
 look up survivors at `depth=enriched` in batches of 25, apply the gate confirms, then
 `POST /v1/fit-rank` in batches of 50 logins with the job description as `role`.
 
-If a `/v2/developers` route answers `404` or `503` on the production host, the v2 engine is not on
-there yet. Run the same plan on the v1 routes (`GET /v1/developers/search` with the spec's query
-parameters) and note in the run report that it ran on v1.
-
 ## Ready when
 
 - The client has redlined the sort table and the spec and answered the open questions that block a run:

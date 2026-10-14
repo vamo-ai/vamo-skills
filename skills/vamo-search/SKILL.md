@@ -35,10 +35,18 @@ and a connection that stops working. Five reference files go deeper:
 - `references/fanout.md`: covering a broad topic with many queries plus the famous items keyword
   search misses, then ranking the union.
 
-**With the Vamo MCP tools.** If your tool list has Vamo tools, use them to make the calls.
-They hold the credential, so skip **Auth** below. The method in this skill still applies:
-describe the work, put facts in filters, and say why each person matched. Follow the tools'
-own descriptions for the exact shape of a request.
+**With the Vamo MCP tools.** If your tool list has the Vamo tools, use them to make the calls.
+They hold the credential, so skip **Auth** below, and they take the same bodies as the API:
+
+| MCP tool | Same as |
+| --- | --- |
+| `search` | `POST /v2/developers/search` (and `/aggregate` with `group_by`) |
+| `similar` | `POST /v2/developers/similar` |
+| `enrich` | `POST /v2/developers` (logins, LinkedIn profiles or ids, at a depth) |
+| `deep_research` | `/v2/deep-research` (start a job, check it, read a report) |
+
+Email addresses and summaries are API calls only. Everything else in this skill applies
+unchanged.
 
 ---
 
@@ -64,12 +72,8 @@ Search routes allow 10 requests per second per key. Parallel agents on one key s
 | Look up by LinkedIn profile, login or id | `POST /v2/developers` with `{"linkedin": [...], "logins": [...], "ids": [...], "depth": "enriched"}` |
 | Email addresses | `GET /v2/developers/emails?logins=a,b` |
 
-If a `/v2/developers` route answers `404` or `503`, v2 is not live in this environment yet: make
-the same request on the v1 route of the same name (`GET /v1/developers/search` with `q` and
-filters, `/v1/developers/similar`, `/v1/developers/enrich`, `POST /v1/developers`) and tell the
-person in one line that you used v1.
 | A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
-| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
+| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call). It has no v2 path yet |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
 | The fields and their operators | `GET /v2/developers/fields` |
 
@@ -173,7 +177,7 @@ work), `overall` or `network`. Add `filters` to keep it to a place or a company.
 | `countStatus` | `exact`, or `short` with `requested`, `returned` and `shortfallReason`. |
 | `cursor` | The next page. `null` means no more for this query. |
 | `places_resolved`, `ids_resolved` | How each place and name was read. |
-| `details.*` | The v1 developer namespaces at the depth asked. An absent namespace is unknown. |
+| `details.*` | The developer namespaces at the depth asked. An absent namespace is unknown. |
 
 | `shortfallReason` | Meaning | Next move |
 | --- | --- | --- |
@@ -265,8 +269,8 @@ memory.
 
 1. PICK THE DOOR. New people: POST /v2/developers/search. More like one person:
    POST /v2/developers/similar. Counts: POST /v2/developers/aggregate. Depth on people you
-   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. A 404 or 503 on a
-   /v2 route means v2 is not live here: use the v1 route of the same name and say so once.
+   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. With the Vamo MCP
+   tools, the same bodies go to the search, similar, enrich and deep_research tools.
 
 2. WRITE ONE BODY. Facts are filters ([field, Op, value], And/Or/Not; names resolve:
    {"place": [...]}, {"company": [...]}, {"school": [...]}). The work is one short phrase:

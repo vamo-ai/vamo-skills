@@ -79,7 +79,8 @@ commands. Everything here is PowerShell, written for Windows PowerShell 5.1 and 
   if ($env:VAMO_API_KEY) { "access loaded ($($env:VAMO_API_KEY.Length) chars)" } else { 'no access found' }
 
   # 3. access works: prints one login
-  (Invoke-RestMethod -Uri 'https://api.vamotalent.ai/v1/developers/search?q=rust+database+engine&limit=1' -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60).results[0].login
+  $body = '{"rank_by": ["v", "ANN", ["Embed", "rust database engine"]], "limit": 1}'
+  (Invoke-RestMethod -Method Post -Uri 'https://api.vamotalent.ai/v2/developers/search' -ContentType 'application/json' -Body $body -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60).results[0].login
   ```
 
 ## Saving a key you created yourself

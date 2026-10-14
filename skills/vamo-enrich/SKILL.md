@@ -51,11 +51,9 @@ guessing one attaches the wrong person's work to a candidate.
 | `POST /v2/deep-research/jobs` | A full research report, saved to the account | 25 subjects per job. Poll until done |
 | `POST /v1/fit-rank` | Scoring people against a role text | 50 logins per call |
 
-On the production host, a `/v2/developers` or `/v2/deep-research` route can answer `404` or `503`
-until the v2 engine is switched on there. Then call the v1 route of the same name
-(`GET /v1/developers/enrich`, `/v1/developers/summaries`, `/v1/developers/emails`,
-`/v1/deep-research/jobs`) and tell the person in one line that the call ran on v1. A LinkedIn-only
-row has no v1 lookup: report it as `no_github_username` until v2 answers.
+With the Vamo MCP tools, `enrich` takes the same identifiers and depth as `POST /v2/developers`,
+and `deep_research` starts, checks and reads reports. Summaries and email addresses are API
+calls. `fit-rank` has no v2 path yet and stays on `/v1`.
 
 ## What each depth adds
 

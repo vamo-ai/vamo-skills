@@ -19,9 +19,7 @@ them. The API's own description at
 win over this file on routes and fields.
 
 Searches go to `POST /v2/developers/search` as one JSON body, and lookups to
-`POST /v2/developers`. On the production host those routes can answer `404` or `503` until the v2
-engine is switched on there. A workflow then runs the v1 route of the same name, and the run report
-says in one line that it ran on v1.
+`POST /v2/developers`, or to the Vamo MCP `search` and `enrich` tools with the same bodies.
 
 ---
 

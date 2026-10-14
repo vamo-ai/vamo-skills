@@ -12,10 +12,7 @@ with one JSON body; the fields and their operators are listed live at `GET /v2/d
 which wins over this file when they disagree). The sorting and lane method holds for any search
 that ranks people by what they built.
 
-On the production host, `/v2/developers/*` can answer `404` or `503` until the v2 engine is
-switched on there. Then probe on the v1 route of the same name (`GET /v1/developers/search` and
-its query parameters, in the spec at `/openapi.json`), and say in one line that the probes ran on
-v1. The spec you write stays the same: its filters name what to bind, whichever route runs it.
+The same bodies run through the Vamo MCP `search` tool, when that is how the agent is connected.
 
 This skill stops at the spec and its lane grades. `vamo-search` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
@@ -587,8 +584,7 @@ real rows. Send it for redline, then hand it to `vamo-search`.
 ```
 You are decomposing a role into a search spec for the Vamo v2 developers API
 (https://api.vamotalent.ai, POST /v2/developers/search, fields at GET /v2/developers/fields). Write
-the spec before any full run. If a /v2/developers route answers 404 or 503, probe on the v1 route
-of the same name and say so in one line.
+the spec before any full run.
 
 INPUTS: job description, intake notes, benchmark people (GitHub logins), admired repos with the
 client's comments, off-limits companies and people, already-contacted list, target count.
