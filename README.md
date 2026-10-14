@@ -12,22 +12,14 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.0 | **Start here.** Guided setup in the AI tool you already use: your agent works out the tool and what it allows, connects Vamo the way that keeps working, adds the skills, and runs a first search as a short tutorial. |
-| [`vamo-api-access`](skills/vamo-api-access/SKILL.md) | 1.5.0 | **Advanced.** Direct access to the Vamo Developer API from any agent: getting it with a setup code, storing it so it persists on macOS, Linux and Windows, opening the network path, verifying, reading errors. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.1.0 | **Discover.** Find developers by what they built. Twelve starting points (a technology, a title, a company, a school, a repository, a place, your own team, one person, a job description, a talent map, a credibility bar), the full method for a role, and query phrasings for 50 domains. |
-| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.1.0 | **Enrich.** Start from people you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
-| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.1.0 | **Connect.** Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
-| [`vamo-troubleshooting`](skills/vamo-troubleshooting/SKILL.md) | 1.1.1 | **Fix.** When a call fails or Vamo stops working: which route the agent is on, three checks in order, what every error means and what to tell the person, the MCP cases, and what to pass on to Vamo. |
-| [`role-decomposition`](skills/role-decomposition/SKILL.md) | 1.4.0 | Turning a job description and intake notes into a search spec: lanes, gates, rank signals, exclusions, each bound to an exact filter and a field to confirm. |
-| [`fanout-search`](skills/fanout-search/SKILL.md) | 1.0.1 | Turning one topic into 25–40 queries plus a known-item arm, then ranking the union. Works on any corpus. |
-
-`fanout-search` is the general method. `vamo-search` applies it to one specific API and adds
-that API's levers and response traps.
+| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.0 | **Start here.** Everything about connecting: guided setup in the AI tool you already use (the MCP server with sign-in by default), setup codes, direct API access for your own code, and finding out why Vamo stopped working. Ends with a first search as a short tutorial. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.1.0 | **Find.** Developers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec, covering a broad topic without missing the famous items, and query phrasings for 50 domains. |
+| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.1.1 | **Look up.** People you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
+| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.1.1 | **Repeat.** Your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
 
 Three questions cover most of what people bring. *Who should I be talking to?* is
 `vamo-search`. *What do we know about these people?* is `vamo-enrich`. *How do I make this run by
-itself?* is `vamo-workflows`. For a whole role, `role-decomposition` turns what the hiring team
-said into a search spec first.
+itself?* is `vamo-workflows`. Connecting, and fixing a connection, is `vamo-setup`.
 
 ### The spec is the source of truth
 
@@ -66,12 +58,12 @@ rest. To install by hand, pick the row that matches your agent.
 
 | Your agent | Install | Use |
 | --- | --- | --- |
-| Claude Code | `/plugin install vamo --marketplace vamo-ai/vamo-skills` | `/vamo:vamo-api-access`, `/vamo:role-decomposition`, and so on |
+| Claude Code | `/plugin install vamo --marketplace vamo-ai/vamo-skills` | `/vamo:vamo-setup`, `/vamo:vamo-search`, and so on |
 | Claude on the web or desktop | **Customize**, **Plugins**, **Add**, **Add marketplace**, enter `vamo-ai/vamo-skills`, then install **vamo** | Type `/` and pick `vamo:<skill>` |
-| OpenAI Codex (terminal, editor, ChatGPT desktop) | Copy the folders under `skills/` into `~/.agents/skills/` | `/skills`, or `$vamo-api-access`, `$vamo-search`, and so on |
+| OpenAI Codex (terminal, editor, ChatGPT desktop) | Copy the folders under `skills/` into `~/.agents/skills/` | `/skills`, or `$vamo-setup`, `$vamo-search`, and so on |
 | ChatGPT | Where Skills is enabled for the workspace, upload the zips from a release | Type `@` and pick a skill |
 | Any agent with a skills directory | Copy the folders under `skills/` into that directory | By name, or let the agent pick from the description |
-| Any agent at all | Tell it: *"Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-api-access/SKILL.md and follow it"* | One skill per message |
+| Any agent at all | Tell it: *"Read https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/vamo-setup/SKILL.md and follow it"* | One skill per message |
 
 Older Claude Code versions use two steps: `/plugin marketplace add vamo-ai/vamo-skills`, then
 `/plugin install vamo@vamo-skills`.
@@ -90,12 +82,12 @@ a merge to `main` is the new version.
   agent reads from a URL.
 
 The plugin carries skills only. It holds no credentials and connects to nothing by itself:
-`vamo-api-access` walks through access and the network path.
+`vamo-setup` walks through connecting.
 
 To upload single skills instead of the plugin, each [release](https://github.com/vamo-ai/vamo-skills/releases)
 carries one zip per skill.
 
-**Your API key is never part of these files.** `vamo-api-access` explains where it goes.
+**Your API key is never part of these files.** `vamo-setup` explains where it goes.
 
 Each skill also ends with a self-contained **drop-in prompt** block where one applies, for
 handing to a smaller model verbatim.

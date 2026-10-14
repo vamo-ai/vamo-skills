@@ -7,24 +7,16 @@
       "version": "1.0.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-setup",
-      "summary": "Guided setup in the AI tool you already use. Your agent works out which tool it is in and what it allows, connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial.",
+      "summary": "Everything about connecting: guided setup in the AI tool you already use (the MCP server with sign-in by default), setup codes, direct API access for your own code, and finding out why Vamo stopped working. Ends with a first search as a short tutorial.",
       "files": [
         "SKILL.md",
         "references/tools.md",
-        "references/first-search.md"
-      ]
-    },
-    "vamo-api-access": {
-      "title": "API access",
-      "version": "1.5.0",
-      "updated": "2026-10-14",
-      "path": "skills/vamo-api-access",
-      "summary": "Access to the Vamo Developer API from any agent: getting it with a setup code or a key, storing it so it persists on macOS, Linux and Windows, network path, verification. Includes the setup code exchange, the curl walkthrough and platform notes.",
-      "files": [
-        "SKILL.md",
-        "references/curl-trainer.md",
+        "references/first-search.md",
+        "references/troubleshooting.md",
+        "references/direct-api.md",
+        "references/setup-code.md",
         "references/platforms.md",
-        "references/setup-code.md"
+        "references/curl-trainer.md"
       ]
     },
     "vamo-search": {
@@ -32,18 +24,21 @@
       "version": "3.1.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-search",
-      "summary": "Find engineers by what they built, with one request to the v2 developers API. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
+      "summary": "Find engineers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec, covering a broad topic without missing the famous items, and query phrasings for 50 domains.",
       "files": [
         "SKILL.md",
         "references/discovery-recipes.md",
+        "references/sourcing-guide.md",
         "references/domain-library.md",
-        "references/sourcing-guide.md"
+        "references/role-decomposition.md",
+        "references/role-decomposition-example.md",
+        "references/fanout.md"
       ]
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.1.0",
-      "updated": "2026-10-13",
+      "version": "1.1.1",
+      "updated": "2026-10-14",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list, contact details, a personalized opening line, a full research report.",
       "files": [
@@ -52,41 +47,10 @@
     },
     "vamo-workflows": {
       "title": "Workflows",
-      "version": "1.1.0",
-      "updated": "2026-10-13",
-      "path": "skills/vamo-workflows",
-      "summary": "Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet.",
-      "files": [
-        "SKILL.md"
-      ]
-    },
-    "vamo-troubleshooting": {
-      "title": "Troubleshooting",
       "version": "1.1.1",
       "updated": "2026-10-14",
-      "path": "skills/vamo-troubleshooting",
-      "summary": "When Vamo stops working, your agent finds out why: which route it is on, three checks in order, what each error means, and what to send Vamo if it cannot fix it.",
-      "files": [
-        "SKILL.md"
-      ]
-    },
-    "role-decomposition": {
-      "title": "Role decomposition",
-      "version": "1.4.0",
-      "updated": "2026-10-13",
-      "path": "skills/role-decomposition",
-      "summary": "Turning a job description and intake notes into a search spec.",
-      "files": [
-        "SKILL.md",
-        "references/worked-example.md"
-      ]
-    },
-    "fanout-search": {
-      "title": "Fanout search",
-      "version": "1.0.1",
-      "updated": "2026-10-09",
-      "path": "skills/fanout-search",
-      "summary": "Covering a topic with many queries and ranking the union. Works on any corpus.",
+      "path": "skills/vamo-workflows",
+      "summary": "Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet.",
       "files": [
         "SKILL.md"
       ]

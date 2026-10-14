@@ -1,6 +1,6 @@
 # Exchanging a setup code
 
-Reference for the `vamo-api-access` skill. A setup code is the one-time code in the line a person
+Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. A setup code is the one-time code in the line a person
 copies from **Connect a tool** in the Vamo app. The two blocks here trade it for an API key and
 write the key straight into the private file. The route, `POST /v1/keys/exchange`, is left out of
 `openapi.json` on purpose, so the skill and this file are where it is described. Written against

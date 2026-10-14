@@ -1,6 +1,6 @@
 # Worked example: intake notes to search spec
 
-Reference for the `role-decomposition` skill. The company, the people and the notes are invented.
+Worked example for `role-decomposition.md`, in the `vamo-search` skill. The company, the people and the notes are invented.
 The spec below is what Steps 1 to 7 produce from the notes before any call is made, so values
 that depend on calibration or probing are marked `TBD(calibration)` or `TBD(probe)`, and guesses
 are marked `ASSUMED` and repeated under `open_questions`. Company, school, person and repository names are placeholders.

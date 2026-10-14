@@ -1,12 +1,6 @@
----
-name: fanout-search
-description: Use when a search request is a topic rather than a single lookup, sourcing candidates, literature reviews, competitive scans, "find me the best N repos/papers/tools for X", or any task where missing good results is worse than doing extra queries. Turns one human query into 25-40 machine queries plus a known-item arm, then ranks the union. Corpus-agnostic (GitHub, arXiv, web, vector index, internal DB). Triggers "find all", "best N", "comprehensive list", "research X thoroughly", "make sure we don't miss".
-metadata:
-  version: "1.0.1"
-  updated: "2026-10-09"
----
-
 # Fanout Search
+
+Reference for the `vamo-search` skill: the general method for covering a topic with many queries. It works on any corpus.
 
 How to turn one human query into 25–40 machine queries, then back into one ranked list.
 

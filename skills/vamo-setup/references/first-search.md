@@ -47,7 +47,7 @@ person already knows.
 | They are | Do |
 | --- | --- |
 | New to this | Run one search, teach lessons 1 and 4, offer to do the next move for them |
-| A recruiter or sourcer | Use their open role. Teach all four. Offer to turn the full job description into a search plan with the `role-decomposition` skill |
+| A recruiter or sourcer | Use their open role. Teach all four. Offer to turn the full job description into a search plan with the `vamo-search` skill's role-decomposition method |
 | Technical | Show the request you sent and one field from the response. Mention that the same search runs from their own code with the direct API |
 
 ## End

@@ -1,6 +1,6 @@
 # Vamo Developer API: curl walkthrough
 
-Reference for the `vamo-api-access` skill. Sixteen steps, in order, cover the whole API. These are worked
+Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. Sixteen steps, in order, cover the whole API. These are worked
 examples written against the v2 developers API on 2026-10-13. Check a field with
 `GET /v2/developers/fields`, or a whole body with `POST /v2/developers/search/validate`, before
 relying on it.
@@ -22,7 +22,7 @@ all listed in the spec) and tell the person in one line that the call ran on v1.
 
 ## 1. Load your key and set up two helpers
 
-Getting access and storing it safely are covered in the `vamo-api-access` skill. With the key in
+Getting access and storing it safely are covered in `direct-api.md`. With the key in
 `VAMO_API_KEY`:
 
 ```bash

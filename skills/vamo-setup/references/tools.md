@@ -239,4 +239,4 @@ tool from this list.
   most of them. If the agent has no skills folder, read a skill's hosted page when a task needs
   it: `https://vamotalent.ai/skills/<skill>.md`, or on GitHub at
   `https://raw.githubusercontent.com/vamo-ai/vamo-skills/main/skills/<skill>/SKILL.md`.
-- **Direct API:** the `vamo-api-access` skill covers any agent that can make HTTP requests.
+- **Direct API:** `direct-api.md` covers any agent that can make HTTP requests.

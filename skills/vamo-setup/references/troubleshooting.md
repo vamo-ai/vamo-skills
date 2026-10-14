@@ -1,12 +1,6 @@
----
-name: vamo-troubleshooting
-description: Use when Vamo is set up and something fails, or when a person asks whether Vamo is connected, and the agent should find the cause by itself. Covers working out which route is in use (the Vamo MCP tools, or the Developer API over HTTP with a key), three checks in order, what every API error means and what to tell the person, the MCP cases (tools missing or signed out, "This Vamo account cannot run that right now", an expired read_more page), and what to pass on to Vamo when it cannot be fixed. Works in any agent. Symptoms include 400, 401, 402, 403, 404, 409, 422, 429 and 5xx responses, unauthorized, forbidden, too_many_requests, Vamo tools that do not show up, a search that worked before and fails now, and a setup code that was refused. Triggers "check my Vamo connection", "is Vamo connected", "Vamo isn't working", "Vamo stopped working", "why did that Vamo call fail", "what does this Vamo error mean", "debug Vamo".
-metadata:
-  version: "1.1.1"
-  updated: "2026-10-14"
----
-
 # Vamo troubleshooting
+
+Reference for the `vamo-setup` skill: what to do when Vamo was set up and something fails.
 
 Use this when a Vamo call fails, or when a person asks whether Vamo is connected. You find the
 cause yourself. Then you tell the person in plain words what is wrong and who can fix it.
@@ -54,10 +48,10 @@ Run them in order. Each one only means something once the one before it passes.
 What each check tells you:
 
 - **Check 1 fails over HTTP.** The request never left your environment. No status came back.
-  `vamo-api-access` covers opening the network path.
+  `direct-api.md` covers opening the network path.
 - **Check 1 fails with the MCP tools.** The tool is not connected. See [MCP cases](#mcp-cases).
 - **Check 2 fails over HTTP.** Look in the environment, then in `~/.config/vamo/env`.
-  `vamo-api-access` covers getting access and keeping it between sessions.
+  `../SKILL.md` covers connecting again, and `direct-api.md` covers keeping a key between sessions.
 - **Check 3 fails.** You have a status and a `code`. [Read the error](#read-the-error).
 
 `GET /v1/me` is the connection test for the HTTP route. It works with any key. It returns the
@@ -112,7 +106,7 @@ the whole body, because the detail says which case it is. Every response also ha
 | `429 too_many_requests` | A rate limit, a quota, or a cap the account owner set | `retryAfterSeconds` and the `Retry-After` header. Otherwise `quota` or `reason` | With a wait, nothing. Wait that long, then continue with fewer calls at once. With `quota` or `reason`: "This account reached a limit. The owner can see it on the Usage page in the Vamo app." |
 | `503` on a `/v2/developers` route | The v2 engine is not available on this host | `Retry-After` | Use the v1 route of the same name and say in one line that the call ran on v1 |
 | `5xx internal_error` | Vamo failed | None. Keep the request ID | "Vamo had a problem on its side." Try once more after a short wait. Then pass it on |
-| No status at all | The request never left your environment | The error your HTTP client printed | "This environment cannot reach Vamo yet." `vamo-api-access` covers the fix |
+| No status at all | The request never left your environment | The error your HTTP client printed | "This environment cannot reach Vamo yet." `direct-api.md` covers the fix |
 | Any other status or `code` | Read `code` and `message` | The whole body | Say what `message` says, and pass it on if it is unclear |
 
 Notes on reading them:
@@ -186,7 +180,7 @@ key's label from `GET /v1/me` is safe to include, and it tells Vamo which key it
 
 - **Never print a key.** Read it into a variable. Confirm it by its length. Keep it out of
   replies, logs, URLs and file names.
-- **Never ask for a key in the chat.** When no access is found, `vamo-api-access` says how the
+- **Never ask for a key in the chat.** When no access is found, `../SKILL.md` says how the
   person provides it safely.
 - **Never install software or change a setting without asking.** Say what you want to change and
   why, then wait for a yes. That includes config files, network settings and stored access.

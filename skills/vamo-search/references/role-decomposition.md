@@ -1,12 +1,6 @@
----
-name: role-decomposition
-description: Use when turning a job description, hiring-manager intake notes, or a kickoff-call transcript into a search spec for sourcing software developers, before running any search. Also use when a role search returns generic or off-target people because the whole brief went into one query, when a client names benchmark people or example repos ("more like her", "projects like this one"), or when criteria such as school, graduation year, past employers, location or seniority need to become exact filters. Triggers "decompose this role", "turn these intake notes into a search", "build the search spec", "define the lanes", "what should we search for this req", "generalize this across roles".
-metadata:
-  version: "1.4.0"
-  updated: "2026-10-13"
----
-
 # Role Decomposition
+
+Reference for the `vamo-search` skill: turning a job description and intake notes into a search spec before running any search.
 
 Intake notes mix several kinds of statement, and a search engine treats each kind differently.
 Sort every statement into its kind, turn the kind-of-work statements into **lanes**, and bind
@@ -25,8 +19,8 @@ v1. The spec you write stays the same: its filters name what to bind, whichever 
 
 This skill stops at the spec and its lane grades. `vamo-search` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
-`vamo-api-access` covers setup and access, with a curl for every call named here.
-`vamo-troubleshooting` covers errors.
+The `vamo-setup` skill covers setup and access, with a curl for every call named here in its direct API reference.
+Its troubleshooting reference covers errors.
 
 ---
 
@@ -561,7 +555,7 @@ a rewrite is a finding about where this work lives in public: move it to the pro
 The spec is ready when each priority-1 lane grades Rich or Mixed and every Gate has confirmed on
 real rows. Send it for redline, then hand it to `vamo-search`.
 
-`references/worked-example.md` shows fictional intake notes and the spec they become.
+`role-decomposition-example.md` shows fictional intake notes and the spec they become.
 
 ---
 

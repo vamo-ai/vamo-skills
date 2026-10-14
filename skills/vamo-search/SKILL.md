@@ -1,6 +1,6 @@
 ---
 name: vamo-search
-description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
+description: Use when searching for software developers with Vamo, from a technology, a company, a repository, a place, one great person or a whole job description. Covers turning intake notes into a search spec (lanes, gates, rank signals), covering a broad topic with many queries without missing the famous items, running the search, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "who built X", "find more like this person", "here is the job description", "turn these intake notes into a search", "what should we search for this req", "find the best N", "make sure we don't miss anyone", "source for this role".
 metadata:
   version: "3.1.0"
   updated: "2026-10-14"
@@ -20,8 +20,8 @@ are listed live at `GET /v2/developers/fields`. **When this skill and the API di
 wins.**
 
 Everything below is enough to search with one request and no other reading. `vamo-setup`
-gets a person connected. `vamo-api-access` covers direct access over HTTP. `vamo-troubleshooting` covers errors and a connection that stops
-working. `role-decomposition` turns a role into a search spec. Three reference files go deeper:
+gets a person connected, and covers direct access over HTTP, errors and a connection that stops
+working. Five reference files go deeper:
 
 - `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
   here when someone asks to find people.**
@@ -29,6 +29,11 @@ working. `role-decomposition` turns a role into a search spec. Three reference f
   qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
   and worked reasoning traces.
 - `references/domain-library.md`: phrasings of the work for fifty domains.
+- `references/role-decomposition.md`: turning a job description and intake notes into a search
+  spec (lanes, gates, rank signals, exclusions) before any search runs. A worked example is in
+  `references/role-decomposition-example.md`.
+- `references/fanout.md`: covering a broad topic with many queries plus the famous items keyword
+  search misses, then ranking the union.
 
 **With the Vamo MCP tools.** If your tool list has Vamo tools, use them to make the calls.
 They hold the credential, so skip **Auth** below. The method in this skill still applies:
@@ -201,10 +206,10 @@ returns the value.
 
 ## Fan out: one query is a starting point
 
-A role description is a topic. The `fanout-search` skill covers the general method. Applied here:
+A role description is a topic. `references/fanout.md` covers the general method. Applied here:
 
 1. **Decompose the role into lanes**, each named by an artifact a strong person would have built.
-   `role-decomposition` does this from intake notes.
+   `references/role-decomposition.md` does this from intake notes.
 2. **Write several phrasings of the work per lane**, one idea each, and run each as its own
    search, or two or three as fused lanes in one request.
 3. **Vary the lever as well as the words.** A `repos` search, a `like` lane and a phrase lane for

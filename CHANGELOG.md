@@ -6,19 +6,30 @@ patch version. A change that makes earlier behavior wrong raises the major versi
 
 ## 2026-10-14
 
+Eight skills become four, one per job: connect (`vamo-setup`), find (`vamo-search`), look up
+(`vamo-enrich`) and repeat (`vamo-workflows`). Several skills claimed the same requests ("set up
+Vamo", "connect", "setup code", "isn't working"), so an agent had to guess between them. Each
+request now belongs to one skill, and the material the others held moved into its reference files.
+
 - **vamo-setup 1.0.0** (new). Guided setup in the AI tool a person already uses. The agent works
   out which tool it is in (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT,
   Gemini or another agent) and what it can reach by checking, then picks the route that keeps
   working: the Vamo MCP server with browser sign-in by default, the MCP server with a one-time
   setup code where sign-in is not offered, and direct API access only for people writing their own
   code. It adds the skills, verifies with one search, and runs the first search as a short
-  tutorial pitched at the person's technical depth. `references/tools.md` has the steps per tool;
-  `references/first-search.md` has the tutorial.
-- **vamo-api-access 1.5.0**. Says it is the advanced route and points first-time setup to
-  `vamo-setup`.
-- **vamo-search 3.1.0**. With the Vamo MCP tools connected, the agent makes its calls through them
-  and keeps the method.
-- **vamo-troubleshooting 1.1.1**. A machine with neither route set up is sent to `vamo-setup`.
+  tutorial pitched at the person's depth.
+  - **Replaces `vamo-api-access` and `vamo-troubleshooting`.** Their content is now
+    `references/direct-api.md` (with `setup-code.md`, `platforms.md` and `curl-trainer.md`) and
+    `references/troubleshooting.md`. New: `references/tools.md` (steps per tool) and
+    `references/first-search.md` (the tutorial).
+- **vamo-search 3.1.0**. **Replaces `role-decomposition` and `fanout-search`**, now
+  `references/role-decomposition.md` (with `role-decomposition-example.md`) and
+  `references/fanout.md`. With the Vamo MCP tools connected, the agent makes its calls through
+  them and keeps the method.
+- **vamo-enrich 1.1.1, vamo-workflows 1.1.1**. Cross-references point at the merged skills.
+- **Removed names.** `/vamo:vamo-api-access`, `/vamo:vamo-troubleshooting`,
+  `/vamo:role-decomposition` and `/vamo:fanout-search` no longer exist. Use `/vamo:vamo-setup` or
+  `/vamo:vamo-search`, or ask in plain words.
 
 ## 2026-10-13
 

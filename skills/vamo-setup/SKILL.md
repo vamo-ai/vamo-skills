@@ -1,6 +1,6 @@
 ---
 name: vamo-setup
-description: Use when a person wants to start using Vamo from their AI tool, or pastes a line asking you to set Vamo up. Works out which tool you are running in (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), checks what that tool and the person's plan allow, picks the setup that will keep working without reconfiguring (the Vamo MCP server with browser sign-in by default, the MCP server with a one-time setup code where sign-in is not offered, direct API access only for people building their own code), adds the skills, verifies, and runs a first search as a short tutorial pitched at the person's technical depth. Triggers "set up Vamo", "get started with Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "connect Vamo to Cursor", "add Vamo to my agent", "install the Vamo skills", "how do I use Vamo from my AI tool".
+description: Use for anything about connecting to Vamo. Covers first-time setup in any AI tool (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), a setup code that starts with vamo_xc_, direct API access with a key for your own code, and finding out why Vamo stopped working. The agent checks which tool it is in and what it can reach, connects the way that keeps working (the Vamo MCP server with browser sign-in by default, a setup code where sign-in is not offered, a key only for code), adds the skills, verifies, and runs a first search as a short tutorial at the person's depth. Symptoms include Vamo tools that do not show up, being asked for access every session, a blocked request to api.vamotalent.ai, and 400, 401, 403, 404, 429 or 5xx errors. Triggers "set up Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "here is my Vamo setup code", "call Vamo from my code", "check my Vamo connection", "Vamo isn't working", "what does this Vamo error mean".
 metadata:
   version: "1.0.0"
   updated: "2026-10-14"
@@ -40,7 +40,7 @@ flowchart TD
   B -- yes --> V[Verify with one search]
   B -- no --> C[Work out which tool you are in]
   C --> D{Building their own code,<br/>scripts or scheduled jobs?}
-  D -- yes --> API[Direct API access<br/>vamo-api-access]
+  D -- yes --> API[Direct API access<br/>references/direct-api.md]
   D -- no --> E{Does the tool add a remote<br/>MCP server with browser sign-in?}
   E -- yes --> F[MCP with sign-in]
   E -- no, or sign-in fails --> G[MCP with a setup code]
@@ -87,7 +87,7 @@ Note two things about the tool while you are there, because they decide the rout
 | --- | --- | --- |
 | **MCP with sign-in** (default) | Everyone whose tool adds remote MCP servers with a browser sign-in | The person signs in to Vamo in their browser. No code, no key on the machine |
 | **MCP with a setup code** | Tools that cannot sign in through a browser, or when sign-in is not offered or fails | The person copies one line from **Connect a tool** in the Vamo app. The line stores a key privately and adds the server |
-| **Direct API** (advanced) | People writing their own code, scripts, scheduled jobs or bulk runs | A key stored privately on their machine or in their platform's secret store. Use the `vamo-api-access` skill |
+| **Direct API** (advanced) | People writing their own code, scripts, scheduled jobs or bulk runs | A key stored privately on their machine or in their platform's secret store. See [`references/direct-api.md`](references/direct-api.md) |
 
 Choose MCP unless the person is building something of their own. Say so plainly: "I'll connect
 Vamo as a tool, which is the setup that keeps working. If you later want to call Vamo from your
@@ -113,7 +113,7 @@ this tool and paste the line here. Then fetch the page the line names and follow
 stores the key in a private file and adds the server to the tool. The code works once and lasts
 ten minutes, so ask for the line when you are ready to use it.
 
-**Direct API.** Follow the `vamo-api-access` skill from **Get access**.
+**Direct API.** Follow [`references/direct-api.md`](references/direct-api.md) from **Get access**.
 
 When a step needs someone else (an owner of a Team or Enterprise workspace, an IT admin), do not
 stop at "ask your admin". Write the exact message for the person to send, with the one setting
@@ -137,9 +137,9 @@ chat is needed, say so before the person wonders why nothing changed.
 ### 6. Verify
 
 Run one small search and show one result. On the MCP route, call the Vamo search tool. On the
-direct API, run the verification in `vamo-api-access`.
+direct API, run the verification in `references/direct-api.md`.
 
-If it fails, use the `vamo-troubleshooting` skill. Do not switch to a general web or GitHub search
+If it fails, follow [`references/troubleshooting.md`](references/troubleshooting.md). Do not switch to a general web or GitHub search
 instead: that answers a different question.
 
 ### 7. First search, as a tutorial

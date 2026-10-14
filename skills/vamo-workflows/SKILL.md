@@ -2,8 +2,8 @@
 name: vamo-workflows
 description: Use when wiring the Vamo Developer API into something that runs more than once, for example your own sourcing or hiring agent, a recurring search, a pipeline that enriches people before a message goes out, or a hand-off between Vamo and other tools such as an applicant tracking system, an email sender or a spreadsheet. Also use when designing the data that moves between those steps. Triggers "build a sourcing agent", "automate this search", "run this every week", "pipe Vamo data into our sequences", "sync with our ATS", "connect Vamo to our workflow", "what should the agent loop look like".
 metadata:
-  version: "1.1.0"
-  updated: "2026-10-13"
+  version: "1.1.1"
+  updated: "2026-10-14"
 ---
 
 # Vamo Workflows
@@ -13,8 +13,8 @@ fixed steps, a record of what ran, and a clean hand-off to whatever acts next. T
 the patterns and the rules that keep a repeated run correct.
 
 Vamo's part in any workflow is the same: who the people are and the evidence for it. Sending
-mail, storing candidates and scheduling belong to other tools. `vamo-api-access` covers setup,
-`vamo-search` finds people, `vamo-enrich` fills in people you hold, and `role-decomposition`
+mail, storing candidates and scheduling belong to other tools. `vamo-setup` covers setup,
+`vamo-search` finds people, `vamo-enrich` fills in people you hold, and `vamo-search`'s role-decomposition reference
 turns a role into a search spec. The API's own description at
 `https://api.vamotalent.ai/openapi.json`, and the live field list at `GET /v2/developers/fields`,
 win over this file on routes and fields.
@@ -82,7 +82,7 @@ For a spreadsheet, the same fields flattened to columns.
 
 The loop, with the skill that covers each step:
 
-1. **Decompose** the role into a spec (`role-decomposition`).
+1. **Decompose** the role into a spec (`vamo-search`, `references/role-decomposition.md`).
 2. **Probe** each lane with one page and grade it.
 3. **Run** the lanes that graded well, paging with the seen list (`vamo-search`).
 4. **Fill in** the people you would keep (`vamo-enrich`).
