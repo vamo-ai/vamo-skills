@@ -1,22 +1,38 @@
 ---
 name: vamo-enrich
-description: Use when the people are already known and the job is to learn more about them with the Vamo Developer API, for example a candidate about to be interviewed, a list exported from another sourcing tool or an applicant tracking system, GitHub usernames that need location, LinkedIn, contact details or a strength read, or one developer who needs a full research report. Also use when writing a personalized message grounded in what a developer built, or a one-page summary of a candidate for a hiring team. Triggers "is this candidate strong", "enrich this list", "look up these GitHub profiles", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on", "personalize this outreach".
+description: Use when the people are already known and the job is to learn more about them with Vamo. They can come from anywhere. Candidates in an applicant tracking system such as Ashby, Greenhouse or Lever, LinkedIn profiles, applicants from a job post, a spreadsheet, a list exported from another sourcing tool, or one person about to be interviewed. Covers matching each row to a developer, a strength read, resolved location, LinkedIn, current role, contact details, written summaries, screening applicants for real engineering work, a one-page summary for a hiring team, and a full research report. Triggers "is this candidate strong", "enrich this list", "enrich our Ashby candidates", "look up these LinkedIn profiles", "screen these applicants", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on".
 metadata:
-  version: "1.1.0"
-  updated: "2026-10-13"
+  version: "1.2.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo Enrich
 
-Search finds people. Enrichment starts from people you already have and fills in what their
-GitHub profile alone does not show: a reputation read, resolved location, linked professional
-identity, contact details, a written summary, and a full research report.
+Search finds people. Enrichment starts from people you already have, wherever they came from,
+and fills in what a résumé or a profile alone does not show: what they built, a reputation read,
+resolved location, linked professional identity, contact details, a written summary, and a full
+research report.
 
-`vamo-api-access` covers setup. `vamo-search` covers finding people in the first place. The API
+`vamo-setup` covers setup. `vamo-search` covers finding people in the first place.
+`vamo-outreach` writes to them. The API
 describes itself at `https://api.vamotalent.ai/openapi.json`, and that description wins over this
 file on routes, parameters and fields.
 
 ---
+
+## Where your people come from
+
+| Source | How to get them | What to match on |
+| --- | --- | --- |
+| An applicant tracking system (Ashby, Greenhouse, Lever and others) | The system's connector, if your agent has one, or a CSV export of a job's candidates | The GitHub and LinkedIn links on the candidate. Keep the system's candidate id on every row |
+| LinkedIn profiles | A list of profile URLs, or a search export | The profile URL itself |
+| Applicants from a job post or a form | The form's export, or the résumés | GitHub and LinkedIn links in the answers or in the résumé text |
+| A spreadsheet or another sourcing tool | The file | Its GitHub or LinkedIn column |
+| One person | A name with a link, from the conversation | Ask for a GitHub or LinkedIn link if only a name was given |
+
+Read the source through its own connector when the agent has one: it saves an export, and the
+results can go back the same way (see `vamo-workflows`). Never guess a GitHub username from a
+name or an email address. A guess attaches someone else's work to a candidate.
 
 ## Start from a GitHub username or a LinkedIn profile
 
@@ -35,11 +51,9 @@ guessing one attaches the wrong person's work to a candidate.
 | `POST /v2/deep-research/jobs` | A full research report, saved to the account | 25 subjects per job. Poll until done |
 | `POST /v1/fit-rank` | Scoring people against a role text | 50 logins per call |
 
-On the production host, a `/v2/developers` or `/v2/deep-research` route can answer `404` or `503`
-until the v2 engine is switched on there. Then call the v1 route of the same name
-(`GET /v1/developers/enrich`, `/v1/developers/summaries`, `/v1/developers/emails`,
-`/v1/deep-research/jobs`) and tell the person in one line that the call ran on v1. A LinkedIn-only
-row has no v1 lookup: report it as `no_github_username` until v2 answers.
+With the Vamo MCP tools, `enrich` takes the same identifiers and depth as `POST /v2/developers`,
+and `deep_research` starts, checks and reads reports. Summaries and email addresses are API
+calls. `fit-rank` has no v2 path yet and stays on `/v1`.
 
 ## What each depth adds
 
@@ -105,25 +119,16 @@ A strength the report could not grade is unestablished. Leave it out and say so 
 - `details.contact.socials` and the linked profile at `depth=enriched` give other routes.
 - Get addresses for the people who will actually be contacted, at the moment of contact.
 
-### A personalized message grounded in their work
+### A message grounded in their work
 
 *"Write a first email that shows we read their code."*
 
-1. `enrich` and `summaries` for the person. Read the repository descriptions yourself.
-2. Write one sentence that names something they built and says what it is. That sentence is
-   different for every person and carries the message.
-3. Then the sender's own short pitch, the same for everyone.
+Use the `vamo-outreach` skill. It reads the person with the calls above, links their work to the
+role, and drafts the message for a person to approve.
 
-Rules for the sentence:
+### Enrich a list from another tool or an applicant tracking system
 
-- State what they built and how it works. No praise words.
-- Every claim traces to a field or a URL you read.
-- If you cannot write the sentence from what you read, the person does not get a message yet.
-- Vary the shape across a list so no two messages open the same way.
-
-### Enrich a list from another tool
-
-*"Here is an export from our sourcing tool. Add location, LinkedIn and how strong they are."*
+*"Here are this job's candidates from Ashby. Add location, LinkedIn and how strong they are."*
 
 1. Read the file. Find the GitHub column, extract usernames, drop duplicates. For rows with no
    GitHub column, take the LinkedIn URL.

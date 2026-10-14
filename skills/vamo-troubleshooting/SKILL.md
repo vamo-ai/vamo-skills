@@ -1,9 +1,9 @@
 ---
 name: vamo-troubleshooting
-description: Use when Vamo is set up and something fails, or when a person asks whether Vamo is connected, and the agent should find the cause by itself. Covers working out which route is in use (the Vamo MCP tools, or the Developer API over HTTP with a key), three checks in order, what every API error means and what to tell the person, the MCP cases (tools missing or signed out, "This Vamo account cannot run that right now", an expired read_more page), and what to pass on to Vamo when it cannot be fixed. Works in any agent. Symptoms include 400, 401, 402, 403, 404, 409, 422, 429 and 5xx responses, unauthorized, forbidden, too_many_requests, Vamo tools that do not show up, a search that worked before and fails now, and a setup code that was refused. Triggers "check my Vamo connection", "is Vamo connected", "Vamo isn't working", "Vamo stopped working", "why did that Vamo call fail", "what does this Vamo error mean", "debug Vamo".
+description: Use when Vamo is set up and something fails, or when a person asks whether Vamo is connected, and the agent should find the cause by itself. Covers working out which route is in use (the Vamo MCP tools, or the Developer API over HTTP with a key), three checks in order, what every API error means and what to tell the person, the MCP cases (tools missing or signed out, "This Vamo account cannot run that right now"), and what to pass on to Vamo when it cannot be fixed. Works in any agent. Symptoms include 400, 401, 402, 403, 404, 409, 422, 429 and 5xx responses, unauthorized, forbidden, too_many_requests, Vamo tools that do not show up, a search that worked before and fails now, and a setup code that was refused. Triggers "check my Vamo connection", "is Vamo connected", "Vamo isn't working", "Vamo stopped working", "why did that Vamo call fail", "what does this Vamo error mean", "debug Vamo".
 metadata:
-  version: "1.1.0"
-  updated: "2026-10-13"
+  version: "1.2.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo troubleshooting
@@ -29,8 +29,10 @@ An agent reaches Vamo in one of two ways. Each fails differently, so name yours 
 
 | Route | You are on it when | Who holds the credential |
 | --- | --- | --- |
-| Vamo MCP tools | Your tool list has `search_docs`, `search_execute` and `read_more` | The AI tool. It signed in through a browser, or it sends an API key in a header. You never see either |
+| Vamo MCP tools | Your tool list has `search`, `similar`, `enrich` and `deep_research` from Vamo | The AI tool. It signed in through a browser, or it sends an API key in a header. You never see either |
 | Developer API over HTTP | You make the requests yourself, to `api.vamotalent.ai` | You hold an API key, usually in `VAMO_API_KEY` |
+
+When neither route is set up, this is a first-time setup: use the `vamo-setup` skill.
 
 A skill that calls Vamo uses the HTTP route. So does a key that arrived through a setup code.
 
@@ -45,17 +47,17 @@ Run them in order. Each one only means something once the one before it passes.
 
 | Check | Developer API over HTTP | Vamo MCP tools |
 | --- | --- | --- |
-| 1. Vamo is reachable | `GET https://api.vamotalent.ai/openapi.json` returns JSON. It needs no key | The three Vamo tools are in your tool list, and `search_docs` answers |
+| 1. Vamo is reachable | `GET https://api.vamotalent.ai/openapi.json` returns JSON. It needs no key | The four Vamo tools are in your tool list |
 | 2. A credential is present | `VAMO_API_KEY` is set, or the saved access file is found. Confirm it by its length | The tool holds it. A call that answers `401`, or a prompt to sign in, means it is missing |
-| 3. One call succeeds | `GET /v1/me` with the key answers. Then one `POST /v2/developers/search` with `"limit": 1` answers | One `search_execute` that asks for a single result answers |
+| 3. One call succeeds | `GET /v1/me` with the key answers. Then one `POST /v2/developers/search` with `"limit": 1` answers | One `search` call with `"limit": 1` answers |
 
 What each check tells you:
 
 - **Check 1 fails over HTTP.** The request never left your environment. No status came back.
-  `vamo-api-access` covers opening the network path.
+  The `vamo-setup` skill covers opening the network path, in `references/direct-api.md`.
 - **Check 1 fails with the MCP tools.** The tool is not connected. See [MCP cases](#mcp-cases).
 - **Check 2 fails over HTTP.** Look in the environment, then in `~/.config/vamo/env`.
-  `vamo-api-access` covers getting access and keeping it between sessions.
+  The `vamo-setup` skill covers connecting again and keeping a key between sessions.
 - **Check 3 fails.** You have a status and a `code`. [Read the error](#read-the-error).
 
 `GET /v1/me` is the connection test for the HTTP route. It works with any key. It returns the
@@ -69,11 +71,6 @@ curl -s -m 60 -X POST https://api.vamotalent.ai/v2/developers/search \
   -H "Authorization: Bearer $VAMO_API_KEY" -H "content-type: application/json" \
   -d '{"rank_by": ["v", "ANN", ["Embed", "rust database engine"]], "limit": 1}'
 ```
-
-**A `404` or `503` from a `/v2/developers` route on production is not a broken connection.** The
-v2 engine is not switched on for that host yet. Run the same check on the v1 route
-(`GET /v1/developers/search?q=rust+database+engine&limit=1`). When v1 answers, the connection is
-fine: say in one line that searches run on v1 for now, and carry on there.
 
 Before a search, read the fields it may use at `GET /v2/developers/fields`, and check a body you
 are unsure of with `POST /v2/developers/search/validate`. The API wins over
@@ -104,13 +101,13 @@ the whole body, because the detail says which case it is. Every response also ha
 | `401 signature_required` | This key is set to require signed requests | None | "This key only accepts signed requests, and this call was not signed. Whoever created the key decides how it is used." |
 | `402 payment_required` | The plan does not include this, the account cannot cover it, or a quota is reached | `entitlement` and `plan`, or `reason`, or `quota` | "This Vamo account cannot run that right now. The account owner can sort it out under Billing in the Vamo app." Stop retrying |
 | `403 forbidden` | The key or the person's role lacks a permission, or a feature is off | `entitlement` names the missing permission. Otherwise `reason` | Name the permission. "The key's owner can add it on the API keys page." With `reason`, say which feature is off for the account |
-| `404 not_found` | No such route or record | None | Check the path against the spec first. On a `/v2/developers` route on production, the v2 engine is not on yet: use the v1 route and say so in one line. Otherwise say which record Vamo could not find |
+| `404 not_found` | No such route or record | None | Check the path against the spec first. Otherwise say which record Vamo could not find |
 | `409 conflict` | The request conflicts with the current state | `message`, and anything else in the body | Say what `message` says. Do not send the same request again unchanged |
 | `422 unprocessable_entity` | The request is well formed, and Vamo cannot process it | `message`, and anything else in the body | Say what `message` says. Change the input before you try again |
 | `429 too_many_requests` | A rate limit, a quota, or a cap the account owner set | `retryAfterSeconds` and the `Retry-After` header. Otherwise `quota` or `reason` | With a wait, nothing. Wait that long, then continue with fewer calls at once. With `quota` or `reason`: "This account reached a limit. The owner can see it on the Usage page in the Vamo app." |
-| `503` on a `/v2/developers` route | The v2 engine is not available on this host | `Retry-After` | Use the v1 route of the same name and say in one line that the call ran on v1 |
+| `503` | Search is briefly unavailable | `Retry-After` | Wait that long and try once more. Then pass it on |
 | `5xx internal_error` | Vamo failed | None. Keep the request ID | "Vamo had a problem on its side." Try once more after a short wait. Then pass it on |
-| No status at all | The request never left your environment | The error your HTTP client printed | "This environment cannot reach Vamo yet." `vamo-api-access` covers the fix |
+| No status at all | The request never left your environment | The error your HTTP client printed | "This environment cannot reach Vamo yet." the `vamo-setup` skill covers the fix |
 | Any other status or `code` | Read `code` and `message` | The whole body | Say what `message` says, and pass it on if it is unclear |
 
 Notes on reading them:
@@ -140,7 +137,6 @@ cannot see the request ID. You cannot read account, usage or billing information
 | The Vamo tools are missing from your tool list | The tool is not connected, or this session began before it was | "Vamo is not connected in this tool. Open **Connect a tool** in the Vamo app and follow the steps for this tool. Then start a new session." |
 | A call answers `401`, or the tool asks to sign in | The sign-in ended or was removed, or the key in the tool was revoked | "Vamo needs you to connect again. Open **Connect a tool** in the Vamo app." |
 | `This Vamo account cannot run that right now. The account owner can sort it out under Billing in the Vamo app.` | The account cannot run it for a plan or billing reason. The server does not say which | Say that sentence as written. Do not guess the reason. Stop retrying |
-| `read_more` says there are no pages for that token | The page expired. Pages are kept for a short time | Nothing. Run the search again and read the new pages straight away |
 | A refused call carries an `action` with a `url` | A step only the person can take | Give them the link and say what it is for. Run the call again when they say it is done |
 | Any other refused call | It carries the same `status` and `code` as the API | Use the table in [Read the error](#read-the-error) |
 
@@ -155,7 +151,7 @@ What is behind the first two rows:
   this tool is still connected, and who approved it.
 - A connection can be limited to fewer permissions than the task needs. That reads as `403`.
 
-Results are paged, never cut. To get less back, filter inside the code you run.
+Results are paged with `cursor`, never cut. To get less back, ask for a smaller `limit` or a lower `depth`.
 
 ---
 
@@ -184,7 +180,7 @@ key's label from `GET /v1/me` is safe to include, and it tells Vamo which key it
 
 - **Never print a key.** Read it into a variable. Confirm it by its length. Keep it out of
   replies, logs, URLs and file names.
-- **Never ask for a key in the chat.** When no access is found, `vamo-api-access` says how the
+- **Never ask for a key in the chat.** When no access is found, the `vamo-setup` skill says how the
   person provides it safely.
 - **Never install software or change a setting without asking.** Say what you want to change and
   why, then wait for a yes. That includes config files, network settings and stored access.

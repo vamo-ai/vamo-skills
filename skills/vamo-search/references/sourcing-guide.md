@@ -1,6 +1,6 @@
 # Sourcing Developers by Evidence: A Field Guide for Agents
 
-Reference for the `vamo-search` skill: the long-form method for taking a role from a search to a qualified list of people. `vamo-search` covers the calls and how to read results, `role-decomposition` turns intake notes into the search spec this guide runs, and `vamo-api-access` covers setup. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
+Reference for the `vamo-search` skill: the long-form method for taking a role from a search to a qualified list of people. `vamo-search` covers the calls and how to read results, `references/role-decomposition.md` turns intake notes into the search spec this guide runs, and the `vamo-setup` skill covers setup. The machine-readable spec at `https://api.vamotalent.ai/openapi.json` is the source of truth for parameters. When this guide and the spec disagree, the spec wins.
 
 A working manual for an agent that sources software developers. It teaches two things at once: how great technical sourcing actually works, and how to do it with the Vamo Developer API. The through-line is simple. **Hire people for what they have built and what they care about, then reach them in a way that earns a reply.** Everything below is in service of that.
 
@@ -162,7 +162,7 @@ The band is the heart of good sourcing. **devRank 70 to 88** is the phrase to me
 | `["school_ids", "ContainsAny", {"school": [...]}]`, `["graduation_year", "Gte", 2023]` | School and graduation. | A school is a stated preference. Confirm in `details.identity.education` at `depth=enriched`. |
 | `["title_function", "In", [...]]`, `["title_level", "In", [...]]`, `["current_title", "ContainsAnyToken", "..."]` | Role family, level, title words. | Seniority has to be bounded at recall time. |
 
-Employer, school, graduation and title fields resolve from linked professional profiles, so they match the subset of developers who have one. Pages get small. Use them as a second funnel beside the code funnel and join the two on developer id. `role-decomposition` covers when a criterion like this should gate and when it should only rank.
+Employer, school, graduation and title fields resolve from linked professional profiles, so they match the subset of developers who have one. Pages get small. Use them as a second funnel beside the code funnel and join the two on developer id. `role-decomposition.md` covers when a criterion like this should gate and when it should only rank.
 
 ### Contactability, depth, enrichment, paging
 

@@ -1,9 +1,9 @@
 ---
 name: vamo-search
-description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
+description: Use when searching for software developers with Vamo, from a technology, a company, a repository, a place, one great person or a whole job description. Covers turning intake notes into a search spec (lanes, gates, rank signals), covering a broad topic with many queries without missing the famous items, running the search, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "who built X", "find more like this person", "here is the job description", "turn these intake notes into a search", "what should we search for this req", "find the best N", "make sure we don't miss anyone", "source for this role".
 metadata:
-  version: "3.0.0"
-  updated: "2026-10-13"
+  version: "3.1.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo Search
@@ -19,9 +19,9 @@ Base URL `https://api.vamotalent.ai`. Machine-readable spec:
 are listed live at `GET /v2/developers/fields`. **When this skill and the API disagree, the API
 wins.**
 
-Everything below is enough to search with one request and no other reading. `vamo-api-access`
-covers setup and access. `vamo-troubleshooting` covers errors and a connection that stops
-working. `role-decomposition` turns a role into a search spec. Three reference files go deeper:
+Everything below is enough to search with one request and no other reading. `vamo-setup`
+gets a person connected and covers direct access over HTTP. `vamo-troubleshooting` covers errors
+and a connection that stops working. Five reference files go deeper:
 
 - `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
   here when someone asks to find people.**
@@ -29,6 +29,24 @@ working. `role-decomposition` turns a role into a search spec. Three reference f
   qualification questions, ranking and diversifying, reading a developer's signals, playbooks,
   and worked reasoning traces.
 - `references/domain-library.md`: phrasings of the work for fifty domains.
+- `references/role-decomposition.md`: turning a job description and intake notes into a search
+  spec (lanes, gates, rank signals, exclusions) before any search runs. A worked example is in
+  `references/role-decomposition-example.md`.
+- `references/fanout.md`: covering a broad topic with many queries plus the famous items keyword
+  search misses, then ranking the union.
+
+**With the Vamo MCP tools.** If your tool list has the Vamo tools, use them to make the calls.
+They hold the credential, so skip **Auth** below, and they take the same bodies as the API:
+
+| MCP tool | Same as |
+| --- | --- |
+| `search` | `POST /v2/developers/search` (and `/aggregate` with `group_by`) |
+| `similar` | `POST /v2/developers/similar` |
+| `enrich` | `POST /v2/developers` (logins, LinkedIn profiles or ids, at a depth) |
+| `deep_research` | `/v2/deep-research` (start a job, check it, read a report) |
+
+Email addresses and summaries are API calls only. Everything else in this skill applies
+unchanged.
 
 ---
 
@@ -54,12 +72,8 @@ Search routes allow 10 requests per second per key. Parallel agents on one key s
 | Look up by LinkedIn profile, login or id | `POST /v2/developers` with `{"linkedin": [...], "logins": [...], "ids": [...], "depth": "enriched"}` |
 | Email addresses | `GET /v2/developers/emails?logins=a,b` |
 
-If a `/v2/developers` route answers `404` or `503`, v2 is not live in this environment yet: make
-the same request on the v1 route of the same name (`GET /v1/developers/search` with `q` and
-filters, `/v1/developers/similar`, `/v1/developers/enrich`, `POST /v1/developers`) and tell the
-person in one line that you used v1.
 | A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
-| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
+| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call). It has no v2 path yet |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
 | The fields and their operators | `GET /v2/developers/fields` |
 
@@ -163,7 +177,7 @@ work), `overall` or `network`. Add `filters` to keep it to a place or a company.
 | `countStatus` | `exact`, or `short` with `requested`, `returned` and `shortfallReason`. |
 | `cursor` | The next page. `null` means no more for this query. |
 | `places_resolved`, `ids_resolved` | How each place and name was read. |
-| `details.*` | The v1 developer namespaces at the depth asked. An absent namespace is unknown. |
+| `details.*` | The developer namespaces at the depth asked. An absent namespace is unknown. |
 
 | `shortfallReason` | Meaning | Next move |
 | --- | --- | --- |
@@ -196,10 +210,10 @@ returns the value.
 
 ## Fan out: one query is a starting point
 
-A role description is a topic. The `fanout-search` skill covers the general method. Applied here:
+A role description is a topic. `references/fanout.md` covers the general method. Applied here:
 
 1. **Decompose the role into lanes**, each named by an artifact a strong person would have built.
-   `role-decomposition` does this from intake notes.
+   `references/role-decomposition.md` does this from intake notes.
 2. **Write several phrasings of the work per lane**, one idea each, and run each as its own
    search, or two or three as fused lanes in one request.
 3. **Vary the lever as well as the words.** A `repos` search, a `like` lane and a phrase lane for
@@ -255,8 +269,8 @@ memory.
 
 1. PICK THE DOOR. New people: POST /v2/developers/search. More like one person:
    POST /v2/developers/similar. Counts: POST /v2/developers/aggregate. Depth on people you
-   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. A 404 or 503 on a
-   /v2 route means v2 is not live here: use the v1 route of the same name and say so once.
+   hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. With the Vamo MCP
+   tools, the same bodies go to the search, similar, enrich and deep_research tools.
 
 2. WRITE ONE BODY. Facts are filters ([field, Op, value], And/Or/Not; names resolve:
    {"place": [...]}, {"company": [...]}, {"school": [...]}). The work is one short phrase:

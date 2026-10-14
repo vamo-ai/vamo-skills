@@ -154,7 +154,7 @@ A person returned from several seeds is close to the center of what the team doe
 
 *"Here is the role. Find fifty people who fit."*
 
-- Use the `role-decomposition` skill first. It turns the description into lanes, gates and rank
+- Use `references/role-decomposition.md` first. It turns the description into lanes, gates and rank
   signals. Then run each lane here.
 - Recall ten to fifteen times the number of people wanted, and cut on evidence you read.
 - `POST /v1/fit-rank` scores the logins you hold against the role text, as a second opinion on

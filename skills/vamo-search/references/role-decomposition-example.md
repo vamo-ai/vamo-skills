@@ -1,6 +1,6 @@
 # Worked example: intake notes to search spec
 
-Reference for the `role-decomposition` skill. The company, the people and the notes are invented.
+Worked example for `role-decomposition.md`, in the `vamo-search` skill. The company, the people and the notes are invented.
 The spec below is what Steps 1 to 7 produce from the notes before any call is made, so values
 that depend on calibration or probing are marked `TBD(calibration)` or `TBD(probe)`, and guesses
 are marked `ASSUMED` and repeated under `open_questions`. Company, school, person and repository names are placeholders.
@@ -470,10 +470,6 @@ that Rank item marked unknown.
 **E. Full run, after redline:** page Rich lanes with `cursor` and `exclude` until `recall_n`,
 look up survivors at `depth=enriched` in batches of 25, apply the gate confirms, then
 `POST /v1/fit-rank` in batches of 50 logins with the job description as `role`.
-
-If a `/v2/developers` route answers `404` or `503` on the production host, the v2 engine is not on
-there yet. Run the same plan on the v1 routes (`GET /v1/developers/search` with the spec's query
-parameters) and note in the run report that it ran on v1.
 
 ## Ready when
 

@@ -1,16 +1,16 @@
----
-name: vamo-api-access
-description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup, for a setup code to trade for a key, or for a call that fails before it returns results. Covers getting API access (a one-time setup code that starts with vamo_xc_, or a key a person created), storing it so the next session still has it on macOS, Linux and Windows, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "here is my Vamo setup code", "connect a tool", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
-metadata:
-  version: "1.4.0"
-  updated: "2026-10-13"
----
-
 # Vamo API access
+
+Reference for the `vamo-setup` skill: the advanced route, for people calling the API from their own code, scripts or scheduled jobs. Most people connect Vamo as an MCP server instead (see `../SKILL.md`).
 
 Vamo searches GitHub developers by what they have built. This skill gets a direct HTTP
 connection working and keeps it working in any agent: API access, a safe place to keep it and a
 network path to the API.
+
+**This is the advanced route.** Most people connect Vamo to their AI tool as an MCP server,
+with the `vamo-setup` skill, and never handle a key. Use this skill when the person is writing
+their own code, scripts or scheduled jobs, when a skill needs to call the API over HTTP, or when
+`vamo-setup` sends you here. Say so to the person in one line, so they know it is the technical
+setup.
 
 Three things have to be true before any search runs. Check them in this order at the start of a
 session and fix the first one that fails.
@@ -45,7 +45,7 @@ curl -s https://api.vamotalent.ai/openapi.json \
 
 # what one operation requires of the key
 curl -s https://api.vamotalent.ai/openapi.json \
-  | jq '.paths["/v1/developers/enrich"].get["x-vamo"]'
+  | jq '.paths["/v2/developers/search"].post["x-vamo"]'
 ```
 
 Read `info.description` once as well. It holds the authentication, rate limit and error
@@ -65,11 +65,7 @@ curl -s -X POST https://api.vamotalent.ai/v2/developers/search/validate \
   -d '{"rank_by": ["v", "ANN", ["Embed", "rust database storage engine"]], "limit": 5}'
 ```
 
-On the production host, `/v2/developers/*` can answer `404` or `503` until the v2 engine is
-switched on there. Then use the v1 route of the same name (`GET /v1/developers/search`,
-`/v1/developers/enrich`, and so on) and tell the person in one line that the call ran on v1.
-
-`references/curl-trainer.md` is a worked walkthrough of the whole API with copy-paste examples.
+`curl-trainer.md` is a worked walkthrough of the whole API with copy-paste examples.
 Use it to learn the shape, and check each parameter against the spec before relying on it.
 
 ---
@@ -112,7 +108,7 @@ agent trades it for a key with one request, which needs no key of its own:
 This one route is left out of `openapi.json` on purpose. This skill is where it is described.
 
 **The key goes from the response straight into the private file. It is never shown.** Run the block
-for your system in `references/setup-code.md` exactly as written. It sends the code, writes the key
+for your system in `setup-code.md` exactly as written. It sends the code, writes the key
 where [Store access](#store-access-so-it-persists) says it lives, and prints only the label, the
 permissions and two addresses. Never make the request in a way that prints the response, and never
 ask the person to read out or paste a key.
@@ -179,7 +175,7 @@ works everywhere.
 
 The file holds one line, `VAMO_API_KEY=...`, ending in a single newline with no byte order mark.
 A setup code exchange writes it for you. To save a key you created yourself, type it into your own
-terminal, never into a chat: `references/platforms.md` has the block for each system.
+terminal, never into a chat: `platforms.md` has the block for each system.
 
 Any agent on that machine loads it at the start of a session. Each form is an assignment, so
 nothing is printed.
@@ -238,7 +234,7 @@ those hands the key to the model in every conversation.
 Whichever you use, it is yours alone. Never share the zip, and never add `vamo-access` to a
 shared or public skills repository.
 
-`references/platforms.md` has the exact menu paths for the products we have checked.
+`platforms.md` has the exact menu paths for the products we have checked.
 
 ### Rules for the agent
 
@@ -287,7 +283,7 @@ name of the setting and who is permitted to change it.
 After the setting changes, start a new session. A running session keeps the network rules it
 started with.
 
-`references/platforms.md` gives the setting's name and location for the products we have checked.
+`platforms.md` gives the setting's name and location for the products we have checked.
 
 Other hosts, only if you use them:
 
@@ -333,17 +329,7 @@ curl -s -m 60 -X POST https://api.vamotalent.ai/v2/developers/search \
   | jq -r '.results[0].login // .'
 ```
 
-When check 3 answers `404` or `503`, the v2 engine is not on for that host yet. Run the v1 form
-and say in one line that verification used v1:
-
-```bash
-curl -s -m 60 -G https://api.vamotalent.ai/v1/developers/search \
-  -H "Authorization: Bearer $VAMO_API_KEY" \
-  --data-urlencode "q=rust database engine" --data-urlencode "limit=1" \
-  | jq -r '.results[0].login // .'
-```
-
-On Windows, `references/platforms.md` has the same three checks in PowerShell.
+On Windows, `platforms.md` has the same three checks in PowerShell.
 
 Report the outcome of each check in a sentence. When all three pass, say so and ask what the
 person is looking for.
@@ -365,7 +351,7 @@ ask the person for a fresh line from **Connect a tool**, and never send the same
 | The agent asks for access in every new session | The sandbox starts empty each session | An environment secret or the `vamo-access` skill |
 | The agent asks you to paste a key | It found no stored access | On your own machine, give it a setup line from **Connect a tool** instead |
 | The setup code is refused | It was used, ten minutes passed, or a newer code cancelled it | Press the button in **Connect a tool** again and paste the new line |
-| `curl` behaves differently in PowerShell | In Windows PowerShell, `curl` is another command | Call `curl.exe`, or use the PowerShell forms in `references/platforms.md` |
+| `curl` behaves differently in PowerShell | In Windows PowerShell, `curl` is another command | Call `curl.exe`, or use the PowerShell forms in `platforms.md` |
 | "I won't write that to a file" | The agent is being careful with a pasted secret | Tell it the access is yours and you want it saved privately, then follow the storage steps |
 | "Network only allows package registries" | Outbound requests are limited | Allow `api.vamotalent.ai`, new session |
 | The network setting cannot be found | An admin controls it | Send the admin the one-line request |
@@ -374,7 +360,7 @@ ask the person for a fresh line from **Connect a tool**, and never send the same
 | Works in one agent, fails in another | They are separate environments with separate settings | Set up access and the network in each one you use |
 | MCP tools do not appear after editing the config | The app was not fully restarted, or the session is old | Quit completely, reopen, new session |
 | Very few results | A small default page, or a narrow filter combination | Ask for the number you want and page with the cursor. See `vamo-search` for which filters shrink the pool |
-| School or employer filters return almost nobody | Those filters reach only people with a linked professional profile | Search on the work first, then use school or employer to rank. See `role-decomposition` |
+| School or employer filters return almost nobody | Those filters reach only people with a linked professional profile | Search on the work first, then use school or employer to rank. See `references/role-decomposition.md` in the `vamo-search` skill |
 | A parameter from an example is rejected | The API moved on | The spec wins. Update the skill |
 
 Presenting on a shared screen: set up access and run the verification before sharing. Creating
@@ -386,14 +372,14 @@ or pasting an API key live puts it in the recording.
 
 The companion skills carry the method. In order of use:
 
-- `role-decomposition` turns what a hiring team said into a search spec.
+- The `vamo-search` skill's `references/role-decomposition.md` turns what a hiring team said into a search spec.
 - `vamo-search` runs the search: choosing filters, covering a role with many angles, reading and
   qualifying results.
 - `vamo-enrich` starts from people you already have: a strength read, location, contact details,
   a research report.
 - `vamo-workflows` makes any of it repeatable: your own agents, recurring searches, hand-offs to
   other tools.
-- `fanout-search` is the general method of covering a topic with many queries.
+- The `vamo-search` skill's `references/fanout.md` is the general method of covering a topic with many queries.
 
 Habits that matter on any task:
 

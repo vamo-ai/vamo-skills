@@ -1,6 +1,6 @@
 # Vamo Developer API: curl walkthrough
 
-Reference for the `vamo-api-access` skill. Sixteen steps, in order, cover the whole API. These are worked
+Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. Sixteen steps, in order, cover the whole API. These are worked
 examples written against the v2 developers API on 2026-10-13. Check a field with
 `GET /v2/developers/fields`, or a whole body with `POST /v2/developers/search/validate`, before
 relying on it.
@@ -13,16 +13,11 @@ repository, `<org>` a GitHub organization, `<Company>`, `<University>` and `<Cit
 - Machine-readable spec `https://api.vamotalent.ai/openapi.json`. The fields a search may use are
   listed live at `GET /v2/developers/fields`. Both win over this file when they disagree.
 
-**v1 fallback.** On the production host, `/v2/developers/*` can answer `404` or `503` until the
-v2 engine is switched on there. Then use the v1 route of the same name (`GET /v1/developers/search`
-with query parameters, `GET /v1/developers/enrich`, `GET /v1/developers/similar?login=`, and so on,
-all listed in the spec) and tell the person in one line that the call ran on v1.
-
 ---
 
 ## 1. Load your key and set up two helpers
 
-Getting access and storing it safely are covered in the `vamo-api-access` skill. With the key in
+Getting access and storing it safely are covered in `direct-api.md`. With the key in
 `VAMO_API_KEY`:
 
 ```bash
@@ -63,7 +58,7 @@ vamoPost "/v2/developers/search" '{"rank_by": ["v", "ANN", ["Embed", "lsm-tree s
 | `cursor` | Pass it back for the next page. `null` means no continuation. |
 | `places_resolved`, `ids_resolved` | How each place and name in the filters was read. |
 
-Errors you can fix carry `error` and a `hint` that says what to change. The v1 routes carry a
+Errors you can fix carry `error` and a `hint` that says what to change. Other errors carry a
 stable `code` and a `message`. Branch on those.
 
 ## 4. Narrow with filters
@@ -277,6 +272,6 @@ Fetch https://vamotalent.ai/agent-setup/search/prompt.md and follow the instruct
 | `401` | No credential, or an invalid one |
 | `403` | The key lacks the entitlement this route needs |
 | `402` | The plan does not include this capability |
-| `404` | No such route or record. On a `/v2/developers` route on production, the v2 engine is not on yet: use v1 |
+| `404` | No such route or record. Check the path against the spec |
 | `429` | A rate limit or quota is exhausted. Search allows 10 requests per second per key. Wait for `Retry-After` |
-| `503` | On a `/v2/developers` route, the v2 engine is not available on this host. Use the v1 route and say so |
+| `503` | Search is briefly unavailable. Wait for `Retry-After`, then try once more |

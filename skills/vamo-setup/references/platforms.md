@@ -1,6 +1,6 @@
 # Platform notes
 
-Reference for the `vamo-api-access` skill. The skill's rules are the same everywhere: one private,
+Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. The skill's rules are the same everywhere: one private,
 lasting place for access, and one allowed host, `api.vamotalent.ai`. This file gives the names
 and locations of those two settings in products we have checked. Menu labels change, so each
 section carries the date it was checked. If a label has moved, look for the nearest setting about
@@ -79,7 +79,8 @@ commands. Everything here is PowerShell, written for Windows PowerShell 5.1 and 
   if ($env:VAMO_API_KEY) { "access loaded ($($env:VAMO_API_KEY.Length) chars)" } else { 'no access found' }
 
   # 3. access works: prints one login
-  (Invoke-RestMethod -Uri 'https://api.vamotalent.ai/v1/developers/search?q=rust+database+engine&limit=1' -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60).results[0].login
+  $body = '{"rank_by": ["v", "ANN", ["Embed", "rust database engine"]], "limit": 1}'
+  (Invoke-RestMethod -Method Post -Uri 'https://api.vamotalent.ai/v2/developers/search' -ContentType 'application/json' -Body $body -Headers @{ Authorization = "Bearer $env:VAMO_API_KEY" } -TimeoutSec 60).results[0].login
   ```
 
 ## Saving a key you created yourself
@@ -159,7 +160,7 @@ Checked 2026-10-09 against OpenAI's documentation.
 
 - **Skills:** Codex reads skills from `~/.agents/skills/` for every project, or from
   `.agents/skills/` inside a repository. Copy the folders under `skills/` there. Run one with
-  `/skills`, or by typing `$` and its name, such as `$vamo-api-access`. Codex in the terminal, the
+  `/skills`, or by typing `$` and its name, such as `$vamo-setup`. Codex in the terminal, the
   editor extension and the ChatGPT desktop app all read the same folders.
 - **Access, on your own machine:** `~/.config/vamo/env` as above.
 - **Network, on your own machine:** commands run in a sandbox with the network off by default.
