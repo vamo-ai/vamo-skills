@@ -59,7 +59,7 @@
       "version": "1.0.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-outreach",
-      "summary": "Personalized technical outreach grounded in what each engineer built and linked to the problem the team is hiring for. Two openings per person, subject lines, a short follow-up sequence, a quality check, and merge fields for a sending tool. A person approves every message.",
+      "summary": "Personalized technical outreach to engineers. Starts with describing the role well in a few lines, then links one thing each person built to the work in the role: the right repository, a 50 to 80 word first message, subject lines, follow-ups, answering a reply, and a check before anything is handed over. A person approves every message.",
       "files": [
         "SKILL.md",
         "references/examples.md"
@@ -70,9 +70,10 @@
       "version": "1.2.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-workflows",
-      "summary": "Vamo together with the other tools your agent can reach: new matches posted to Slack, applicants screened and written back to Ashby or another tracking system, drafts left in Gmail for approval, a weekly search into a sheet, and your own sourcing agent. Who owns what, the record that moves between steps, and the rules for runs that repeat.",
+      "summary": "Vamo together with the other tools your agent can reach, with links to each one's official setup: Slack, Ashby, Greenhouse, Lever, Gmail, Outlook, Google Sheets and Calendar, HubSpot. The common hand-offs, example systems to build, where a scheduled agent can run, and the rules for runs that repeat.",
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/integrations.md"
       ]
     }
   },

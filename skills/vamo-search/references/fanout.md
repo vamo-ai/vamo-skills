@@ -12,7 +12,7 @@ Works for any searchable corpus: GitHub, arXiv, web, a vector index, an internal
 
 **Never run the user's query verbatim as your only search.**
 
-A human query is a _topic_. A search engine wants a _facet_. "Find strong repos on foundation models in robotics" is not a query, it's a description of a region. Your job is to cover that region with 25–40 overlapping probes, then rank what you caught.
+A human query is a _topic_. A search engine wants a _facet_. "Find strong repos on foundation models in robotics" describes a region. Your job is to cover that region with 25–40 overlapping probes, then rank what you caught.
 
 One query returns one engine's opinion of one phrasing. Thirty queries return the region, and the overlap between them is a free centrality signal you get for nothing.
 

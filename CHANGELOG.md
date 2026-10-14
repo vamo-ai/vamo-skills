@@ -20,20 +20,27 @@ material the others held moved into reference files.
   code. It adds the skills, verifies with one search, and runs the first search as a short
   tutorial pitched at the person's depth. **Replaces `vamo-api-access`**, now
   `references/direct-api.md` (with `setup-code.md`, `platforms.md` and `curl-trainer.md`).
-- **vamo-outreach 1.0.0** (new). Personalized technical outreach grounded in what each engineer
-  built and linked to the problem the team is hiring for: two openings per person, subject lines,
-  two follow-ups, a quality check, merge fields with a variant tag for a sending tool. A person
-  approves every message. Takes over the message recipe from `vamo-enrich` and the "enrichment in
-  front of a message" pattern from `vamo-workflows`.
+- **vamo-outreach 1.0.0** (new). Personalized technical outreach. Starts with describing the role
+  well in a few lines (a one-line pitch, the work, three reasons to care, the ask), then links one
+  repository each person built or contributes to with the work in the role: a 50 to 80 word first
+  message in three parts, subject lines, two follow-ups, answering a reply, a check before
+  anything is handed over, and merge fields for a sending tool. A person approves every message.
+  Takes over the message recipe from `vamo-enrich` and the "enrichment in front of a message"
+  pattern from `vamo-workflows`.
 - **vamo-search 3.1.0**. **Replaces `role-decomposition` and `fanout-search`**, now
   `references/role-decomposition.md` (with `role-decomposition-example.md`) and
   `references/fanout.md`. With the Vamo MCP tools connected, the agent makes its calls through
   them and keeps the method.
 - **vamo-enrich 1.2.0**. Starts from people wherever they came from: an applicant tracking system
   such as Ashby, LinkedIn profiles, applicants, a spreadsheet. Never guesses a GitHub username.
-- **vamo-workflows 1.2.0**. Reframed around the other tools an agent reaches through connectors:
-  who owns what, new matches posted to Slack, applicants screened and written back to the
-  tracking system, drafts left in Gmail for approval, a weekly search, your own sourcing agent.
+- **vamo-workflows 1.2.0**. Reframed around the other tools an agent reaches through connectors
+  and MCP servers, with links to each tool's official setup in `references/integrations.md`
+  (Slack, Ashby, Greenhouse, Lever, Gmail, Outlook, Google Sheets and Calendar, HubSpot, and where
+  a scheduled agent can run). Patterns for the common hand-offs, and six example systems to build.
+- **All skills on v2.** Search and lookup use `/v2/developers` and `/v2/deep-research`, or the
+  Vamo MCP `search`, `similar`, `enrich` and `deep_research` tools, which take the same bodies.
+  The v1 fallbacks are gone. The setup-code exchange, `/v1/me` and fit-rank stay on v1 because
+  they have no v2 path.
 - **vamo-troubleshooting 1.2.0**. Points at `vamo-setup` for connecting again.
 - **Removed names.** `/vamo:vamo-api-access`, `/vamo:role-decomposition` and
   `/vamo:fanout-search` no longer exist. Use `/vamo:vamo-setup` or `/vamo:vamo-search`, or ask in

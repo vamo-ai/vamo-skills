@@ -1,6 +1,6 @@
 ---
 name: vamo-workflows
-description: Use when Vamo works together with other tools, or when work should run more than once. Covers the tools an agent can reach through its own connectors (Slack, an applicant tracking system such as Ashby, Greenhouse or Lever, Gmail or Outlook, Google Sheets, a calendar, a CRM), which tool owns which part of a task, patterns for the common hand-offs (new matches posted to Slack, applicants screened and written back to the tracking system, drafts left in Gmail for approval, a search that runs every week into a sheet), the record that moves between steps, and the rules that keep a repeated run correct. Triggers "post new matches to Slack", "sync with our ATS", "write this back to Ashby", "put drafts in my Gmail", "run this every week", "send results to a Google Sheet", "build a sourcing agent", "connect Vamo to our workflow".
+description: Use when Vamo works together with other tools, or when work should run more than once. Covers the tools an agent can reach through connectors and MCP servers (Slack, applicant tracking systems such as Ashby, Greenhouse or Lever, Gmail or Outlook, Google Sheets and Calendar, HubSpot), with links to each tool's official setup docs, which tool owns which part of a task, patterns for the common hand-offs, example systems to build (a weekly talent digest, an applicant screen, sourced-to-drafted outreach, interview prep, a talent map, a pipeline refresh), where a scheduled agent can run, and the rules that keep a repeated run correct. Triggers "post new matches to Slack", "sync with our ATS", "write this back to Ashby", "put drafts in my Gmail", "run this every week", "send results to a Google Sheet", "build a sourcing agent", "what could we automate with Vamo".
 metadata:
   version: "1.2.0"
   updated: "2026-10-14"
@@ -35,6 +35,9 @@ Searches go to `POST /v2/developers/search` as one JSON body, and lookups to
 | When are we talking to them? | The calendar |
 
 Read from each tool through its connector when the agent has one, and write back the same way.
+[`references/integrations.md`](references/integrations.md) has the official connector, MCP server
+and API page for Slack, Ashby, Greenhouse, Lever, Gmail, Outlook, Google Sheets, Google Calendar
+and HubSpot, and the options for running on a schedule.
 When two tools disagree about a person, show both and say which field came from where. When a
 connector is missing, say which one would help and fall back to a file the person can import.
 
@@ -95,23 +98,24 @@ For a spreadsheet, the same fields flattened to columns.
 
 ## Patterns
 
-### New matches posted to Slack
+### New matches posted to the team's chat
 
-*"Every Monday, post new people for this role to #hiring-backend."*
+*"Every Monday, post the new people for this role to our hiring channel."*
 
 1. Run the stored search with the seen list (see the weekly pattern below).
-2. Post one short message: the role, how many are new, and up to five people, each with one line
-   on what they built and a link. Put the rest in a thread or a sheet.
-3. Ask the channel to react or reply on the people worth contacting, and read the replies on the
-   next run to update the seen list.
+2. Post one short message to the channel the person named: the role, how many are new, and up to
+   five people, each with one line on what they built and a link. Put the rest in a thread or a
+   sheet.
+3. Ask the team to react or reply on the people worth contacting. On the next run, read those
+   reactions and replies, and add everyone to the seen list.
 
-Post to a channel the person named. Never message a candidate from Slack.
+Post only where the person told you to. Never message a candidate from the team's chat.
 
 ### Applicants screened and written back to the tracking system
 
-*"Screen this week's applicants for the backend role in Ashby."*
+*"Screen this week's applicants for the backend role."*
 
-1. Read the job's new candidates through the connector, or from an export.
+1. Read the job's new candidates through the tracking system's connector, or from an export.
 2. Look each one up with `vamo-enrich`, by the GitHub or LinkedIn link on the candidate.
 3. Write back what the system allows, such as a note or a tag: standing, the work that shows it,
    location, and anything unknown. Keep the system's candidate id on every row.
@@ -121,9 +125,9 @@ Post to a channel the person named. Never message a candidate from Slack.
 The reverse works the same way: people found with `vamo-search` go into the system as new
 candidates, through the connector or as the columns its import takes.
 
-### Drafts left in Gmail for approval
+### Drafts left in the mail tool for approval
 
-*"Draft outreach for these ten people in my Gmail."*
+*"Draft outreach for these ten people in my inbox."*
 
 1. Write each message with `vamo-outreach`.
 2. Create drafts through the mail connector, one per person, addressed and ready. Never send.
@@ -139,8 +143,8 @@ the template, the schedule and the unsubscribe handling.
    active since the last run, add `"sort": "recent"`, or the filter
    `["last_active_at", "Gte", "<last run date>T00:00:00Z"]`. Activity is partial data, so the
    filter leaves out people with no activity on file. Prefer the sort unless recency is a gate.
-3. Deliver only the new people, to Slack, a sheet or the tracking system, and add them to the
-   seen list.
+3. Deliver only the new people, to the team's chat, a sheet or the tracking system, and add them
+   to the seen list.
 
 When a run comes back empty, say so. A quiet week is information.
 
@@ -161,6 +165,27 @@ the instruction to report a thin lane instead of lowering the bar to fill a quot
 
 ---
 
+## Systems you can build
+
+Each of these is the patterns above joined together. Describe them to the person as options, then
+build the one they pick. The links for each tool are in
+[`references/integrations.md`](references/integrations.md).
+
+| System | Starts when | Tools | What the team gets | Where a person decides |
+| --- | --- | --- | --- | --- |
+| **Weekly talent digest** | A schedule, once a week | Vamo, the team's chat, a sheet | New people for each open role, with one line each and a link, and the rest in a sheet | They react to the people worth contacting |
+| **Applicant screen** | New applicants arrive in the tracking system | The tracking system, Vamo | A note on each applicant with their standing and the work behind it | A recruiter moves stages and rejects |
+| **Sourced to drafted** | A recruiter approves people in the digest | Vamo, the mail tool | One draft per approved person, in the recruiter's drafts folder | The recruiter edits and sends |
+| **Interview prep** | An interview is booked on the calendar | The calendar, Vamo, the team's chat | Half a page on the candidate's work, posted before the interview | The interviewer reads it |
+| **Talent map for a new role** | A hiring manager asks where to hire | Vamo, a sheet | A comparison of the same search across a few cities, with example people from each | The hiring manager picks where to open the role |
+| **Pipeline refresh** | Monthly | The tracking system, Vamo | Past candidates whose recent work grew stronger, flagged for a second look | A recruiter decides who to contact again |
+
+When a system runs without a person in the loop, it runs somewhere: a Claude Code routine, a
+scheduled GitHub Action, an agent built with the Agent SDK, or a flow in n8n, Zapier or Make. The
+same rules hold wherever it runs, and every message and stage change still waits for a person.
+
+---
+
 ## What a finished run reports
 
 - The spec that ran: queries, filters, band.
@@ -177,6 +202,7 @@ the instruction to report a thin lane instead of lowering the bar to fill a quot
 | A stored search starts failing with a 400 | A field it names was renamed or disabled | Validate stored bodies before each run and apply the `hint` |
 | Two records for one person | Joined on username | Join on `id` |
 | A run stops halfway with nothing saved | One long sequential pass | Parallel groups, and write results as each group returns |
+| A post landed in the wrong channel | The workflow picked a channel itself | Post only where the person named |
 | Generic messages went out | Rows without a personal sentence were kept | `vamo-outreach` drops a row with no sentence it can stand behind |
 | A field changed meaning between steps | Each step invented its own shape | One record shape, agreed first |
 | The same candidate was added twice to the tracking system | Matched on name or email | Match on the system's candidate id, and on the Vamo `id` |
