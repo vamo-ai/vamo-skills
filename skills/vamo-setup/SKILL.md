@@ -2,7 +2,7 @@
 name: vamo-setup
 description: Use for connecting to Vamo. Covers first-time setup in any AI tool (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), a setup code that starts with vamo_xc_, and direct API access with a key for your own code. The agent checks which tool it is in and what it can reach, connects the way that keeps working (the Vamo MCP server with browser sign-in by default, a setup code where sign-in is not offered, a key only for code), adds the skills, verifies, and runs a first search as a short tutorial at the person's depth. Symptoms include being asked for access every session and a blocked request to api.vamotalent.ai. Triggers "set up Vamo", "get started with Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "connect Vamo to Cursor", "here is my Vamo setup code", "call Vamo from my code", "show me what Vamo can do".
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
   updated: "2026-10-14"
 ---
 
@@ -89,9 +89,13 @@ Note two things about the tool while you are there, because they decide the rout
 | **MCP with a setup code** | Tools that cannot sign in through a browser, or when sign-in is not offered or fails | The person copies one line from **Connect a tool** in the Vamo app. The line stores a key privately and adds the server |
 | **Direct API** (advanced) | People writing their own code, scripts, scheduled jobs or bulk runs | A key stored privately on their machine or in their platform's secret store. See [`references/direct-api.md`](references/direct-api.md) |
 
-Choose MCP unless the person is building something of their own. Say so plainly: "I'll connect
-Vamo as a tool, which is the setup that keeps working. If you later want to call Vamo from your
-own code, that is a separate, more technical setup."
+Choose MCP unless the person is building something of their own, with one exception: **in
+Claude Code, or another coding agent on the person's own machine, recommend the direct API
+setup first.** The skills you install there call the Vamo API directly, so a key stored privately
+on the machine is what makes them work in every later session. Adding the MCP server as well is
+fine. In a chat app, say it plainly: "I'll connect Vamo as a tool, which is the setup that keeps
+working. If you later want to call Vamo from your own code, that is a separate, more technical
+setup."
 
 [`references/tools.md`](references/tools.md) gives the default route for each tool and the exact
 steps.
