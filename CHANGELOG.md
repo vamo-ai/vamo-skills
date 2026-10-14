@@ -4,6 +4,13 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-14 (later)
+
+- **vamo-search 3.2.0, vamo-enrich 1.3.0, vamo-setup 1.0.1**. Fit rank and the counts route are no
+  longer part of the public API, so the skills no longer use them. Qualification ranks on the
+  evidence the agent reads against the role. "Where the talent is" compares the same search run
+  once per place, with the same limit and pages, instead of counting.
+
 ## 2026-10-14
 
 Eight skills become six, one per job: connect (`vamo-setup`), fix (`vamo-troubleshooting`), find

@@ -183,7 +183,6 @@ Employer, school, graduation and title fields resolve from linked professional p
 | `GET /v2/developers/enrich?logins=`                                          | Full profiles for logins you already hold.                                                |
 | `POST /v2/developers` `{"linkedin": [...], "depth": "enriched"}`             | Look people up by LinkedIn profile, login or id.                                          |
 | `GET /v2/developers/summaries?logins=`                                       | Short AI summary by login.                                                                |
-| `POST /v1/fit-rank` `{"logins":[…],"role":"…","company":"…"}`              | Score up to 50 logins against a role. Returns `fit` (0 to 2), `gettable`, `bridgeable` and a short `bridge` reason, best fit first. A second opinion on your own qualification, and a first draft of the bridge. |
 | `GET /v2/developers/emails?logins=`                                          | Get the email addresses observed for a developer. The contact step.                                   |
 | `POST /v2/deep-research/jobs` `{"subject":"developers","logins":[…]}`        | Persist a full dossier on a person. The report is saved to the account and readable from then on.                           |
 | `POST /v2/deep-research/jobs` `{"subject":"repos","repos":[…]}`              | Persist a full dossier on a repo. Build a library of domain repos and reuse.              |
@@ -276,8 +275,6 @@ Search order compares rows inside one query. Across queries and lanes you rank o
 | Seniority evidence | medium | Title plus tenure first, then trajectory, then scope, then the band as corroboration. |
 | Recent activity | medium | `gardenSummary.activeWeeks`, `last90Days`, `lastActiveDay`. |
 | Reach penalties | negative | Very large following, a clear step down in title, a different function. |
-
-`POST /v1/fit-rank` gives an independent read (`fit`, `gettable`, `bridgeable`) against the role text. Use it to check your own ordering and to catch people you scored too high on reputation alone.
 
 Then diversify before you cut, so the list is many conversations and not one:
 

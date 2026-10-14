@@ -355,7 +355,7 @@ open_questions:
   - Other benchmark people. One is thin for setting a band. Two more GitHub links, ideally.
   - ExampleCo's own GitHub org and public repos, for seeds and for excluding the current team.
   - Are C++ or Zig candidates with no Rust at all acceptable for the new-grad list too?
-  - No job description was supplied. Needed as the role text for fit-rank.
+  - No job description was supplied. Needed as the role text to qualify against.
   - Assumed and unconfirmed: the new-grad band, the ocaml and typescript language filters,
     the seed repositories (to be named with the client), the language value spellings, and
     the school and company names (checked with POST /v2/developers/resolve before the probe).
@@ -383,7 +383,6 @@ output_columns: [login, id, list, lane, proving repo, stars, role, language, dev
 | Graduation year 2025 to 2027 | Gate, new-grad | `graduation_year` `Gte 2025`, `Lte 2027` in the profile funnel | linked profiles, partial | `details.identity.education[].endDate` |
 | Senior scope | Rank, senior | `["title_level", "In", ["senior", "staff", "principal"]]` (profile funnel) | linked profiles | `experience[].title`, `startDate` |
 | Reachable | not a criterion in the notes | none. Read the flags on every row | everyone | `hasEmail`, `hasLinkedin` |
-| Fit to the role text | final ordering | `POST /v1/fit-rank` (`logins` up to 50, `role`, `company: ExampleCo`) | logins you hold | `fit`, `gettable`, `bridgeable`, `bridge` |
 
 ## Planned calls
 
@@ -468,8 +467,8 @@ Join both funnels on the developer `id`. Found by both: Rank bonus. Code funnel 
 that Rank item marked unknown.
 
 **E. Full run, after redline:** page Rich lanes with `cursor` and `exclude` until `recall_n`,
-look up survivors at `depth=enriched` in batches of 25, apply the gate confirms, then
-`POST /v1/fit-rank` in batches of 50 logins with the job description as `role`.
+look up survivors at `depth=enriched` in batches of 25, apply the gate confirms, then rank on
+the evidence you read against the job description.
 
 ## Ready when
 
