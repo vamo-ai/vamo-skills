@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-13",
+  "updated": "2026-10-14",
   "repository": "https://github.com/vamo-ai/vamo-skills",
   "skills": {
     "vamo-api-access": {
       "title": "API access",
-      "version": "1.4.0",
-      "updated": "2026-10-13",
+      "version": "1.5.0",
+      "updated": "2026-10-14",
       "path": "skills/vamo-api-access",
       "summary": "Access to the Vamo Developer API from any agent: getting it with a setup code or a key, storing it so it persists on macOS, Linux and Windows, network path, verification. Includes the setup code exchange, the curl walkthrough and platform notes.",
       "files": [
@@ -17,8 +17,8 @@
     },
     "vamo-search": {
       "title": "Search",
-      "version": "3.0.0",
-      "updated": "2026-10-13",
+      "version": "3.1.0",
+      "updated": "2026-10-14",
       "path": "skills/vamo-search",
       "summary": "Find engineers by what they built, with one request to the v2 developers API. Twelve starting points, from a technology or a company to a job description, plus the full method for a role and query phrasings for 50 domains.",
       "files": [
@@ -30,8 +30,8 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.1.0",
-      "updated": "2026-10-13",
+      "version": "1.2.0",
+      "updated": "2026-10-14",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list, contact details, a personalized opening line, a full research report.",
       "files": [
@@ -50,8 +50,8 @@
     },
     "vamo-troubleshooting": {
       "title": "Troubleshooting",
-      "version": "1.1.0",
-      "updated": "2026-10-13",
+      "version": "1.2.0",
+      "updated": "2026-10-14",
       "path": "skills/vamo-troubleshooting",
       "summary": "When Vamo stops working, your agent finds out why: which route it is on, three checks in order, what each error means, and what to send Vamo if it cannot fix it.",
       "files": [

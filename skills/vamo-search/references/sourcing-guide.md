@@ -189,6 +189,8 @@ Employer, school, graduation and title fields resolve from linked professional p
 | `POST /v2/deep-research/jobs` `{"subject":"repos","repos":[…]}`              | Persist a full dossier on a repo. Build a library of domain repos and reuse.              |
 | `GET /v2/deep-research/reports/{developers/<login> \| repos/<owner>/<name>}` | Read a finished report.                                                                   |
 
+A deep-research start refused with `409` and `reason: GITHUB_CONNECTION_REQUIRED` carries a `connectUrl`. Hand it to the person (any browser, no Vamo sign-in, 15 minutes), wait until they say it is done, and start the same job again.
+
 ---
 
 ## 5. The craft of the phrase: writing queries that find real builders

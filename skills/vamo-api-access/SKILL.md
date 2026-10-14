@@ -2,8 +2,8 @@
 name: vamo-api-access
 description: Use when an agent needs access to the Vamo Developer API over HTTP, for first-time setup, for a setup code to trade for a key, or for a call that fails before it returns results. Covers getting API access (a one-time setup code that starts with vamo_xc_, or a key a person created), storing it so the next session still has it on macOS, Linux and Windows, opening network access to the API host, verifying the connection, and reading error responses. Works with any coding agent or chat assistant that can make HTTP requests. Symptoms include "no Vamo API key in this workspace", being asked for access again in every new session, "this workspace's network only allows package registries", a blocked or timed-out request to api.vamotalent.ai, and 401, 403, 402 or 429 responses. Triggers "set up Vamo", "connect to the Vamo API", "here is my Vamo setup code", "connect a tool", "Vamo access isn't working", "allowlist Vamo", "how do I call Vamo".
 metadata:
-  version: "1.4.0"
-  updated: "2026-10-13"
+  version: "1.5.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo API access
@@ -145,6 +145,10 @@ Notes on permissions:
 - Starting a deep-research job, and scoring people against a role, each need their own row in the
   picker. Those rows appear only on accounts that have the feature. The spec names the exact
   requirement for every operation under `x-vamo.entitlement`.
+- A key acts as the member who created it. Deep research can need that member to have GitHub
+  connected. Until they do, a job is refused with `409` and `reason: GITHUB_CONNECTION_REQUIRED`,
+  and the body carries a `connectUrl` they open in any browser, with no Vamo sign-in. Once they
+  say it is done, send the same request again.
 
 A lost key cannot be shown again. Get a fresh setup line, or create a new key, and **Remove** the
 old one. One key per person or per agent keeps a removal from breaking anyone else.

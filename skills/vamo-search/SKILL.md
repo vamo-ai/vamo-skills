@@ -2,8 +2,8 @@
 name: vamo-search
 description: Use when searching for software developers with the Vamo Developer API. Covers finding people who built a kind of thing, running a role as many search angles, enriching and qualifying the people who come back, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat across pages, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "search for this role", "source for this role", "who built X", "find more like this person", "enrich these developers", "qualify these candidates", "get emails for".
 metadata:
-  version: "3.0.0"
-  updated: "2026-10-13"
+  version: "3.1.0"
+  updated: "2026-10-14"
 ---
 
 # Vamo Search
@@ -62,6 +62,10 @@ person in one line that you used v1.
 | People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call) |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
 | The fields and their operators | `GET /v2/developers/fields` |
+
+A deep-research job can be refused with `409` and `reason: GITHUB_CONNECTION_REQUIRED`: hand the
+person the `connectUrl` in the body (they open it in any browser, no Vamo sign-in), wait until they
+say it is done, then start the same job again.
 
 Deep research and fit-rank work on people you already hold. They find nobody new. Use `enrich`
 to deepen a row. Re-running the search for more depth returns a different page.
