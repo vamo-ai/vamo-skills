@@ -2,7 +2,7 @@
 name: vamo-search
 description: Use when searching for software developers with Vamo, from a technology, a company, a repository, a place, one great person or a whole job description. Covers turning intake notes into a search spec (lanes, gates, rank signals), covering a broad topic with many queries without missing the famous items, running the search, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "who built X", "find more like this person", "here is the job description", "turn these intake notes into a search", "what should we search for this req", "find the best N", "make sure we don't miss anyone", "source for this role".
 metadata:
-  version: "3.1.0"
+  version: "3.2.0"
   updated: "2026-10-14"
 ---
 
@@ -40,7 +40,7 @@ They hold the credential, so skip **Auth** below, and they take the same bodies 
 
 | MCP tool | Same as |
 | --- | --- |
-| `search` | `POST /v2/developers/search` (and `/aggregate` with `group_by`) |
+| `search` | `POST /v2/developers/search` |
 | `similar` | `POST /v2/developers/similar` |
 | `enrich` | `POST /v2/developers` (logins, LinkedIn profiles or ids, at a depth) |
 | `deep_research` | `/v2/deep-research` (start a job, check it, read a report) |
@@ -67,17 +67,15 @@ Search routes allow 10 requests per second per key. Parallel agents on one key s
 | --- | --- |
 | People matching facts and a description of work | `POST /v2/developers/search` |
 | More people like one person | `POST /v2/developers/similar` |
-| Counts by a field (sizing a market, where talent is) | `POST /v2/developers/aggregate` |
 | More depth on people you already hold | `GET /v2/developers/enrich?logins=a,b&depth=enriched` (or `ids=`, 25 per call) |
 | Look up by LinkedIn profile, login or id | `POST /v2/developers` with `{"linkedin": [...], "logins": [...], "ids": [...], "depth": "enriched"}` |
 | Email addresses | `GET /v2/developers/emails?logins=a,b` |
 
 | A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
-| People ranked against a role text | `POST /v1/fit-rank` (logins you hold, 50 per call). It has no v2 path yet |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
 | The fields and their operators | `GET /v2/developers/fields` |
 
-Deep research and fit-rank work on people you already hold. They find nobody new. Use `enrich`
+Deep research works on people you already hold. It finds nobody new. Use `enrich`
 to deepen a row. Re-running the search for more depth returns a different page.
 
 ---
@@ -268,7 +266,7 @@ You are sourcing developers with the Vamo API (https://api.vamotalent.ai, bearer
 memory.
 
 1. PICK THE DOOR. New people: POST /v2/developers/search. More like one person:
-   POST /v2/developers/similar. Counts: POST /v2/developers/aggregate. Depth on people you
+   POST /v2/developers/similar. Depth on people you
    hold: GET /v2/developers/enrich. Addresses: GET /v2/developers/emails. With the Vamo MCP
    tools, the same bodies go to the search, similar, enrich and deep_research tools.
 

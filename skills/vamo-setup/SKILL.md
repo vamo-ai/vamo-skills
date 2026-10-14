@@ -2,7 +2,7 @@
 name: vamo-setup
 description: Use for connecting to Vamo. Covers first-time setup in any AI tool (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), a setup code that starts with vamo_xc_, and direct API access with a key for your own code. The agent checks which tool it is in and what it can reach, connects the way that keeps working (the Vamo MCP server with browser sign-in by default, a setup code where sign-in is not offered, a key only for code), adds the skills, verifies, and runs a first search as a short tutorial at the person's depth. Symptoms include being asked for access every session and a blocked request to api.vamotalent.ai. Triggers "set up Vamo", "get started with Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "connect Vamo to Cursor", "here is my Vamo setup code", "call Vamo from my code", "show me what Vamo can do".
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-10-14"
 ---
 

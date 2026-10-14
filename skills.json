@@ -4,7 +4,7 @@
   "skills": {
     "vamo-setup": {
       "title": "Get started",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "updated": "2026-10-14",
       "path": "skills/vamo-setup",
       "summary": "Guided setup in the AI tool you already use: your agent works out the tool and what it allows, connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also covers setup codes and direct API access for your own code.",
@@ -30,7 +30,7 @@
     },
     "vamo-search": {
       "title": "Search",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-search",
       "summary": "Find engineers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec, covering a broad topic without missing the famous items, and query phrasings for 50 domains.",
@@ -46,7 +46,7 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have, wherever they came from: candidates in an applicant tracking system such as Ashby, LinkedIn profiles, applicants, a spreadsheet. A strength read, location, LinkedIn, current role, contact details, screening for real engineering work, a one-page summary and a full research report.",

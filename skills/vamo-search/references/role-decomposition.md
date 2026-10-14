@@ -484,7 +484,7 @@ open_questions:
   - Is the office city a Gate, or is "willing to move" enough to keep a strong person elsewhere in the country?
 
 role_text: >
-  <three to six sentences describing the work: the "ask" on each search, and the role for POST /v1/fit-rank at qualification time>
+  <three to six sentences describing the work: the "ask" on each search, and the role text to qualify against>
 
 merge:
   order: gates, then confirmed rank signals (count), then lanes hit, then lane priority, then recent activity

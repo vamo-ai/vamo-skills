@@ -2,7 +2,7 @@
 name: vamo-enrich
 description: Use when the people are already known and the job is to learn more about them with Vamo. They can come from anywhere. Candidates in an applicant tracking system such as Ashby, Greenhouse or Lever, LinkedIn profiles, applicants from a job post, a spreadsheet, a list exported from another sourcing tool, or one person about to be interviewed. Covers matching each row to a developer, a strength read, resolved location, LinkedIn, current role, contact details, written summaries, screening applicants for real engineering work, a one-page summary for a hiring team, and a full research report. Triggers "is this candidate strong", "enrich this list", "enrich our Ashby candidates", "look up these LinkedIn profiles", "screen these applicants", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on".
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
   updated: "2026-10-14"
 ---
 
@@ -49,11 +49,10 @@ guessing one attaches the wrong person's work to a candidate.
 | `GET /v2/developers/emails` | Email addresses observed for a developer | 25 per call |
 | `POST /v2/developers/similar` with `{"like_person": "<login>", "intent": "same"}` | More people like one you hold | Up to 100 per page |
 | `POST /v2/deep-research/jobs` | A full research report, saved to the account | 25 subjects per job. Poll until done |
-| `POST /v1/fit-rank` | Scoring people against a role text | 50 logins per call |
 
 With the Vamo MCP tools, `enrich` takes the same identifiers and depth as `POST /v2/developers`,
 and `deep_research` starts, checks and reads reports. Summaries and email addresses are API
-calls. `fit-rank` has no v2 path yet and stays on `/v1`.
+calls.
 
 ## What each depth adds
 
@@ -148,8 +147,8 @@ role, and drafts the message for a person to approve.
 
 - Enrich the list as above, then sort by tier and by evidence: owned repositories with real
   activity come before a high number alone.
-- With the role text in hand, `fit-rank` the logins for a second read. It returns fit, how
-  reachable the person is, and a short reason.
+- With the role text in hand, read each person's strongest work against what the role needs,
+  and say in one line why they rank where they do.
 - Return the full list ranked. Leave the cut line to the person asking.
 
 To move the result into an applicant tracking system, write the columns that system imports, or

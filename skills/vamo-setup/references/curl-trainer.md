@@ -1,6 +1,6 @@
 # Vamo Developer API: curl walkthrough
 
-Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. Sixteen steps, in order, cover the whole API. These are worked
+Reference for the `vamo-setup` skill, for the direct API route in `direct-api.md`. Fifteen steps, in order, cover the whole API. These are worked
 examples written against the v2 developers API on 2026-10-13. Check a field with
 `GET /v2/developers/fields`, or a whole body with `POST /v2/developers/search/validate`, before
 relying on it.
@@ -243,15 +243,6 @@ vamo "/v2/deep-research/reports/repos/<owner>/<name>"
 ```
 
 Up to 25 subjects per job. Polling the job also advances it, so keep polling until it finishes.
-
-## 16. Score people against a role
-
-Send up to 50 logins and the role text. Results come back best fit first with `fit` (0 to 2),
-`gettable`, `bridgeable`, `confidence` and a short `bridge` reason.
-
-```bash
-vamoPost "/v1/fit-rank" '{"logins":["<login>","<login>"],"role":"<the role, in a few sentences or the full job description>","company":"<hiring company>"}'
-```
 
 ---
 
