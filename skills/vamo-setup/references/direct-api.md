@@ -352,7 +352,7 @@ person is looking for.
 
 ## Read the error
 
-Error responses, and what to tell the person for each, are in `troubleshooting.md`.
+Error responses, and what to tell the person for each, are in the `vamo-troubleshooting` skill.
 A `404` from `/v1/keys/exchange` means the setup code was used, expired or replaced by a newer one:
 ask the person for a fresh line from **Connect a tool**, and never send the same code again.
 

@@ -20,8 +20,8 @@ are listed live at `GET /v2/developers/fields`. **When this skill and the API di
 wins.**
 
 Everything below is enough to search with one request and no other reading. `vamo-setup`
-gets a person connected, and covers direct access over HTTP, errors and a connection that stops
-working. Five reference files go deeper:
+gets a person connected and covers direct access over HTTP. `vamo-troubleshooting` covers errors
+and a connection that stops working. Five reference files go deeper:
 
 - `references/discovery-recipes.md`: twelve starting points and the request for each. **Start
   here when someone asks to find people.**

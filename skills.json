@@ -7,16 +7,25 @@
       "version": "1.0.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-setup",
-      "summary": "Everything about connecting: guided setup in the AI tool you already use (the MCP server with sign-in by default), setup codes, direct API access for your own code, and finding out why Vamo stopped working. Ends with a first search as a short tutorial.",
+      "summary": "Guided setup in the AI tool you already use: your agent works out the tool and what it allows, connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also covers setup codes and direct API access for your own code.",
       "files": [
         "SKILL.md",
         "references/tools.md",
         "references/first-search.md",
-        "references/troubleshooting.md",
         "references/direct-api.md",
         "references/setup-code.md",
         "references/platforms.md",
         "references/curl-trainer.md"
+      ]
+    },
+    "vamo-troubleshooting": {
+      "title": "Troubleshooting",
+      "version": "1.2.0",
+      "updated": "2026-10-14",
+      "path": "skills/vamo-troubleshooting",
+      "summary": "When Vamo stops working, your agent finds out why: which route it is on, three checks in order, what each error means, and what to send Vamo if it cannot fix it.",
+      "files": [
+        "SKILL.md"
       ]
     },
     "vamo-search": {
@@ -37,20 +46,31 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-enrich",
-      "summary": "Learn more about people you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list, contact details, a personalized opening line, a full research report.",
+      "summary": "Learn more about people you already have, wherever they came from: candidates in an applicant tracking system such as Ashby, LinkedIn profiles, applicants, a spreadsheet. A strength read, location, LinkedIn, current role, contact details, screening for real engineering work, a one-page summary and a full research report.",
       "files": [
         "SKILL.md"
       ]
     },
+    "vamo-outreach": {
+      "title": "Personalized outreach",
+      "version": "1.0.0",
+      "updated": "2026-10-14",
+      "path": "skills/vamo-outreach",
+      "summary": "Personalized technical outreach grounded in what each engineer built and linked to the problem the team is hiring for. Two openings per person, subject lines, a short follow-up sequence, a quality check, and merge fields for a sending tool. A person approves every message.",
+      "files": [
+        "SKILL.md",
+        "references/examples.md"
+      ]
+    },
     "vamo-workflows": {
       "title": "Workflows",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-workflows",
-      "summary": "Make it repeatable: your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet.",
+      "summary": "Vamo together with the other tools your agent can reach: new matches posted to Slack, applicants screened and written back to Ashby or another tracking system, drafts left in Gmail for approval, a weekly search into a sheet, and your own sourcing agent. Who owns what, the record that moves between steps, and the rules for runs that repeat.",
       "files": [
         "SKILL.md"
       ]

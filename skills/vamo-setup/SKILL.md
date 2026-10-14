@@ -1,6 +1,6 @@
 ---
 name: vamo-setup
-description: Use for anything about connecting to Vamo. Covers first-time setup in any AI tool (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), a setup code that starts with vamo_xc_, direct API access with a key for your own code, and finding out why Vamo stopped working. The agent checks which tool it is in and what it can reach, connects the way that keeps working (the Vamo MCP server with browser sign-in by default, a setup code where sign-in is not offered, a key only for code), adds the skills, verifies, and runs a first search as a short tutorial at the person's depth. Symptoms include Vamo tools that do not show up, being asked for access every session, a blocked request to api.vamotalent.ai, and 400, 401, 403, 404, 429 or 5xx errors. Triggers "set up Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "here is my Vamo setup code", "call Vamo from my code", "check my Vamo connection", "Vamo isn't working", "what does this Vamo error mean".
+description: Use for connecting to Vamo. Covers first-time setup in any AI tool (Claude Code, Claude on the web or desktop, Cursor, Codex, ChatGPT, Gemini or another agent), a setup code that starts with vamo_xc_, and direct API access with a key for your own code. The agent checks which tool it is in and what it can reach, connects the way that keeps working (the Vamo MCP server with browser sign-in by default, a setup code where sign-in is not offered, a key only for code), adds the skills, verifies, and runs a first search as a short tutorial at the person's depth. Symptoms include being asked for access every session and a blocked request to api.vamotalent.ai. Triggers "set up Vamo", "get started with Vamo", "connect Vamo to Claude", "connect Vamo to ChatGPT", "connect Vamo to Cursor", "here is my Vamo setup code", "call Vamo from my code", "show me what Vamo can do".
 metadata:
   version: "1.0.0"
   updated: "2026-10-14"
@@ -139,7 +139,7 @@ chat is needed, say so before the person wonders why nothing changed.
 Run one small search and show one result. On the MCP route, call the Vamo search tool. On the
 direct API, run the verification in `references/direct-api.md`.
 
-If it fails, follow [`references/troubleshooting.md`](references/troubleshooting.md). Do not switch to a general web or GitHub search
+If it fails, use the `vamo-troubleshooting` skill. Do not switch to a general web or GitHub search
 instead: that answers a different question.
 
 ### 7. First search, as a tutorial

@@ -20,7 +20,7 @@ v1. The spec you write stays the same: its filters name what to bind, whichever 
 This skill stops at the spec and its lane grades. `vamo-search` runs the spec through the
 funnel, qualifies people and writes the outreach angle. `vamo-search` covers how to read results.
 The `vamo-setup` skill covers setup and access, with a curl for every call named here in its direct API reference.
-Its troubleshooting reference covers errors.
+`vamo-troubleshooting` covers errors.
 
 ---
 

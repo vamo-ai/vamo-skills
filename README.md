@@ -12,14 +12,17 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.0 | **Start here.** Everything about connecting: guided setup in the AI tool you already use (the MCP server with sign-in by default), setup codes, direct API access for your own code, and finding out why Vamo stopped working. Ends with a first search as a short tutorial. |
-| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.1.0 | **Find.** Developers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec, covering a broad topic without missing the famous items, and query phrasings for 50 domains. |
-| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.1.1 | **Look up.** People you already have, by GitHub username or LinkedIn profile: a strength read before an interview, location and LinkedIn for a list from another tool, contact details, a personalized opening line, a full research report. |
-| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.1.1 | **Repeat.** Your own sourcing agent, a search that runs every week, enrichment in front of a message, hand-offs to a tracking system or a spreadsheet. |
+| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.0 | **Start here.** Guided setup in the AI tool you already use: connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also setup codes and direct API access for your own code. |
+| [`vamo-troubleshooting`](skills/vamo-troubleshooting/SKILL.md) | 1.2.0 | **Fix.** When a call fails or Vamo stops working: which route the agent is on, three checks in order, what every error means and what to tell the person. |
+| [`vamo-search`](skills/vamo-search/SKILL.md) | 3.1.0 | **Find.** Developers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec and covering a broad topic without missing the famous items. |
+| [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.2.0 | **Look up.** People you already have: candidates in Ashby or another tracking system, LinkedIn profiles, applicants, a spreadsheet. Strength, location, LinkedIn, contact details, screening, a one-page summary, a research report. |
+| [`vamo-outreach`](skills/vamo-outreach/SKILL.md) | 1.0.0 | **Reach out.** Personalized technical outreach grounded in what each engineer built and linked to the team's problem: two openings, subject lines, follow-ups, a quality check. A person approves every message. |
+| [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.2.0 | **Connect your tools.** Slack, Ashby and other tracking systems, Gmail, Google Sheets: who owns what, the common hand-offs, and the rules for runs that repeat. |
 
 Three questions cover most of what people bring. *Who should I be talking to?* is
 `vamo-search`. *What do we know about these people?* is `vamo-enrich`. *How do I make this run by
-itself?* is `vamo-workflows`. Connecting, and fixing a connection, is `vamo-setup`.
+itself?* is `vamo-workflows`. *What do I say to them?* is `vamo-outreach`. Connecting is `vamo-setup`,
+and fixing a connection is `vamo-troubleshooting`.
 
 ### The spec is the source of truth
 
