@@ -4,7 +4,7 @@
   "skills": {
     "vamo-setup": {
       "title": "Get started",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "updated": "2026-10-14",
       "path": "skills/vamo-setup",
       "summary": "Guided setup in the AI tool you already use: your agent works out the tool and what it allows, connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also covers setup codes and direct API access for your own code.",

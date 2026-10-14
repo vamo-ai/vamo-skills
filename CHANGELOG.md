@@ -4,6 +4,12 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-14 (evening)
+
+- **vamo-setup 1.1.0**. In Claude Code, or another coding agent on the person's own machine, the
+  agent recommends the direct API setup first, because the skills there call the API directly. The
+  MCP server stays an addition.
+
 ## 2026-10-14 (later)
 
 - **vamo-search 3.2.0, vamo-enrich 1.3.0, vamo-setup 1.0.1**. Fit rank and the counts route are no

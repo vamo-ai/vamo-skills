@@ -12,7 +12,7 @@ step. An agent reads one and behaves better.
 
 | Skill | Version | What it's for |
 |---|---|---|
-| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.0.1 | **Start here.** Guided setup in the AI tool you already use: connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also setup codes and direct API access for your own code. |
+| [`vamo-setup`](skills/vamo-setup/SKILL.md) | 1.1.0 | **Start here.** Guided setup in the AI tool you already use: connects Vamo the way that keeps working (the MCP server with sign-in by default), adds the skills, and runs a first search as a short tutorial. Also setup codes and direct API access for your own code. |
 | [`vamo-troubleshooting`](skills/vamo-troubleshooting/SKILL.md) | 1.2.0 | **Fix.** When a call fails or Vamo stops working: which route the agent is on, three checks in order, what every error means and what to tell the person. |
 | [`vamo-search`](skills/vamo-search/SKILL.md) | 3.2.0 | **Find.** Developers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec and covering a broad topic without missing the famous items. |
 | [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.3.0 | **Look up.** People you already have: candidates in Ashby or another tracking system, LinkedIn profiles, applicants, a spreadsheet. Strength, location, LinkedIn, contact details, screening, a one-page summary, a research report. |

@@ -12,7 +12,7 @@ Two addresses come up everywhere:
 
 | Tool | Default route | Skills install | Name a skill |
 | --- | --- | --- | --- |
-| [Claude Code](#claude-code) | MCP with sign-in | Plugin command | `/vamo:<skill>` |
+| [Claude Code](#claude-code) | Direct API with a stored key, plus MCP if wanted | Plugin command | `/vamo:<skill>` |
 | [Claude on the web or desktop](#claude-on-the-web-or-desktop) | MCP with sign-in (a connector) | Plugin marketplace, by clicks | Type `/` and pick it |
 | [Cursor](#cursor) | MCP with sign-in | One terminal command | Type `/` in Agent chat |
 | [Codex](#codex) | MCP with sign-in | One terminal command | `$<skill>` |
@@ -30,6 +30,11 @@ chat app has no machine to store a key on, so it has no setup code route.
 ## Claude Code
 
 Checked 2026-10-12. You know you are Claude Code: you run in a terminal and have a Bash tool.
+
+**Recommend the direct API first.** The skills run here and call the API over HTTP, so store a
+key with the setup code route (the person copies one line from **Connect a tool** in the Vamo
+app). `direct-api.md` covers storing it. Then add the MCP server as well if the person wants the
+Vamo tools in the conversation.
 
 **Connect, with sign-in.** Run:
 
