@@ -244,6 +244,16 @@ vamo "/v2/deep-research/reports/repos/<owner>/<name>"
 
 Up to 25 subjects per job. Polling the job also advances it, so keep polling until it finishes.
 
+If the start answers `409` with `reason: GITHUB_CONNECTION_REQUIRED`, the member this key acts for
+has no GitHub connected. Read the link out of the body and give it to the person:
+
+```bash
+vamoPost "/v2/deep-research/jobs" '{"subject":"developers","logins":["<login>"]}' | jq -r '.connectUrl // .message'
+```
+
+They open it in any browser and approve on GitHub. No Vamo sign-in is needed, and the link works
+for 15 minutes. When they say it is done, run the same start again.
+
 ---
 
 ## Wire it into an agent

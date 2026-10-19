@@ -2,8 +2,8 @@
 name: vamo-search
 description: Use when searching for software developers with Vamo, from a technology, a company, a repository, a place, one great person or a whole job description. Covers turning intake notes into a search spec (lanes, gates, rank signals), covering a broad topic with many queries without missing the famous items, running the search, and reading results correctly. Also use when a filter seems ignored, a page comes back short, the same people repeat, strong developers are missing, or results are celebrity maintainers, thin profiles or keyword noise. Triggers "find engineers who", "who built X", "find more like this person", "here is the job description", "turn these intake notes into a search", "what should we search for this req", "find the best N", "make sure we don't miss anyone", "source for this role".
 metadata:
-  version: "3.2.0"
-  updated: "2026-10-14"
+  version: "3.3.0"
+  updated: "2026-10-19"
 ---
 
 # Vamo Search
@@ -74,6 +74,10 @@ Search routes allow 10 requests per second per key. Parallel agents on one key s
 | A short written summary per person | `GET /v2/developers/summaries?logins=a,b` |
 | A full report on a person or a repository | `POST /v2/deep-research/jobs` with `{"subject": "developers", "logins": [...]}` or `{"subject": "repos", "repos": ["owner/name"]}`, then `GET /v2/deep-research/jobs/{id}` and read each item's `reportPath` |
 | The fields and their operators | `GET /v2/developers/fields` |
+
+A deep-research job can be refused with `409` and `reason: GITHUB_CONNECTION_REQUIRED`: hand the
+person the `connectUrl` in the body (they open it in any browser, no Vamo sign-in, 15 minutes),
+wait until they say it is done, then start the same job again.
 
 Deep research works on people you already hold. It finds nobody new. Use `enrich`
 to deepen a row. Re-running the search for more depth returns a different page.

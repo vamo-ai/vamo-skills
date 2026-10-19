@@ -2,8 +2,8 @@
 name: vamo-enrich
 description: Use when the people are already known and the job is to learn more about them with Vamo. They can come from anywhere. Candidates in an applicant tracking system such as Ashby, Greenhouse or Lever, LinkedIn profiles, applicants from a job post, a spreadsheet, a list exported from another sourcing tool, or one person about to be interviewed. Covers matching each row to a developer, a strength read, resolved location, LinkedIn, current role, contact details, written summaries, screening applicants for real engineering work, a one-page summary for a hiring team, and a full research report. Triggers "is this candidate strong", "enrich this list", "enrich our Ashby candidates", "look up these LinkedIn profiles", "screen these applicants", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on".
 metadata:
-  version: "1.3.0"
-  updated: "2026-10-14"
+  version: "1.4.0"
+  updated: "2026-10-19"
 ---
 
 # Vamo Enrich
@@ -166,7 +166,10 @@ read on each person. The other system stores it.
    account, so the team can read them again later.
 
 A research job needs the account to have deep research enabled, and it can need a linked GitHub
-connection. The error body says which. `vamo-troubleshooting` covers the error fields.
+connection. The error body says which. A `409` with `reason: GITHUB_CONNECTION_REQUIRED` carries a
+`connectUrl`: give it to the person as it is. They open it in any browser and approve on GitHub,
+with no Vamo sign-in. Wait until they say it is done, then start the same job again. The link works
+for 15 minutes. `vamo-troubleshooting` covers the other error fields.
 
 ---
 
