@@ -4,6 +4,15 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-19
+
+- **vamo-troubleshooting 1.3.0, vamo-search 3.3.0, vamo-enrich 1.4.0, vamo-setup 1.2.0**. A
+  deep-research job refused with `409` and `reason: GITHUB_CONNECTION_REQUIRED` now carries a
+  `connectUrl` that connects GitHub with no Vamo sign-in. Every skill that starts a job hands that
+  link to the person as it is, waits until they say it is done, and starts the same job again. The
+  link works for 15 minutes and connects one account. The troubleshooting table has its own row for
+  this refusal, and the curl walkthrough shows how to read the link out of the body.
+
 ## 2026-10-14 (evening)
 
 - **vamo-setup 1.1.0**. In Claude Code, or another coding agent on the person's own machine, the

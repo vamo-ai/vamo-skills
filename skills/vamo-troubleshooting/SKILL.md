@@ -2,8 +2,8 @@
 name: vamo-troubleshooting
 description: Use when Vamo is set up and something fails, or when a person asks whether Vamo is connected, and the agent should find the cause by itself. Covers working out which route is in use (the Vamo MCP tools, or the Developer API over HTTP with a key), three checks in order, what every API error means and what to tell the person, the MCP cases (tools missing or signed out, "This Vamo account cannot run that right now"), and what to pass on to Vamo when it cannot be fixed. Works in any agent. Symptoms include 400, 401, 402, 403, 404, 409, 422, 429 and 5xx responses, unauthorized, forbidden, too_many_requests, Vamo tools that do not show up, a search that worked before and fails now, and a setup code that was refused. Triggers "check my Vamo connection", "is Vamo connected", "Vamo isn't working", "Vamo stopped working", "why did that Vamo call fail", "what does this Vamo error mean", "debug Vamo".
 metadata:
-  version: "1.2.0"
-  updated: "2026-10-14"
+  version: "1.3.0"
+  updated: "2026-10-19"
 ---
 
 # Vamo troubleshooting
@@ -102,6 +102,7 @@ the whole body, because the detail says which case it is. Every response also ha
 | `402 payment_required` | The plan does not include this, the account cannot cover it, or a quota is reached | `entitlement` and `plan`, or `reason`, or `quota` | "This Vamo account cannot run that right now. The account owner can sort it out under Billing in the Vamo app." Stop retrying |
 | `403 forbidden` | The key or the person's role lacks a permission, or a feature is off | `entitlement` names the missing permission. Otherwise `reason` | Name the permission. "The key's owner can add it on the API keys page." With `reason`, say which feature is off for the account |
 | `404 not_found` | No such route or record | None | Check the path against the spec first. Otherwise say which record Vamo could not find |
+| `409` with `reason: GITHUB_CONNECTION_REQUIRED` | Deep research needs a GitHub account connected for the member the key acts for | `instruction`, `connectUrl`, and `action` when present | Give the person `instruction` and `connectUrl` as they are. They open the link in any browser and approve on GitHub, with no Vamo sign-in. The link works for 15 minutes. Wait until they say it is done, then send the same request again |
 | `409 conflict` | The request conflicts with the current state | `message`, and anything else in the body | Say what `message` says. Do not send the same request again unchanged |
 | `422 unprocessable_entity` | The request is well formed, and Vamo cannot process it | `message`, and anything else in the body | Say what `message` says. Change the input before you try again |
 | `429 too_many_requests` | A rate limit, a quota, or a cap the account owner set | `retryAfterSeconds` and the `Retry-After` header. Otherwise `quota` or `reason` | With a wait, nothing. Wait that long, then continue with fewer calls at once. With `quota` or `reason`: "This account reached a limit. The owner can see it on the Usage page in the Vamo app." |
