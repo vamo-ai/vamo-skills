@@ -84,8 +84,11 @@ a merge to `main` is the new version.
 - **Everywhere else** the same folders under `skills/` work as plain skills, or as pages an
   agent reads from a URL.
 
-The plugin carries skills only. It holds no credentials and connects to nothing by itself:
-`vamo-setup` walks through connecting.
+The plugin carries the skills and the Vamo connector address (`.mcp.json`). It holds no
+credentials: the first time a Vamo tool runs, Claude asks you to sign in to Vamo, and your
+account's plan applies as everywhere else. If you already added Vamo as a connector yourself,
+keep one of the two so Claude doesn't see every tool twice. `vamo-setup` covers the other ways
+to connect, including an API key for your own code.
 
 To upload single skills instead of the plugin, each [release](https://github.com/vamo-ai/vamo-skills/releases)
 carries one zip per skill.

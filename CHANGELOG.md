@@ -4,6 +4,12 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-26
+
+- **Plugin: the Vamo connector comes with it.** Installing the `vamo` plugin now also adds the
+  Vamo connector (`.mcp.json`, `https://mcp.vamotalent.ai/mcp/search`). Claude asks you to sign in
+  to Vamo the first time a tool runs. No skill changed.
+
 ## 2026-10-19
 
 - **vamo-troubleshooting 1.3.0, vamo-search 3.3.0, vamo-enrich 1.4.0, vamo-setup 1.2.0**. A

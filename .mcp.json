@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vamo": {
+      "type": "http",
+      "url": "https://mcp.vamotalent.ai/mcp/search"
+    }
+  }
+}
