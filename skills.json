@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-28",
   "repository": "https://github.com/vamo-ai/vamo-skills",
   "skills": {
     "vamo-setup": {
@@ -46,8 +46,8 @@
     },
     "vamo-enrich": {
       "title": "Enrich",
-      "version": "1.4.0",
-      "updated": "2026-10-19",
+      "version": "1.4.1",
+      "updated": "2026-10-28",
       "path": "skills/vamo-enrich",
       "summary": "Learn more about people you already have, wherever they came from: candidates in an applicant tracking system such as Ashby, LinkedIn profiles, applicants, a spreadsheet. A strength read, location, LinkedIn, current role, contact details, screening for real engineering work, a one-page summary and a full research report.",
       "files": [
@@ -65,10 +65,21 @@
         "references/examples.md"
       ]
     },
+    "vamo-ashby": {
+      "title": "Ashby",
+      "version": "1.0.0",
+      "updated": "2026-10-28",
+      "path": "skills/vamo-ashby",
+      "summary": "Vamo and Ashby together on a hiring pipeline: read a job's candidates and see who ships code, find more people like the strongest, add Vamo context as notes your agent writes, start a search from an Ashby role, leave out people already in Ashby, and save results to an Ashby job or project. Every write is previewed and confirmed.",
+      "files": [
+        "SKILL.md",
+        "references/routes.md"
+      ]
+    },
     "vamo-workflows": {
       "title": "Workflows",
-      "version": "1.2.0",
-      "updated": "2026-10-14",
+      "version": "1.2.1",
+      "updated": "2026-10-28",
       "path": "skills/vamo-workflows",
       "summary": "Vamo together with the other tools your agent can reach, with links to each one's official setup: Slack, Ashby, Greenhouse, Lever, Gmail, Outlook, Google Sheets and Calendar, HubSpot. The common hand-offs, example systems to build, where a scheduled agent can run, and the rules for runs that repeat.",
       "files": [

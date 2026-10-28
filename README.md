@@ -17,11 +17,12 @@ step. An agent reads one and behaves better.
 | [`vamo-search`](skills/vamo-search/SKILL.md) | 3.2.0 | **Find.** Developers by what they built, from a technology, a company, a repository, a place, one person or a whole job description. Includes turning intake notes into a search spec and covering a broad topic without missing the famous items. |
 | [`vamo-enrich`](skills/vamo-enrich/SKILL.md) | 1.3.0 | **Look up.** People you already have: candidates in Ashby or another tracking system, LinkedIn profiles, applicants, a spreadsheet. Strength, location, LinkedIn, contact details, screening, a one-page summary, a research report. |
 | [`vamo-outreach`](skills/vamo-outreach/SKILL.md) | 1.0.0 | **Reach out.** Personalized technical outreach grounded in what each engineer built and linked to the team's problem: two openings, subject lines, follow-ups, a quality check. A person approves every message. |
+| [`vamo-ashby`](skills/vamo-ashby/SKILL.md) | 1.0.0 | **Ashby.** Vamo and Ashby together: see who in a pipeline ships code, find more like your strongest candidates, add Vamo context as notes, search from an Ashby role, leave out people already in Ashby, save results to a job or project. Every write is confirmed. |
 | [`vamo-workflows`](skills/vamo-workflows/SKILL.md) | 1.2.0 | **Connect your tools.** Slack, Ashby and other tracking systems, Gmail, Google Sheets: who owns what, the common hand-offs, and the rules for runs that repeat. |
 
 Three questions cover most of what people bring. *Who should I be talking to?* is
 `vamo-search`. *What do we know about these people?* is `vamo-enrich`. *How do I make this run by
-itself?* is `vamo-workflows`. *What do I say to them?* is `vamo-outreach`. Connecting is `vamo-setup`,
+itself?* is `vamo-workflows`. *What do I say to them?* is `vamo-outreach`. Anything that touches an Ashby pipeline is `vamo-ashby`. Connecting is `vamo-setup`,
 and fixing a connection is `vamo-troubleshooting`.
 
 ### The spec is the source of truth

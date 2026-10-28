@@ -2,8 +2,8 @@
 name: vamo-workflows
 description: Use when Vamo works together with other tools, or when work should run more than once. Covers the tools an agent can reach through connectors and MCP servers (Slack, applicant tracking systems such as Ashby, Greenhouse or Lever, Gmail or Outlook, Google Sheets and Calendar, HubSpot), with links to each tool's official setup docs, which tool owns which part of a task, patterns for the common hand-offs, example systems to build (a weekly talent digest, an applicant screen, sourced-to-drafted outreach, interview prep, a talent map, a pipeline refresh), where a scheduled agent can run, and the rules that keep a repeated run correct. Triggers "post new matches to Slack", "sync with our ATS", "write this back to Ashby", "put drafts in my Gmail", "run this every week", "send results to a Google Sheet", "build a sourcing agent", "what could we automate with Vamo".
 metadata:
-  version: "1.2.0"
-  updated: "2026-10-14"
+  version: "1.2.1"
+  updated: "2026-10-28"
 ---
 
 # Vamo Workflows
@@ -28,7 +28,7 @@ Searches go to `POST /v2/developers/search` as one JSON body, and lookups to
 | Question | Who answers |
 | --- | --- |
 | Who has built this kind of thing, and what is the evidence? | Vamo |
-| Where does this candidate stand with us? | The applicant tracking system (Ashby, Greenhouse, Lever) |
+| Where does this candidate stand with us? | The applicant tracking system (Ashby, Greenhouse, Lever). For Ashby, follow `vamo-ashby` |
 | What did the team say about them? | Slack |
 | Did the message go out, and did they reply? | The mail tool (Gmail, Outlook) or the sequencer |
 | Where does the list live for people who do not use the agent? | A spreadsheet |

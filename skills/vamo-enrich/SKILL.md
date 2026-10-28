@@ -2,8 +2,8 @@
 name: vamo-enrich
 description: Use when the people are already known and the job is to learn more about them with Vamo. They can come from anywhere. Candidates in an applicant tracking system such as Ashby, Greenhouse or Lever, LinkedIn profiles, applicants from a job post, a spreadsheet, a list exported from another sourcing tool, or one person about to be interviewed. Covers matching each row to a developer, a strength read, resolved location, LinkedIn, current role, contact details, written summaries, screening applicants for real engineering work, a one-page summary for a hiring team, and a full research report. Triggers "is this candidate strong", "enrich this list", "enrich our Ashby candidates", "look up these LinkedIn profiles", "screen these applicants", "prep me for this interview", "write a pitch sheet", "find their email", "run deep research on".
 metadata:
-  version: "1.4.0"
-  updated: "2026-10-19"
+  version: "1.4.1"
+  updated: "2026-10-28"
 ---
 
 # Vamo Enrich
@@ -14,6 +14,7 @@ resolved location, linked professional identity, contact details, a written summ
 research report.
 
 `vamo-setup` covers setup. `vamo-search` covers finding people in the first place.
+For candidates in Ashby, `vamo-ashby` covers reading the pipeline and writing back.
 `vamo-outreach` writes to them. The API
 describes itself at `https://api.vamotalent.ai/openapi.json`, and that description wins over this
 file on routes, parameters and fields.

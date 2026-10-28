@@ -4,6 +4,18 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-10-28
+
+- **vamo-ashby 1.0.0 (new)**. Vamo and Ashby together on a hiring pipeline. Your agent reads from both and writes every note and message itself, and the person confirms each write. It covers:
+  - checking which of the three connections are there: Vamo, Ashby's own connector, and Vamo's Ashby connection
+  - reading a job's pipeline and seeing who ships code
+  - finding more people like the strongest candidates
+  - adding Vamo context as notes, work evidence only
+  - starting a search from an Ashby role and leaving out people already in Ashby
+  - saving results to an Ashby job or project
+  - recording outreach
+- **vamo-enrich 1.4.1, vamo-workflows 1.2.1**. Both point Ashby work at `vamo-ashby`.
+
 ## 2026-10-19
 
 - **vamo-troubleshooting 1.3.0, vamo-search 3.3.0, vamo-enrich 1.4.0, vamo-setup 1.2.0**. A
