@@ -4,6 +4,17 @@ Each skill carries its own version in its `SKILL.md` header and in `skills.json`
 alters what an agent should do raises the minor version. A wording or formatting fix raises the
 patch version. A change that makes earlier behavior wrong raises the major version.
 
+## 2026-11-12
+
+- **vamo-outreach 1.1.0**. First messages follow the prompts Vamo's sequence product used, now
+  included as `references/system-prompt.md`. The line about the person's work is one sentence in a
+  fixed shape: "I checked out your `<repository>` project (`<link>`) and was impressed by
+  `<detail>`", or "your work on" for a repository they contributed to, with the detail under 12
+  words. With a sender's template, the agent writes only the `{opener}`; without one, it writes
+  three or four short paragraphs under 120 words. Messages no longer rotate opening styles, which
+  pushed drafts toward long, clever lines that read as written by AI. "Impressed" and "great fit"
+  are allowed again, and the `opening_shape` merge field is gone.
+
 ## 2026-10-19
 
 - **vamo-troubleshooting 1.3.0, vamo-search 3.3.0, vamo-enrich 1.4.0, vamo-setup 1.2.0**. A

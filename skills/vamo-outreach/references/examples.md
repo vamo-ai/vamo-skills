@@ -22,12 +22,16 @@ stale audio when the speaker changes. Active last month.
 
 > Subject: interruptions in `<project>`
 >
-> Hi `<first name>`, `<project>` (`<link>`) drops stale audio as soon as the speaker changes,
-> which is the problem we spend most of our time on. I'm `<sender>`, founder of `<company>`.
-> We're building a voice assistant that answers the phone for clinics, and keeping replies under
-> 300 ms through interruptions is the job. Open to a 20 minute call next week?
+> Hi `<first name>`,
+>
+> I checked out your `<project>` project (`<link>`) and was impressed by how it drops stale audio
+> when the speaker changes.
+>
+> I'm `<sender>`, founder of `<company>`. We're building a voice assistant that answers the phone
+> for clinics, and keeping replies under 300 ms through interruptions is the job. Open to a
+> 20 minute call next week?
 
-60 words. Opens on the repository.
+59 words. One sentence on their work, then the role.
 
 ## 2. They contribute, but do not own
 
@@ -36,12 +40,25 @@ in the buffering code. They own no related repository.
 
 > Subject: buffering in `<project>`
 >
-> Hi `<first name>`, I've been reading your changes to the buffering code in `<project>`
-> (`<link>`). I'm `<sender>`, founder of `<company>`. We're building a voice assistant for
-> clinics, and our hardest problem is the same one: audio arriving late and out of order while
-> people interrupt. Would a 20 minute call next week work?
+> Hi `<first name>`,
+>
+> I checked out your work on `<project>` (`<link>`) and was impressed by your changes to its
+> buffering code.
+>
+> I'm `<sender>`, founder of `<company>`. We're building a voice assistant for clinics, and our
+> hardest problem is audio arriving late and out of order while people interrupt. Would a
+> 20 minute call next week work?
 
-53 words. Opens on how they worked on it, and says "your changes to" instead of "you built".
+55 words. Says "your work on" instead of "your project", because they don't own it.
+
+## What not to write
+
+> `<project>` (`<link>`), `<owner>`'s compiler and runtime for `<language>`, is the kind of shared
+> plumbing a whole engineering org ends up standing on, and you've worked on it.
+
+One sentence, but it explains why the project matters, describes its owner and ends on a flourish.
+Write instead: "I checked out your work on `<project>` (`<link>`) and was impressed by the compiler
+and runtime for `<language>`."
 
 ## 3. Nothing they built relates to the role
 
